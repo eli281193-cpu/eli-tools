@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TimerPro — Online Stopwatch & Countdown Timer | שעון עצר אונליין</title>
+<meta name="description" content="Free online stopwatch, countdown timer, and classroom timer. Easy to use, works instantly. שעון עצר חינמי, טיימר ספירה לאחור, טיימר לכיתה.">
+<meta name="keywords" content="online stopwatch, countdown timer, classroom timer, שעון עצר, טיימר, ספירה לאחור, טיימר כיתה">
+<meta property="og:title" content="TimerPro — Online Stopwatch & Countdown">
+<meta property="og:description" content="Free, fast, beautiful online timer tools. Always available, always free.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #13131a;
+  --bg3: #1c1c26;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --accent: #7c6fff;
+  --accent2: #ff6b6b;
+  --text: #f0f0f5;
+  --text2: #9090a8;
+  --text3: #606078;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* RTL support */
+body[dir="rtl"] { direction: rtl; }
+body[dir="rtl"] .lang-btn-group { flex-direction: row-reverse; }
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lang-btn-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.lang-btn:hover:not(.active) {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--bg2);
+}
+
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text3);
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--text2);
+}
+
+/* ── AD BANNER ── */
+.ad-banner {
+  background: var(--bg3);
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  padding: 1.5rem;
+  margin: 1.5rem 2rem 0;
+  color: var(--text3);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── MAIN CONTENT ── */
+.content-panels {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── STOPWATCH ── */
+.timer-display {
+  text-align: center;
+  padding: 3rem 0 2.5rem;
+}
+
+.timer-digits {
+  font-family: var(--mono);
+  font-size: clamp(3rem, 12vw, 7rem);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.timer-digits.running { color: var(--accent); }
+.timer-digits.warning { color: #ffaa33; }
+.timer-digits.done { color: var(--accent2); }
+
+.timer-ms {
+  font-family: var(--mono);
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  color: var(--text3);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.03em;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover { background: #9087ff; }
+
+.btn-secondary {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+
+.btn-secondary:hover { background: #22222f; }
+
+.btn-danger {
+  background: #ff4040;
+  color: #fff;
+}
+.btn-danger:hover { background: #ff6060; }
+
+/* ── LAP TIMES ── */
+.laps-section {
+  margin-top: 2rem;
+}
+
+.laps-header {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  padding: 0 4px;
+}
+
+.lap-list {
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.lap-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.lap-item:hover { background: var(--bg3); }
+.lap-num { color: var(--text3); font-size: 0.8rem; }
+.lap-time { color: var(--text); }
+.lap-diff { color: var(--text2); font-size: 0.8rem; }
+.lap-best .lap-time { color: #4cde8f; }
+.lap-worst .lap-time { color: var(--accent2); }
+
+/* ── COUNTDOWN ── */
+.countdown-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-input-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-input-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.time-input {
+  font-family: var(--mono);
+  font-size: 2.5rem;
+  font-weight: 700;
+  width: 100px;
+  text-align: center;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 12px 8px;
+  outline: none;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.time-input::-webkit-inner-spin-button,
+.time-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+.time-input:focus { border-color: var(--accent); }
+
+.time-sep {
+  font-family: var(--mono);
+  font-size: 2rem;
+  color: var(--text3);
+  margin-top: -12px;
+}
+
+/* ── PRESET BUTTONS ── */
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.preset-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.preset-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ── CLASSROOM PANEL ── */
+.class-header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+}
+
+.class-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.class-subtitle {
+  color: var(--text2);
+  font-size: 0.9rem;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 1.5rem;
+}
+
+.class-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.class-card:hover {
+  border-color: var(--accent);
+  background: var(--bg3);
+  transform: translateY(-2px);
+}
+
+.class-card-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.class-card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.class-card-sub {
+  color: var(--text3);
+  font-size: 0.8rem;
+}
+
+/* ── FULLSCREEN OVERLAY ── */
+#fullscreen-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#fullscreen-overlay.active { display: flex; }
+
+#fullscreen-overlay .timer-digits {
+  font-size: clamp(5rem, 25vw, 18rem);
+}
+
+.fullscreen-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+/* ── BOTTOM AD ── */
+.ad-bottom {
+  background: var(--bg3);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  padding: 2rem;
+  color: var(--text3);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+  color: var(--text3);
+  font-size: 0.8rem;
+  line-height: 2;
+}
+
+footer a { color: var(--text2); text-decoration: none; }
+footer a:hover { color: var(--text); }
+
+/* ── ANIMATIONS ── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.running .colon { animation: pulse 1s infinite; }
+
+@keyframes flash {
+  0%, 100% { background: var(--bg); }
+  50% { background: rgba(255, 107, 107, 0.12); }
+}
+
+body.alarm-flash { animation: flash 0.3s 6; }
+
+/* ── SOUND TOGGLE ── */
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text2);
+  cursor: pointer;
+}
+
+.sound-toggle input { accent-color: var(--accent); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  header { padding: 1rem; }
+  .nav-tabs { padding: 0 1rem; }
+  .ad-banner { margin: 1rem 1rem 0; }
+  .content-panels { padding: 1.5rem 1rem 3rem; }
+  .time-input { width: 80px; font-size: 2rem; }
+  .controls { gap: 8px; }
+  .btn { padding: 11px 22px; font-size: 0.85rem; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║           HEADER                ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<header>
+  <a href="#" class="logo">
+    <span class="logo-dot"></span>
+    TimerPro
+  </a>
+  <div class="header-right">
+    <div class="lang-btn-group">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-he" onclick="setLang('he')">עב</button>
+    </div>
+  </div>
+</header>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║            NAV TABS             ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('stopwatch')" id="tab-stopwatch" data-en="⏱ Stopwatch" data-he="⏱ שעון עצר">⏱ Stopwatch</button>
+  <button class="tab-btn" onclick="switchTab('countdown')" id="tab-countdown" data-en="⏳ Countdown" data-he="⏳ ספירה לאחור">⏳ Countdown</button>
+  <button class="tab-btn" onclick="switchTab('classroom')" id="tab-classroom" data-en="🏫 Classroom Timers" data-he="🏫 טיימרי כיתה">🏫 Classroom Timers</button>
+</nav>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║         TOP AD BANNER           ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<div class="ad-banner" id="ad-top">
+  <!-- ADSENSE: Replace entire div content with AdSense ad unit -->
+  <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXX" data-ad-slot="XXXXXXXX" data-ad-format="auto"></ins> -->
+  <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <span id="ad-placeholder-text">Advertisement</span>
+</div>
+
+<!-- ╔══════════════════════════════════╗ -->
+<!-- ║         MAIN CONTENT            ║ -->
+<!-- ╚══════════════════════════════════╝ -->
+<main class="content-panels">
+
+  <!-- ── STOPWATCH PANEL ── -->
+  <section class="panel active" id="panel-stopwatch">
+    <div class="timer-display">
+      <div class="timer-digits" id="sw-display">00<span class="colon">:</span>00<span class="colon">:</span>00</div>
+      <div class="timer-ms" id="sw-ms">.000</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="sw-start-btn" onclick="swStartStop()">
+        <span data-en="Start" data-he="התחל">Start</span>
+      </button>
+      <button class="btn btn-secondary" onclick="swLap()" id="sw-lap-btn" disabled>
+        <span data-en="Lap" data-he="סיבוב">Lap</span>
+      </button>
+      <button class="btn btn-secondary" onclick="swReset()" id="sw-reset-btn">
+        <span data-en="Reset" data-he="אפס">Reset</span>
+      </button>
+      <button class="btn btn-secondary" onclick="openFullscreen('stopwatch')" title="Fullscreen">
+        ⛶
+      </button>
+    </div>
+
+    <div class="laps-section" id="laps-section" style="display:none">
+      <div class="laps-header" data-en="Lap Times" data-he="זמני סיבובים">Lap Times</div>
+      <ul class="lap-list" id="lap-list"></ul>
+    </div>
+  </section>
+
+  <!-- ── COUNTDOWN PANEL ── -->
+  <section class="panel" id="panel-countdown">
+    <div class="countdown-setup" id="cd-setup">
+      <div class="time-inputs">
+        <div class="time-input-wrap">
+          <span class="time-input-label" data-en="Hours" data-he="שעות">Hours</span>
+          <input type="number" class="time-input" id="cd-h" value="0" min="0" max="99" placeholder="00">
+        </div>
+        <span class="time-sep">:</span>
+        <div class="time-input-wrap">
+          <span class="time-input-label" data-en="Minutes" data-he="דקות">Minutes</span>
+          <input type="number" class="time-input" id="cd-m" value="5" min="0" max="59" placeholder="00">
+        </div>
+        <span class="time-sep">:</span>
+        <div class="time-input-wrap">
+          <span class="time-input-label" data-en="Seconds" data-he="שניות">Seconds</span>
+          <input type="number" class="time-input" id="cd-s" value="0" min="0" max="59" placeholder="00">
+        </div>
+      </div>
+
+      <div class="presets">
+        <button class="preset-btn" onclick="setPreset(1,0,0)" data-en="1 hour" data-he="שעה">1 hour</button>
+        <button class="preset-btn" onclick="setPreset(0,45,0)" data-en="45 min" data-he="45 דק'">45 min</button>
+        <button class="preset-btn" onclick="setPreset(0,30,0)" data-en="30 min" data-he="30 דק'">30 min</button>
+        <button class="preset-btn" onclick="setPreset(0,15,0)" data-en="15 min" data-he="15 דק'">15 min</button>
+        <button class="preset-btn" onclick="setPreset(0,10,0)" data-en="10 min" data-he="10 דק'">10 min</button>
+        <button class="preset-btn" onclick="setPreset(0,5,0)" data-en="5 min" data-he="5 דק'">5 min</button>
+        <button class="preset-btn" onclick="setPreset(0,3,0)" data-en="3 min" data-he="3 דק'">3 min</button>
+        <button class="preset-btn" onclick="setPreset(0,1,0)" data-en="1 min" data-he="דקה">1 min</button>
+        <button class="preset-btn" onclick="setPreset(0,0,30)" data-en="30 sec" data-he="30 שנ'">30 sec</button>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary" onclick="cdStart()">
+          <span data-en="Start" data-he="התחל">Start</span>
+        </button>
+        <button class="btn btn-secondary" onclick="openFullscreen('countdown')">⛶</button>
+      </div>
+    </div>
+
+    <div class="timer-display" id="cd-running" style="display:none">
+      <div class="timer-digits" id="cd-display">00<span class="colon">:</span>00<span class="colon">:</span>00</div>
+      <div class="timer-ms" id="cd-progress-bar" style="width:100%; height:4px; background:var(--bg3); border-radius:2px; margin:1.5rem auto; max-width:400px; overflow:hidden;">
+        <div id="cd-bar-fill" style="height:100%; background:var(--accent); width:100%; transition:width 0.5s linear; border-radius:2px;"></div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="cd-pause-btn" onclick="cdPauseResume()">
+          <span data-en="Pause" data-he="עצור">Pause</span>
+        </button>
+        <button class="btn btn-secondary" onclick="cdStop()">
+          <span data-en="Reset" data-he="אפס">Reset</span>
+        </button>
+        <button class="btn btn-secondary" onclick="openFullscreen('countdown')">⛶</button>
+        <label class="sound-toggle">
+          <input type="checkbox" id="sound-toggle" checked>
+          <span data-en="Sound" data-he="צליל">Sound</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="timer-display" id="cd-done" style="display:none">
+      <div class="timer-digits done">00<span class="colon">:</span>00<span class="colon">:</span>00</div>
+      <p style="color:var(--accent2);margin-top:1rem;font-size:1.5rem;" data-en="⏰ Time's up!" data-he="⏰ הזמן נגמר!">⏰ Time's up!</p>
+      <div class="controls" style="margin-top:2rem;">
+        <button class="btn btn-primary" onclick="cdRestart()">
+          <span data-en="Again" data-he="שוב">Again</span>
+        </button>
+        <button class="btn btn-secondary" onclick="cdStop()">
+          <span data-en="New Timer" data-he="טיימר חדש">New Timer</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CLASSROOM PANEL ── -->
+  <section class="panel" id="panel-classroom">
+    <div class="class-header">
+      <div class="class-title" data-en="Classroom Timers" data-he="טיימרי כיתה">Classroom Timers</div>
+      <div class="class-subtitle" data-en="Quick timers designed for teachers and students" data-he="טיימרים מהירים לכיתה ולמורים">Quick timers designed for teachers and students</div>
+    </div>
+
+    <div class="class-grid">
+      <div class="class-card" onclick="classQuick(5)">
+        <div class="class-card-icon">✏️</div>
+        <div class="class-card-title" data-en="Quick Task" data-he="משימה מהירה">Quick Task</div>
+        <div class="class-card-sub">5 <span data-en="minutes" data-he="דקות">minutes</span></div>
+      </div>
+      <div class="class-card" onclick="classQuick(10)">
+        <div class="class-card-icon">📖</div>
+        <div class="class-card-title" data-en="Reading Time" data-he="זמן קריאה">Reading Time</div>
+        <div class="class-card-sub">10 <span data-en="minutes" data-he="דקות">minutes</span></div>
+      </div>
+      <div class="class-card" onclick="classQuick(20)">
+        <div class="class-card-icon">📝</div>
+        <div class="class-card-title" data-en="Written Test" data-he="מבחן כתוב">Written Test</div>
+        <div class="class-card-sub">20 <span data-en="minutes" data-he="דקות">minutes</span></div>
+      </div>
+      <div class="class-card" onclick="classQuick(45)">
+        <div class="class-card-icon">🏫</div>
+        <div class="class-card-title" data-en="Full Lesson" data-he="שיעור מלא">Full Lesson</div>
+        <div class="class-card-sub">45 <span data-en="minutes" data-he="דקות">minutes</span></div>
+      </div>
+      <div class="class-card" onclick="classQuick(2)">
+        <div class="class-card-icon">🤫</div>
+        <div class="class-card-title" data-en="Quiet Down" data-he="שקט בכיתה">Quiet Down</div>
+        <div class="class-card-sub">2 <span data-en="minutes" data-he="דקות">minutes</span></div>
+      </div>
+      <div class="class-card" onclick="switchTab('stopwatch')">
+        <div class="class-card-icon">🏃</div>
+        <div class="class-card-title" data-en="Race Timer" data-he="טיימר תחרות">Race Timer</div>
+        <div class="class-card-sub" data-en="Open stopwatch" data-he="פתח שעון עצר">Open stopwatch</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── BOTTOM AD ── -->
+<div class="ad-bottom" id="ad-bottom">
+  <!-- ADSENSE: Replace entire div content with AdSense ad unit -->
+  <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXX" data-ad-slot="YYYYYYYY" data-ad-format="auto"></ins> -->
+  <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  <span id="ad-bottom-text">Advertisement</span>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div id="footer-text">
+    TimerPro &nbsp;·&nbsp; Free Online Timers &nbsp;·&nbsp;
+    <a href="#" data-en="Privacy Policy" data-he="מדיניות פרטיות">Privacy Policy</a>
+    &nbsp;·&nbsp;
+    <a href="#" data-en="Contact" data-he="צור קשר">Contact</a>
+  </div>
+  <div style="margin-top:0.5rem; font-size:0.75rem; color:var(--text3)" id="footer-sub">
+    Works on all devices. No login required. Always free.
+  </div>
+</footer>
+
+<!-- ── FULLSCREEN OVERLAY ── -->
+<div id="fullscreen-overlay">
+  <div class="timer-digits" id="fs-display">00:00:00</div>
+  <div style="margin-top:1.5rem;display:flex;gap:12px" id="fs-controls">
+    <button class="btn btn-primary" id="fs-action-btn" onclick="fsAction()">Pause</button>
+    <button class="btn btn-secondary" onclick="closeFullscreen()">Exit</button>
+  </div>
+  <button class="fullscreen-close" onclick="closeFullscreen()">✕ Exit Fullscreen</button>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- JS                                         -->
+<!-- ══════════════════════════════════════════ -->
+<script>
+// ── LANGUAGE ──────────────────────────────────────
+let currentLang = 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-he').classList.toggle('active', lang === 'he');
+  document.body.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.dataset[lang] || el.dataset.en;
+  });
+  document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+    if (el.tagName !== 'BUTTON' && el.tagName !== 'DIV' && el.tagName !== 'P') return;
+    if (el.children.length > 0) return;
+    el.textContent = el.dataset[lang];
+  });
+  // Re-apply to spans with data-en inside buttons
+  document.querySelectorAll('span[data-en]').forEach(el => {
+    el.textContent = el.dataset[lang] || el.dataset.en;
+  });
+}
+
+// ── TAB SWITCHING ─────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── STOPWATCH ─────────────────────────────────────
+let swRunning = false, swStartTime = 0, swElapsed = 0, swTimer = null;
+let lapTimes = [], lastLap = 0;
+
+function swFormat(ms, showMs = true) {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  const mss = ms % 1000;
+  const pad = n => String(n).padStart(2, '0');
+  return { h: pad(h), m: pad(m), s: pad(s), ms: String(mss).padStart(3, '0') };
+}
+
+function swUpdateDisplay() {
+  const now = swRunning ? Date.now() - swStartTime + swElapsed : swElapsed;
+  const f = swFormat(now);
+  const sep = `<span class="colon">:</span>`;
+  document.getElementById('sw-display').innerHTML = `${f.h}${sep}${f.m}${sep}${f.s}`;
+  document.getElementById('sw-ms').textContent = '.' + f.ms;
+  if (swRunning) swTimer = requestAnimationFrame(swUpdateDisplay);
+}
+
+function swStartStop() {
+  const btn = document.getElementById('sw-start-btn');
+  const lapBtn = document.getElementById('sw-lap-btn');
+  const span = btn.querySelector('span');
+  if (!swRunning) {
+    swStartTime = Date.now();
+    swRunning = true;
+    document.getElementById('sw-display').classList.add('running');
+    span.textContent = currentLang === 'he' ? 'עצור' : 'Stop';
+    span.dataset.en = 'Stop'; span.dataset.he = 'עצור';
+    lapBtn.disabled = false;
+    swTimer = requestAnimationFrame(swUpdateDisplay);
+  } else {
+    swElapsed += Date.now() - swStartTime;
+    swRunning = false;
+    cancelAnimationFrame(swTimer);
+    document.getElementById('sw-display').classList.remove('running');
+    span.textContent = currentLang === 'he' ? 'המשך' : 'Resume';
+    span.dataset.en = 'Resume'; span.dataset.he = 'המשך';
+  }
+}
+
+function swReset() {
+  swRunning = false;
+  cancelAnimationFrame(swTimer);
+  swElapsed = 0; lastLap = 0;
+  lapTimes = [];
+  document.getElementById('sw-display').classList.remove('running');
+  document.getElementById('sw-display').innerHTML = `00<span class="colon">:</span>00<span class="colon">:</span>00`;
+  document.getElementById('sw-ms').textContent = '.000';
+  const span = document.getElementById('sw-start-btn').querySelector('span');
+  span.textContent = currentLang === 'he' ? 'התחל' : 'Start';
+  span.dataset.en = 'Start'; span.dataset.he = 'התחל';
+  document.getElementById('sw-lap-btn').disabled = true;
+  document.getElementById('laps-section').style.display = 'none';
+  document.getElementById('lap-list').innerHTML = '';
+}
+
+function swLap() {
+  const now = swRunning ? Date.now() - swStartTime + swElapsed : swElapsed;
+  const diff = now - lastLap;
+  lapTimes.push({ total: now, diff });
+  lastLap = now;
+  renderLaps();
+  document.getElementById('laps-section').style.display = 'block';
+}
+
+function renderLaps() {
+  const diffs = lapTimes.map(l => l.diff);
+  const best = Math.min(...diffs), worst = Math.max(...diffs);
+  const list = document.getElementById('lap-list');
+  list.innerHTML = lapTimes.slice().reverse().map((lap, i) => {
+    const num = lapTimes.length - i;
+    const cls = lap.diff === best ? 'lap-best' : lap.diff === worst ? 'lap-worst' : '';
+    const ft = swFormat(lap.total), fd = swFormat(lap.diff);
+    const sep = ':';
+    return `<li class="lap-item ${cls}">
+      <span class="lap-num">#${String(num).padStart(2, '0')}</span>
+      <span class="lap-time">${fd.h}:${fd.m}:${fd.s}.${fd.ms}</span>
+      <span class="lap-diff">${ft.h}:${ft.m}:${ft.s}</span>
+    </li>`;
+  }).join('');
+}
+
+// ── COUNTDOWN ─────────────────────────────────────
+let cdTotal = 0, cdRemaining = 0, cdRunning = false, cdTimer = null, cdStartTs = 0, cdElapsedAtPause = 0;
+
+function setPreset(h, m, s) {
+  document.getElementById('cd-h').value = h;
+  document.getElementById('cd-m').value = m;
+  document.getElementById('cd-s').value = s;
+}
+
+function cdGetInputMs() {
+  const h = parseInt(document.getElementById('cd-h').value) || 0;
+  const m = parseInt(document.getElementById('cd-m').value) || 0;
+  const s = parseInt(document.getElementById('cd-s').value) || 0;
+  return (h * 3600 + m * 60 + s) * 1000;
+}
+
+function cdStart() {
+  const ms = cdGetInputMs();
+  if (ms <= 0) return;
+  cdTotal = ms;
+  cdRemaining = ms;
+  cdElapsedAtPause = 0;
+  cdRunning = true;
+  cdStartTs = Date.now();
+  document.getElementById('cd-setup').style.display = 'none';
+  document.getElementById('cd-running').style.display = 'block';
+  document.getElementById('cd-done').style.display = 'none';
+  document.getElementById('cd-display').classList.add('running');
+  cdTick();
+}
+
+function cdTick() {
+  if (!cdRunning) return;
+  const elapsed = Date.now() - cdStartTs + cdElapsedAtPause;
+  cdRemaining = Math.max(0, cdTotal - elapsed);
+  const pct = (cdRemaining / cdTotal) * 100;
+  document.getElementById('cd-bar-fill').style.width = pct + '%';
+  if (cdRemaining <= 10000) {
+    document.getElementById('cd-bar-fill').style.background = '#ff4040';
+  } else if (cdRemaining <= 60000) {
+    document.getElementById('cd-bar-fill').style.background = '#ffaa33';
+  } else {
+    document.getElementById('cd-bar-fill').style.background = 'var(--accent)';
+  }
+  const f = swFormat(cdRemaining);
+  const sep = `<span class="colon">:</span>`;
+  document.getElementById('cd-display').innerHTML = `${f.h}${sep}${f.m}${sep}${f.s}`;
+  if (cdRemaining <= 0) { cdFinish(); return; }
+  cdTimer = requestAnimationFrame(cdTick);
+}
+
+function cdPauseResume() {
+  const btn = document.getElementById('cd-pause-btn').querySelector('span');
+  if (cdRunning) {
+    cdElapsedAtPause += Date.now() - cdStartTs;
+    cdRunning = false;
+    cancelAnimationFrame(cdTimer);
+    btn.textContent = currentLang === 'he' ? 'המשך' : 'Resume';
+    btn.dataset.en = 'Resume'; btn.dataset.he = 'המשך';
+    document.getElementById('cd-display').classList.remove('running');
+  } else {
+    cdRunning = true;
+    cdStartTs = Date.now();
+    btn.textContent = currentLang === 'he' ? 'עצור' : 'Pause';
+    btn.dataset.en = 'Pause'; btn.dataset.he = 'עצור';
+    document.getElementById('cd-display').classList.add('running');
+    cdTick();
+  }
+}
+
+function cdFinish() {
+  cdRunning = false;
+  cancelAnimationFrame(cdTimer);
+  document.getElementById('cd-running').style.display = 'none';
+  document.getElementById('cd-done').style.display = 'block';
+  if (document.getElementById('sound-toggle').checked) playAlarm();
+  document.body.classList.add('alarm-flash');
+  setTimeout(() => document.body.classList.remove('alarm-flash'), 2000);
+}
+
+function cdStop() {
+  cdRunning = false;
+  cancelAnimationFrame(cdTimer);
+  document.getElementById('cd-setup').style.display = 'flex';
+  document.getElementById('cd-running').style.display = 'none';
+  document.getElementById('cd-done').style.display = 'none';
+  const btn = document.getElementById('cd-pause-btn').querySelector('span');
+  btn.textContent = currentLang === 'he' ? 'עצור' : 'Pause';
+  btn.dataset.en = 'Pause'; btn.dataset.he = 'עצור';
+}
+
+function cdRestart() {
+  cdRemaining = cdTotal;
+  cdElapsedAtPause = 0;
+  cdRunning = true;
+  cdStartTs = Date.now();
+  document.getElementById('cd-running').style.display = 'block';
+  document.getElementById('cd-done').style.display = 'none';
+  document.getElementById('cd-bar-fill').style.background = 'var(--accent)';
+  cdTick();
+}
+
+// ── CLASSROOM SHORTCUTS ───────────────────────────
+function classQuick(minutes) {
+  document.getElementById('cd-h').value = 0;
+  document.getElementById('cd-m').value = minutes;
+  document.getElementById('cd-s').value = 0;
+  switchTab('countdown');
+  cdStart();
+}
+
+// ── SOUND ─────────────────────────────────────────
+function playAlarm() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(t => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.5, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.4);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.4);
+    });
+  } catch(e) {}
+}
+
+// ── FULLSCREEN ────────────────────────────────────
+let fsMode = 'stopwatch';
+
+function openFullscreen(mode) {
+  fsMode = mode;
+  document.getElementById('fullscreen-overlay').classList.add('active');
+  fsUpdate();
+  if (mode === 'stopwatch') {
+    document.getElementById('fs-action-btn').textContent = swRunning ? 'Pause' : 'Start';
+  } else {
+    document.getElementById('fs-action-btn').textContent = cdRunning ? 'Pause' : 'Start';
+  }
+}
+
+function fsAction() {
+  if (fsMode === 'stopwatch') {
+    swStartStop();
+    document.getElementById('fs-action-btn').textContent = swRunning ? 'Pause' : 'Start';
+  } else {
+    cdPauseResume();
+    document.getElementById('fs-action-btn').textContent = cdRunning ? 'Pause' : 'Resume';
+  }
+}
+
+function fsUpdate() {
+  const src = fsMode === 'stopwatch' ? 'sw-display' : 'cd-display';
+  const el = document.getElementById(src);
+  if (el) document.getElementById('fs-display').innerHTML = el.innerHTML;
+  if (document.getElementById('fullscreen-overlay').classList.contains('active')) {
+    requestAnimationFrame(fsUpdate);
+  }
+}
+
+function closeFullscreen() {
+  document.getElementById('fullscreen-overlay').classList.remove('active');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeFullscreen();
+  if (e.code === 'Space' && document.getElementById('panel-stopwatch').classList.contains('active')) {
+    e.preventDefault();
+    swStartStop();
+  }
+});
+</script>
+
+<!-- Cookie Banner -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#13131a;border-top:1px solid #2a2a3a;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;z-index:9999;flex-wrap:wrap;">
+  <p style="font-size:0.85rem;color:#9090a8;flex:1;min-width:200px;">
+    אנחנו משתמשים בעוגיות לצורך הצגת פרסומות · We use cookies for advertising.
+    <a href="/privacy" style="color:#7c6fff;">מדיניות פרטיות · Privacy Policy</a>
+  </p>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="cookieDecline()" style="font-family:inherit;font-size:0.85rem;font-weight:600;padding:8px 20px;border-radius:100px;border:1px solid #2a2a3a;background:#1c1c26;color:#9090a8;cursor:pointer;">דחה · Decline</button>
+    <button onclick="cookieAccept()" style="font-family:inherit;font-size:0.85rem;font-weight:600;padding:8px 20px;border-radius:100px;border:none;background:#7c6fff;color:#fff;cursor:pointer;">אני מסכים · Accept</button>
+  </div>
+</div>
+<script>
+if (!localStorage.getItem('cookie-consent')) {
+  document.getElementById('cookie-banner').style.display = 'flex';
+}
+function cookieAccept() {
+  localStorage.setItem('cookie-consent', 'accepted');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+function cookieDecline() {
+  localStorage.setItem('cookie-consent', 'declined');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+</script>
+</body>
+</html>

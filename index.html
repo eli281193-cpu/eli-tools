@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eli Tools — כלים אונליין חינמיים | Free Online Tools</title>
+<meta name="description" content="כלים אונליין חינמיים — שעון עצר, טיימר ספירה לאחור, טיימר לכיתה. Free online tools — stopwatch, countdown timer, classroom timer.">
+<meta name="keywords" content="שעון עצר, טיימר, ספירה לאחור, online stopwatch, countdown timer, free timer">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0a0a0f;
+  color: #f0f0f5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: #9090a8;
+  font-size: 0.95rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+.tool-card {
+  background: #1c1c26;
+  border: 1px solid #2a2a3a;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  color: #f0f0f5;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.tool-card:hover {
+  background: #22222f;
+  border-color: #7c6fff;
+  transform: translateY(-3px);
+}
+.tool-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.tool-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+.tool-desc { font-size: 0.8rem; color: #606078; }
+
+/* Ad area */
+.ad-area {
+  width: 100%;
+  max-width: 700px;
+  background: #13131a;
+  border: 1px dashed #2a2a3a;
+  border-radius: 12px;
+  text-align: center;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  color: #404058;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+footer {
+  color: #404058;
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 2;
+}
+footer a { color: #606078; text-decoration: none; }
+footer a:hover { color: #9090a8; }
+
+/* Cookie banner */
+#cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #13131a;
+  border-top: 1px solid #2a2a3a;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 999;
+  flex-wrap: wrap;
+}
+.cookie-text {
+  font-size: 0.85rem;
+  color: #9090a8;
+  flex: 1;
+  min-width: 200px;
+}
+.cookie-text a { color: #7c6fff; }
+.cookie-btns { display: flex; gap: 8px; flex-shrink: 0; }
+.cookie-btn {
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cookie-accept { background: #7c6fff; color: #fff; }
+.cookie-accept:hover { background: #9087ff; }
+.cookie-decline { background: #1c1c26; color: #9090a8; border: 1px solid #2a2a3a; }
+.cookie-decline:hover { background: #22222f; }
+
+@media (max-width: 500px) {
+  h1 { font-size: 1.6rem; }
+  #cookie-banner { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<h1>🛠 Eli Tools</h1>
+<p class="subtitle" id="subtitle">כלים אונליין חינמיים · Free Online Tools</p>
+
+<!-- Ad top -->
+<div class="ad-area">
+  <!-- AdSense ad unit — replace with real unit after approval -->
+  <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6168265823535489" data-ad-slot="XXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
+  <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+  Advertisement
+</div>
+
+<div class="tools-grid">
+  <a href="/timer" class="tool-card">
+    <div class="tool-icon">⏱</div>
+    <div class="tool-name" data-he="שעון עצר" data-en="Stopwatch">שעון עצר</div>
+    <div class="tool-desc" data-he="עם סיבובים ומסך מלא" data-en="With laps & fullscreen">עם סיבובים ומסך מלא</div>
+  </a>
+  <a href="/timer#countdown" class="tool-card">
+    <div class="tool-icon">⏳</div>
+    <div class="tool-name" data-he="ספירה לאחור" data-en="Countdown">ספירה לאחור</div>
+    <div class="tool-desc" data-he="עם התראה קולית" data-en="With sound alert">עם התראה קולית</div>
+  </a>
+  <a href="/timer#classroom" class="tool-card">
+    <div class="tool-icon">🏫</div>
+    <div class="tool-name" data-he="טיימר לכיתה" data-en="Classroom Timer">טיימר לכיתה</div>
+    <div class="tool-desc" data-he="5, 10, 20, 45 דקות" data-en="5, 10, 20, 45 min">5, 10, 20, 45 דקות</div>
+  </a>
+</div>
+
+<!-- Ad bottom -->
+<div class="ad-area">
+  Advertisement
+</div>
+
+<footer>
+  <a href="/privacy">מדיניות פרטיות · Privacy Policy</a>
+  &nbsp;·&nbsp;
+  <span>© 2026 Eli Tools</span>
+  &nbsp;·&nbsp;
+  <span>Free · No login · Always available</span>
+</footer>
+
+<!-- Cookie Banner -->
+<div id="cookie-banner" style="display:none">
+  <p class="cookie-text">
+    אנחנו משתמשים בעוגיות לצורך הצגת פרסומות.
+    We use cookies for advertising purposes.
+    <a href="/privacy">מדיניות פרטיות · Privacy Policy</a>
+  </p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-decline" onclick="cookieDecline()">דחה · Decline</button>
+    <button class="cookie-btn cookie-accept" onclick="cookieAccept()">אני מסכים · Accept</button>
+  </div>
+</div>
+
+<script>
+// Cookie consent
+if (!localStorage.getItem('cookie-consent')) {
+  document.getElementById('cookie-banner').style.display = 'flex';
+}
+function cookieAccept() {
+  localStorage.setItem('cookie-consent', 'accepted');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+function cookieDecline() {
+  localStorage.setItem('cookie-consent', 'declined');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+</script>
+</body>
+</html>
