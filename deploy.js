@@ -186,7 +186,7 @@ async function main() {
     console.log(`📦 יוצר פרויקט Pages '${REPO_NAME}'...`);
     const create = spawnSync(
       "npx", ["wrangler", "pages", "project", "create", REPO_NAME, "--production-branch", "main"],
-      { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env } }
+      { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env }, shell: true }
     );
     if (create.status !== 0) {
       console.error(`\n❌ יצירת פרויקט Pages '${REPO_NAME}' נכשלה`);
@@ -196,14 +196,14 @@ async function main() {
 
   let deploy = spawnSync(
     "npx", ["wrangler", "pages", "deploy", ".", "--project-name", REPO_NAME, "--commit-dirty=true"],
-    { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env } }
+    { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env }, shell: true }
   );
 
   if (deploy.status !== 0) {
     console.log("⚠️  נסיון שני...");
     deploy = spawnSync(
       "npx", ["wrangler", "pages", "deploy", ".", "--project-name", REPO_NAME, "--commit-dirty=true", "--branch", "main"],
-      { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env } }
+      { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env }, shell: true }
     );
   }
 
