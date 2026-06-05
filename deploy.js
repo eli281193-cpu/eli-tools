@@ -83,7 +83,7 @@ async function main() {
 
   // ── 3. .gitignore ─────────────────────────────────────────────────────────
   const gitignorePath = path.join(__dirname, ".gitignore");
-  writeFileSync(gitignorePath, ".env\n.env.*\nnode_modules/\n.DS_Store\nThumbs.db\n");
+  writeFileSync(gitignorePath, ".env\n.env.*\nnode_modules/\n.wrangler/\n.DS_Store\nThumbs.db\n");
   console.log("✅ .gitignore מעודכן\n");
 
   // ── 4. Git init ───────────────────────────────────────────────────────────
@@ -174,12 +174,14 @@ async function main() {
     execSync("npm install -g wrangler", { stdio: "inherit" });
   }
 
-  // ודא שפרויקט ה-Pages קיים — wrangler לא יוצר אותו אוטומטית ב-deploy
-  const projectList = spawnSync(
-    "npx", ["wrangler", "pages", "project", "list"],
-    { encoding: "utf8", cwd: __dirname, stdio: "pipe", env: { ...process.env } }
-  );
-  const projectExists = (projectList.stdout || "").includes(REPO_NAME);
+  // ודא שפרויקט ה-Pages קיים — wrangler לא יוצר אותו אוטומטית ב-deploy.
+  // בודקים מול ה-API ישירות (אמין יותר מפענוח פלט הטבלה של wrangler).
+  const check = spawnSync("curl", [
+    "-s",
+    "-H", `Authorization: Bearer ${CF_TOKEN}`,
+    `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/pages/projects/${REPO_NAME}`
+  ], { encoding: "utf8", cwd: __dirname, stdio: "pipe" });
+  const projectExists = /"success"\s*:\s*true/.test(check.stdout || "");
   if (!projectExists) {
     console.log(`📦 יוצר פרויקט Pages '${REPO_NAME}'...`);
     const create = spawnSync(
