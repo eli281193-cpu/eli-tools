@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מחשבון טיפ אונליין | Online Tip Calculator — Eli Tools</title>
+<meta name="description" content="מחשבון טיפ חינמי — חשב טיפ וחלוקה בין סועדים. Free online tip calculator — calculate tip and split the bill between people.">
+<meta name="keywords" content="מחשבון טיפ, חישוב טיפ, חלוקת חשבון, tip calculator, gratuity, split bill">
+<meta property="og:title" content="Tip Calculator — מחשבון טיפ">
+<meta property="og:description" content="Free, fast, bilingual tip & bill-split calculator. Always available, always free.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #13131a;
+  --bg3: #1c1c26;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --accent: #7c6fff;
+  --accent2: #ff6b6b;
+  --text: #f0f0f5;
+  --text2: #9090a8;
+  --text3: #606078;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body[dir="rtl"] { direction: rtl; }
+body[dir="rtl"] .lang-btn-group { flex-direction: row-reverse; }
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+.header-right { display: flex; align-items: center; gap: 1rem; }
+.lang-btn-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.lang-btn.active { background: var(--accent); color: #fff; }
+.lang-btn:hover:not(.active) { background: var(--bg3); color: var(--text); }
+
+/* ── AD BANNER ── */
+.ad-banner {
+  background: var(--bg3);
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  padding: 1.5rem;
+  margin: 1.5rem 2rem 0;
+  color: var(--text3);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── MAIN ── */
+.content {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+.page-title {
+  text-align: center;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+.page-sub {
+  text-align: center;
+  color: var(--text2);
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1.75rem;
+}
+
+.field { margin-bottom: 1.5rem; }
+.field-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.input-wrap { position: relative; }
+.field-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  padding: 0.9rem 3.2rem 0.9rem 1rem;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+body[dir="rtl"] .field-input { padding: 0.9rem 1rem 0.9rem 3.2rem; }
+.field-input::-webkit-outer-spin-button,
+.field-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.field-input:focus { outline: none; border-color: var(--accent); }
+.field-unit {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 1rem;
+  color: var(--text3);
+  font-size: 0.9rem;
+  font-family: var(--sans);
+  pointer-events: none;
+}
+body[dir="rtl"] .field-unit { right: auto; left: 1rem; }
+
+/* tip % presets */
+.presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.preset-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.preset-btn:hover { border-color: var(--border2); color: var(--text); }
+.preset-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+/* ── RESULT ── */
+.result {
+  margin-top: 1.5rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.5rem;
+}
+.result-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.65rem 0;
+}
+.result-row + .result-row { border-top: 1px solid var(--border); }
+.result-row.total { padding-top: 1rem; }
+.result-label { color: var(--text2); font-size: 0.9rem; }
+.result-num {
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.result-row.total .result-label { color: var(--text); font-weight: 600; font-size: 1rem; }
+.result-row.total .result-num { color: var(--accent); font-size: 1.7rem; }
+
+footer {
+  color: var(--text3);
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 2;
+  padding: 2rem 1rem 3rem;
+}
+footer a { color: var(--text2); text-decoration: none; }
+footer a:hover { color: var(--text); }
+
+@media (max-width: 500px) {
+  header { padding: 1rem 1.25rem; }
+  .ad-banner { margin: 1.25rem 1.25rem 0; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">
+    <span class="logo-dot"></span>
+    Eli Tools
+  </a>
+  <div class="header-right">
+    <div class="lang-btn-group">
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn active" id="btn-he" onclick="setLang('he')">עב</button>
+    </div>
+  </div>
+</header>
+
+<!-- Ad top -->
+<div class="ad-banner" data-en="Advertisement" data-he="פרסומת">פרסומת</div>
+
+<main class="content">
+  <h1 class="page-title" data-en="Tip Calculator" data-he="מחשבון טיפ">מחשבון טיפ</h1>
+  <p class="page-sub" data-en="Calculate the tip and split the bill" data-he="חשבו טיפ וחלקו את החשבון">חשבו טיפ וחלקו את החשבון</p>
+
+  <div class="card">
+    <div class="field">
+      <label class="field-label" for="bill" data-en="Bill amount" data-he="סכום החשבון">סכום החשבון</label>
+      <div class="input-wrap">
+        <input class="field-input" type="number" id="bill" inputmode="decimal" placeholder="0" min="0" oninput="calcTip()">
+        <span class="field-unit">₪</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" data-en="Tip percentage" data-he="אחוז הטיפ">אחוז הטיפ</label>
+      <div class="presets" id="presets">
+        <button class="preset-btn" onclick="setTip(10, this)">10%</button>
+        <button class="preset-btn active" onclick="setTip(15, this)">15%</button>
+        <button class="preset-btn" onclick="setTip(18, this)">18%</button>
+        <button class="preset-btn" onclick="setTip(20, this)">20%</button>
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field" style="margin-bottom:0;">
+        <label class="field-label" for="custom" data-en="Custom %" data-he="אחוז מותאם">אחוז מותאם</label>
+        <div class="input-wrap">
+          <input class="field-input" type="number" id="custom" inputmode="decimal" placeholder="15" min="0" oninput="setCustom()">
+          <span class="field-unit">%</span>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label class="field-label" for="people" data-en="People" data-he="מספר סועדים">מספר סועדים</label>
+        <div class="input-wrap">
+          <input class="field-input" type="number" id="people" inputmode="numeric" value="1" min="1" oninput="calcTip()">
+          <span class="field-unit" data-en="ppl" data-he="א'">א'</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result">
+      <div class="result-row">
+        <span class="result-label" data-en="Tip amount" data-he="סכום הטיפ">סכום הטיפ</span>
+        <span class="result-num" id="tipAmount">₪0.00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label" data-en="Per person" data-he="לכל אדם">לכל אדם</span>
+        <span class="result-num" id="perPerson">₪0.00</span>
+      </div>
+      <div class="result-row total">
+        <span class="result-label" data-en="Total" data-he="סה״כ לתשלום">סה״כ לתשלום</span>
+        <span class="result-num" id="totalAmount">₪0.00</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Ad bottom -->
+<div class="ad-banner" style="margin:0 2rem;" data-en="Advertisement" data-he="פרסומת">פרסומת</div>
+
+<footer>
+  <a href="/privacy" data-en="Privacy Policy" data-he="מדיניות פרטיות">מדיניות פרטיות</a>
+  &nbsp;·&nbsp;
+  <a href="/" data-en="More tools" data-he="עוד כלים">עוד כלים</a>
+  &nbsp;·&nbsp;
+  <span>© 2026 Eli Tools</span>
+</footer>
+
+<script>
+let currentLang = 'he';
+let tipPct = 15;
+
+function money(n) { return '₪' + (isFinite(n) ? n : 0).toFixed(2); }
+
+function setTip(pct, btn) {
+  tipPct = pct;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('custom').value = '';
+  calcTip();
+}
+
+function setCustom() {
+  const v = parseFloat(document.getElementById('custom').value);
+  if (isFinite(v) && v >= 0) {
+    tipPct = v;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  }
+  calcTip();
+}
+
+function calcTip() {
+  const bill = parseFloat(document.getElementById('bill').value) || 0;
+  let people = parseInt(document.getElementById('people').value, 10);
+  if (!people || people < 1) people = 1;
+
+  const tip = bill * (tipPct / 100);
+  const total = bill + tip;
+
+  document.getElementById('tipAmount').textContent = money(tip);
+  document.getElementById('totalAmount').textContent = money(total);
+  document.getElementById('perPerson').textContent = money(total / people);
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-he').classList.toggle('active', lang === 'he');
+  document.body.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.dataset[lang] || el.dataset.en;
+  });
+  localStorage.setItem('lang', lang);
+}
+
+// init
+(function () {
+  const saved = localStorage.getItem('lang');
+  setLang(saved === 'en' || saved === 'he' ? saved : 'he');
+  calcTip();
+})();
+</script>
+</body>
+</html>

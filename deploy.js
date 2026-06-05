@@ -174,17 +174,44 @@ async function main() {
     execSync("npm install -g wrangler", { stdio: "inherit" });
   }
 
-  const deploy = spawnSync(
+  // ודא שפרויקט ה-Pages קיים — wrangler לא יוצר אותו אוטומטית ב-deploy
+  const projectList = spawnSync(
+    "npx", ["wrangler", "pages", "project", "list"],
+    { encoding: "utf8", cwd: __dirname, stdio: "pipe", env: { ...process.env } }
+  );
+  const projectExists = (projectList.stdout || "").includes(REPO_NAME);
+  if (!projectExists) {
+    console.log(`📦 יוצר פרויקט Pages '${REPO_NAME}'...`);
+    const create = spawnSync(
+      "npx", ["wrangler", "pages", "project", "create", REPO_NAME, "--production-branch", "main"],
+      { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env } }
+    );
+    if (create.status !== 0) {
+      console.error(`\n❌ יצירת פרויקט Pages '${REPO_NAME}' נכשלה`);
+      process.exit(1);
+    }
+  }
+
+  let deploy = spawnSync(
     "npx", ["wrangler", "pages", "deploy", ".", "--project-name", REPO_NAME, "--commit-dirty=true"],
     { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env } }
   );
 
   if (deploy.status !== 0) {
     console.log("⚠️  נסיון שני...");
-    spawnSync(
+    deploy = spawnSync(
       "npx", ["wrangler", "pages", "deploy", ".", "--project-name", REPO_NAME, "--commit-dirty=true", "--branch", "main"],
       { encoding: "utf8", cwd: __dirname, stdio: "inherit", env: { ...process.env } }
     );
+  }
+
+  if (deploy.status !== 0) {
+    console.error("\n╔══════════════════════════════════════════╗");
+    console.error("║   ❌  ההעלאה ל-Cloudflare נכשלה!         ║");
+    console.error("╚══════════════════════════════════════════╝");
+    console.error("\n   GitHub עודכן, אבל Cloudflare Pages לא.");
+    console.error("   בדוק את הודעת השגיאה של wrangler למעלה.\n");
+    process.exit(1);
   }
 
   // ── 9. סיום ───────────────────────────────────────────────────────────────

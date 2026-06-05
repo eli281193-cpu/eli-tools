@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מחשבון BMI אונליין | Online BMI Calculator — Eli Tools</title>
+<meta name="description" content="מחשבון BMI חינמי — חשב מדד מסת גוף לפי גובה ומשקל. Free online BMI calculator — calculate your Body Mass Index from height and weight.">
+<meta name="keywords" content="מחשבון BMI, מדד מסת גוף, חישוב משקל, BMI calculator, body mass index, healthy weight">
+<meta property="og:title" content="BMI Calculator — מחשבון BMI">
+<meta property="og:description" content="Free, fast, bilingual BMI calculator. Always available, always free.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #13131a;
+  --bg3: #1c1c26;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --accent: #7c6fff;
+  --accent2: #ff6b6b;
+  --text: #f0f0f5;
+  --text2: #9090a8;
+  --text3: #606078;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body[dir="rtl"] { direction: rtl; }
+body[dir="rtl"] .lang-btn-group { flex-direction: row-reverse; }
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+.header-right { display: flex; align-items: center; gap: 1rem; }
+.lang-btn-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.lang-btn.active { background: var(--accent); color: #fff; }
+.lang-btn:hover:not(.active) { background: var(--bg3); color: var(--text); }
+
+/* ── AD BANNER ── */
+.ad-banner {
+  background: var(--bg3);
+  border: 1px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  padding: 1.5rem;
+  margin: 1.5rem 2rem 0;
+  color: var(--text3);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── MAIN ── */
+.content {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+.page-title {
+  text-align: center;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+.page-sub {
+  text-align: center;
+  color: var(--text2);
+  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+}
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1.75rem;
+}
+
+.field { margin-bottom: 1.5rem; }
+.field-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.input-wrap { position: relative; }
+.field-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  padding: 0.9rem 3.2rem 0.9rem 1rem;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+body[dir="rtl"] .field-input { padding: 0.9rem 1rem 0.9rem 3.2rem; }
+.field-input::-webkit-outer-spin-button,
+.field-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.field-input:focus { outline: none; border-color: var(--accent); }
+.field-unit {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 1rem;
+  color: var(--text3);
+  font-size: 0.9rem;
+  font-family: var(--sans);
+  pointer-events: none;
+}
+body[dir="rtl"] .field-unit { right: auto; left: 1rem; }
+
+.btn-calc {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+.btn-calc:hover { background: #9087ff; }
+
+/* ── RESULT ── */
+.result {
+  margin-top: 2rem;
+  text-align: center;
+  display: none;
+}
+.result.show { display: block; }
+.result-value {
+  font-family: var(--mono);
+  font-size: clamp(3rem, 14vw, 5rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+.result-cat {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+.result-note {
+  color: var(--text2);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* BMI scale */
+.scale {
+  display: flex;
+  margin-top: 1.75rem;
+  border-radius: 100px;
+  overflow: hidden;
+  height: 10px;
+}
+.scale-seg { flex: 1; }
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text3);
+  font-family: var(--mono);
+}
+
+footer {
+  color: var(--text3);
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 2;
+  padding: 2rem 1rem 3rem;
+}
+footer a { color: var(--text2); text-decoration: none; }
+footer a:hover { color: var(--text); }
+
+@media (max-width: 500px) {
+  header { padding: 1rem 1.25rem; }
+  .ad-banner { margin: 1.25rem 1.25rem 0; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">
+    <span class="logo-dot"></span>
+    Eli Tools
+  </a>
+  <div class="header-right">
+    <div class="lang-btn-group">
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn active" id="btn-he" onclick="setLang('he')">עב</button>
+    </div>
+  </div>
+</header>
+
+<!-- Ad top -->
+<div class="ad-banner" data-en="Advertisement" data-he="פרסומת">פרסומת</div>
+
+<main class="content">
+  <h1 class="page-title" data-en="BMI Calculator" data-he="מחשבון BMI">מחשבון BMI</h1>
+  <p class="page-sub" data-en="Calculate your Body Mass Index" data-he="חשבו את מדד מסת הגוף שלכם">חשבו את מדד מסת הגוף שלכם</p>
+
+  <div class="card">
+    <div class="field">
+      <label class="field-label" for="height" data-en="Height" data-he="גובה">גובה</label>
+      <div class="input-wrap">
+        <input class="field-input" type="number" id="height" inputmode="decimal" placeholder="170" min="50" max="260">
+        <span class="field-unit">cm</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="weight" data-en="Weight" data-he="משקל">משקל</label>
+      <div class="input-wrap">
+        <input class="field-input" type="number" id="weight" inputmode="decimal" placeholder="70" min="2" max="500">
+        <span class="field-unit">kg</span>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calcBMI()" data-en="Calculate" data-he="חשב">חשב</button>
+
+    <div class="result" id="result">
+      <div class="result-value" id="bmiValue">—</div>
+      <div class="result-cat" id="bmiCat"></div>
+      <div class="result-note" id="bmiNote"></div>
+
+      <div class="scale">
+        <div class="scale-seg" style="background:#4a90e2"></div>
+        <div class="scale-seg" style="background:#3ec97a"></div>
+        <div class="scale-seg" style="background:#ffaa33"></div>
+        <div class="scale-seg" style="background:var(--accent2)"></div>
+      </div>
+      <div class="scale-labels">
+        <span>&lt;18.5</span><span>18.5</span><span>25</span><span>30+</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Ad bottom -->
+<div class="ad-banner" style="margin:0 2rem;" data-en="Advertisement" data-he="פרסומת">פרסומת</div>
+
+<footer>
+  <a href="/privacy" data-en="Privacy Policy" data-he="מדיניות פרטיות">מדיניות פרטיות</a>
+  &nbsp;·&nbsp;
+  <a href="/" data-en="More tools" data-he="עוד כלים">עוד כלים</a>
+  &nbsp;·&nbsp;
+  <span>© 2026 Eli Tools</span>
+</footer>
+
+<script>
+let currentLang = 'he';
+
+const CAT = {
+  he: [
+    { label: 'תת משקל',   note: 'מתחת ל-18.5', color: '#4a90e2' },
+    { label: 'תקין',      note: '18.5 – 24.9', color: '#3ec97a' },
+    { label: 'עודף משקל', note: '25 – 29.9',   color: '#ffaa33' },
+    { label: 'השמנה',     note: '30 ומעלה',    color: '#ff6b6b' }
+  ],
+  en: [
+    { label: 'Underweight', note: 'Below 18.5', color: '#4a90e2' },
+    { label: 'Normal',      note: '18.5 – 24.9', color: '#3ec97a' },
+    { label: 'Overweight',  note: '25 – 29.9',   color: '#ffaa33' },
+    { label: 'Obese',       note: '30 and above', color: '#ff6b6b' }
+  ]
+};
+
+function catIndex(bmi) {
+  if (bmi < 18.5) return 0;
+  if (bmi < 25)   return 1;
+  if (bmi < 30)   return 2;
+  return 3;
+}
+
+function calcBMI() {
+  const h = parseFloat(document.getElementById('height').value);
+  const w = parseFloat(document.getElementById('weight').value);
+  const result = document.getElementById('result');
+
+  if (!h || !w || h <= 0 || w <= 0) {
+    result.classList.remove('show');
+    return;
+  }
+
+  const m = h / 100;
+  const bmi = w / (m * m);
+  const idx = catIndex(bmi);
+  const cat = CAT[currentLang][idx];
+
+  document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+  document.getElementById('bmiValue').style.color = cat.color;
+  document.getElementById('bmiCat').textContent = cat.label;
+  document.getElementById('bmiCat').style.color = cat.color;
+  document.getElementById('bmiNote').textContent = cat.note;
+  result.classList.add('show');
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-he').classList.toggle('active', lang === 'he');
+  document.body.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = el.dataset[lang] || el.dataset.en;
+  });
+  localStorage.setItem('lang', lang);
+  // refresh result text in the new language
+  if (document.getElementById('result').classList.contains('show')) calcBMI();
+}
+
+// init
+(function () {
+  const saved = localStorage.getItem('lang');
+  setLang(saved === 'en' || saved === 'he' ? saved : 'he');
+  // Enter key calculates
+  document.querySelectorAll('.field-input').forEach(inp =>
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') calcBMI(); })
+  );
+})();
+</script>
+</body>
+</html>
