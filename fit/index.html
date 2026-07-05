@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0f0f0f" />
@@ -21,6 +20,8 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Supabase JS v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
 
   <style>
     /* ===== RESET & BASE ===== */
@@ -269,6 +270,17 @@
     }
     .nav-btn .nav-icon { font-size: 1.5rem; line-height: 1; }
     .nav-btn .nav-label { font-size: 0.7rem; font-weight: 600; }
+
+    /* ===== AD SLOTS ===== */
+    .ad-slot {
+      margin: 1rem;
+      padding: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      text-align: center;
+    }
 
     /* ===== WORKOUT TAB ===== */
     #workoutTab { overflow-y: auto; }
@@ -734,6 +746,12 @@
     <div id="tabContent">
       <!-- WORKOUT TAB -->
       <div id="workoutTab" class="tab-panel active">
+        <!-- Ad: shown right after login, before the workout screen -->
+        <div class="ad-slot">
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6168265823535489" data-ad-slot="auto" data-ad-format="auto"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
         <!-- Exercise Selector -->
         <div class="exercise-selector">
           <button class="exercise-btn active" data-exercise="pushups" onclick="selectExercise('pushups', this)">
@@ -808,6 +826,12 @@
             <div class="empty-icon">🏆</div>
             <p>טוען לוח תוצאות...</p>
           </div>
+        </div>
+
+        <!-- Ad: bottom of the leaderboard list -->
+        <div class="ad-slot">
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6168265823535489" data-ad-slot="auto" data-ad-format="auto"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
       </div>
 
