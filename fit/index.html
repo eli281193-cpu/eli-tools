@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0f0f0f" />
+  <meta name="theme-color" content="#0a0a0a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FitApp" />
   <title>FitApp - אפליקציית כושר</title>
 
   <!-- PWA Manifest via data URI -->
-  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22FitApp%22%2C%22short_name%22%3A%22FitApp%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f0f0f%22%2C%22theme_color%22%3A%22%230f0f0f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsQAAA7EB9YPtSQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZxjeCT4AAAMtSURBVHic7d0xTsNAEIbhJxQJKSkpKSkpKQkpKSkp%2BUMOQEFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ%3D%3D%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22FitApp%22%2C%22short_name%22%3A%22FitApp%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a0a%22%2C%22theme_color%22%3A%22%230a0a0a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsQAAA7EB9YPtSQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZxjeCT4AAAMtSURBVHic7d0xTsNAEIbhJxQJKSkpKSkpKQkpKSkp%2BUMOQEFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ%3D%3D%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
 
   <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
@@ -28,15 +28,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-primary: #0f0f0f;
-      --bg-secondary: #1a1a1a;
-      --bg-card: #242424;
-      --bg-card-hover: #2d2d2d;
-      --accent: #6c63ff;
-      --accent-light: #8b85ff;
-      --accent-glow: rgba(108,99,255,0.3);
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-card: #1a1a1a;
+      --bg-card-hover: #242424;
+      --accent: #00ff88;
+      --accent-light: #5cffb0;
+      --accent-glow: rgba(0,255,136,0.35);
+      --on-accent: #06190f;
       --success: #22c55e;
-      --danger: #ef4444;
+      --danger: #ff3366;
       --warning: #f59e0b;
       --text-primary: #f0f0f0;
       --text-secondary: #a0a0a0;
@@ -44,6 +45,7 @@
       --border: #333;
       --nav-height: 64px;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --btn-min-height: 56px;
     }
 
     html, body {
@@ -68,14 +70,14 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      background: radial-gradient(ellipse at 50% 30%, rgba(108,99,255,0.18) 0%, var(--bg-primary) 70%);
+      background: radial-gradient(ellipse at 50% 30%, rgba(0,255,136,0.16) 0%, var(--bg-primary) 70%);
       padding: 2rem;
       text-align: center;
     }
     #loginScreen .logo {
       width: 90px;
       height: 90px;
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      background: linear-gradient(135deg, var(--accent), var(--danger));
       border-radius: 28px;
       display: flex;
       align-items: center;
@@ -86,7 +88,7 @@
     }
     #loginScreen h1 {
       font-size: 2.2rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: -0.5px;
       margin-bottom: 0.4rem;
       background: linear-gradient(135deg, #fff 40%, var(--accent-light));
@@ -134,6 +136,7 @@
       cursor: pointer;
       width: 100%;
       max-width: 300px;
+      min-height: var(--btn-min-height);
       box-shadow: 0 4px 20px rgba(0,0,0,0.4);
       transition: transform 0.15s, box-shadow 0.15s;
     }
@@ -161,10 +164,11 @@
       cursor: pointer;
       width: 100%;
       max-width: 300px;
+      min-height: var(--btn-min-height);
       transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
     }
     #guestSignInBtn:hover {
-      background: rgba(108,99,255,0.12);
+      background: rgba(0,255,136,0.12);
       transform: translateY(-2px);
       box-shadow: 0 4px 18px var(--accent-glow);
     }
@@ -186,7 +190,7 @@
       flex-shrink: 0;
       min-height: 52px;
     }
-    #topBar .app-title { font-weight: 700; font-size: 1.1rem; color: var(--accent-light); }
+    #topBar .app-title { font-weight: 900; font-size: 1.1rem; color: var(--accent-light); }
     #userAvatar {
       width: 34px;
       height: 34px;
@@ -200,7 +204,7 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      background: linear-gradient(135deg, var(--accent), var(--danger));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -313,7 +317,7 @@
     }
     .exercise-btn.active {
       border-color: var(--accent);
-      background: rgba(108,99,255,0.12);
+      background: rgba(0,255,136,0.12);
       color: var(--text-primary);
     }
     .exercise-btn .ex-icon { font-size: 1.6rem; }
@@ -357,13 +361,13 @@
     #cameraPlaceholder p { font-size: 0.85rem; text-align: center; padding: 0 1rem; }
     #enableCameraBtn {
       background: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
       border: none;
       border-radius: 10px;
       padding: 0.85rem 1.4rem;
-      min-height: 44px;
+      min-height: var(--btn-min-height);
       font-size: 0.9rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       margin-top: 0.5rem;
     }
@@ -407,6 +411,12 @@
       background-clip: text;
       letter-spacing: -3px;
     }
+    @keyframes repPulse {
+      0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,255,136,0)); }
+      35%  { transform: scale(1.28); filter: drop-shadow(0 0 22px var(--accent)); }
+      100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,255,136,0)); }
+    }
+    .rep-number.pulse { animation: repPulse 0.45s ease-out; }
     .rep-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
     .timer-display {
@@ -443,6 +453,7 @@
     .btn {
       flex: 1;
       padding: 0.85rem 0.5rem;
+      min-height: var(--btn-min-height);
       border: none;
       border-radius: 14px;
       font-size: 0.95rem;
@@ -455,10 +466,10 @@
       gap: 6px;
     }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
     .btn-primary:not(:disabled):hover { background: var(--accent-light); }
     .btn-danger { background: var(--danger); color: #fff; }
-    .btn-danger:not(:disabled):hover { background: #dc2626; }
+    .btn-danger:not(:disabled):hover { background: #e0264f; }
     .btn-success { background: var(--success); color: #fff; }
     .btn-success:not(:disabled):hover { background: #16a34a; }
     .btn-secondary {
@@ -493,7 +504,7 @@
       border-radius: 2px;
       margin: 0 auto 1.2rem;
     }
-    .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; text-align: center; }
+    .modal-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 1rem; text-align: center; }
     .modal-summary {
       background: var(--bg-card);
       border-radius: 12px;
@@ -542,7 +553,7 @@
       justify-content: space-between;
       margin-bottom: 1rem;
     }
-    .tab-header h2 { font-size: 1.3rem; font-weight: 800; }
+    .tab-header h2 { font-size: 1.3rem; font-weight: 900; }
     .refresh-btn {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -562,7 +573,7 @@
     }
     .exercise-filter { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem; margin-bottom: 0.75rem; -webkit-overflow-scrolling: touch; }
     .filter-chip { flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 100px; padding: 0.4rem 0.9rem; font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
     .week-nav { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.75rem; }
     .week-nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; padding: 0.3rem 0.6rem; font-size: 0.85rem; cursor: pointer; }
     .week-nav-btn:disabled { opacity: 0.35; cursor: default; }
@@ -585,7 +596,7 @@
       border: 1px solid var(--border);
       transition: border-color 0.2s;
     }
-    .leaderboard-item.me { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+    .leaderboard-item.me { border-color: var(--accent); background: rgba(0,255,136,0.08); }
     .leaderboard-item.rank-1 { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
     .leaderboard-item.rank-2 { border-color: #9ca3af; background: rgba(156,163,175,0.06); }
     .leaderboard-item.rank-3 { border-color: #cd7c2f; background: rgba(205,124,47,0.06); }
@@ -1317,8 +1328,8 @@ const SKELETON_CONNECTIONS = [
 
 const KP_COLORS = {
   face: '#f59e0b',
-  left: '#6c63ff',
-  right: '#22c55e',
+  left: '#ff3366',
+  right: '#00ff88',
 };
 
 function kpColor(idx) {
@@ -1590,11 +1601,11 @@ function stopWorkout() {
 function addRep() {
   repCount++;
   updateRepDisplay();
-  // Flash animation
+  // Green pulse animation on the rep counter
   const el = document.getElementById('repCount');
-  el.style.transform = 'scale(1.25)';
-  el.style.transition = 'transform 0.15s';
-  setTimeout(() => { el.style.transform = 'scale(1)'; }, 150);
+  el.classList.remove('pulse');
+  void el.offsetWidth; // restart animation
+  el.classList.add('pulse');
 }
 
 function updateRepDisplay() {
