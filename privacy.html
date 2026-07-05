@@ -26,7 +26,7 @@ header {
   margin-bottom: 3rem;
 }
 .logo-link {
-  color: #7c6fff;
+  color: #9a90ff;
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: 600;
@@ -39,14 +39,12 @@ h1 {
   margin-bottom: 0.5rem;
 }
 .date {
-  color: #606078;
+  color: #8080a0;
   font-size: 0.9rem;
 }
 .lang-toggle {
   display: flex;
   justify-content: center;
-  gap: 0;
-  margin-top: 1.5rem;
   border: 1px solid #333;
   border-radius: 8px;
   overflow: hidden;
@@ -56,7 +54,7 @@ h1 {
 .lang-btn {
   background: none;
   border: none;
-  color: #9090a8;
+  color: #b0b0c8;
   font-size: 0.85rem;
   font-weight: 500;
   padding: 7px 20px;
@@ -80,10 +78,11 @@ h2 {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #1c1c26;
 }
-p { margin-bottom: 1rem; color: #b0b0c8; }
+p { margin-bottom: 1rem; color: #c0c0d8; }
 ul { padding-right: 1.5rem; margin-bottom: 1rem; }
-ul li { margin-bottom: 0.4rem; color: #b0b0c8; }
-a { color: #7c6fff; }
+body[dir="ltr"] ul { padding-right: 0; padding-left: 1.5rem; }
+ul li { margin-bottom: 0.4rem; color: #c0c0d8; }
+a { color: #9a90ff; }
 
 .highlight {
   background: #1c1c26;
@@ -99,71 +98,102 @@ footer {
   text-align: center;
   padding: 2rem;
   border-top: 1px solid #1c1c26;
-  color: #606078;
+  color: #8080a0;
   font-size: 0.85rem;
   margin-top: 3rem;
 }
-footer a { color: #9090a8; text-decoration: none; }
+footer a { color: #b0b0c8; text-decoration: none; }
 </style>
 </head>
 <body>
 
 <div class="container">
   <header>
-    <a href="/" class="logo-link">← Eli Tools</a>
+    <a href="/" class="logo-link" aria-label="חזרה לדף הבית · Back to home">← Eli Tools</a>
     <h1 id="page-title">מדיניות פרטיות</h1>
     <p class="date" id="page-date">עודכן לאחרונה: יוני 2026</p>
-    <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('he')">עברית</button>
-      <button class="lang-btn" onclick="setLang('en')">English</button>
+    <div class="lang-toggle" role="group" aria-label="בחירת שפה · Language selection">
+      <button class="lang-btn active" onclick="setLang('he')" aria-label="עברית">עברית</button>
+      <button class="lang-btn" onclick="setLang('en')" aria-label="English">English</button>
     </div>
   </header>
 
+  <main role="main">
+
   <!-- ── עברית ── -->
-  <div id="content-he" class="active" style="display:block">
+  <div id="content-he" style="display:block">
 
     <div class="highlight">
-      Eli Tools היא אתר כלים חינמי — שעון עצר, טיימרים ועוד.
-      אנחנו לא אוספים מידע אישי, לא דורשים הרשמה, ולא מוכרים נתונים לאף אחד.
+      Eli Tools הוא אתר כלים חינמי — טיימר, מחשבונים ואפליקציית ניחושים. רוב הכלים אינם דורשים הרשמה.
+      באפליקציית הניחושים בלבד אנו אוספים מינימום מידע הדרוש להפעלתה (ראה פירוט להלן). איננו מוכרים נתונים לאף אחד.
     </div>
 
     <section class="active">
       <h2>1. מה המידע שנאסף</h2>
-      <p>האתר עצמו לא אוסף שום מידע אישי. אין טפסים, אין הרשמה, ואין מסד נתונים של משתמשים.</p>
-      <p>עם זאת, שירותים חיצוניים שמשולבים באתר עשויים לאסוף מידע:</p>
+      <p>רוב הכלים באתר (טיימר, מחשבון BMI, מחשבון טיפ) אינם אוספים מידע אישי — אין טפסים ואין הרשמה.</p>
+      <p>באפליקציית ניחושי המונדיאל, הדורשת התחברות, אנו אוספים את המידע המינימלי הבא:</p>
       <ul>
-        <li><strong>Google AdSense</strong> — מציג פרסומות ועשוי להשתמש בעוגיות (cookies) כדי להציג פרסומות רלוונטיות.</li>
-        <li><strong>Google Fonts</strong> — טוען גופנים משרתי גוגל.</li>
-        <li><strong>Cloudflare</strong> — מספק את האחסון ועשוי לאסוף נתוני שימוש אנונימיים.</li>
+        <li>כתובת אימייל (אם התחברת עם חשבון Google) או שם כינוי שבחרת.</li>
+        <li>הקבוצות שאליהן הצטרפת והניחושים שהזנת.</li>
+        <li>דיווחים על תוכן פוגעני, אם שלחת כאלה.</li>
       </ul>
+      <p>בנוסף, שירותים חיצוניים המשולבים באתר עשויים לאסוף מידע: <strong>Google AdSense</strong> (פרסומות),
+        <strong>Google Fonts</strong> (גופנים), <strong>Cloudflare</strong> (אחסון) ו-<strong>Supabase</strong>
+        (מסד הנתונים של אפליקציית הניחושים).</p>
     </section>
 
     <section class="active">
       <h2>2. עוגיות (Cookies)</h2>
-      <p>האתר עצמו לא מגדיר עוגיות. Google AdSense משתמשת בעוגיות כדי להציג פרסומות מותאמות אישית.</p>
-      <p>ניתן לבטל פרסומות מותאמות אישית דרך:
-        <a href="https://adssettings.google.com" target="_blank">הגדרות המודעות של גוגל</a>
-      </p>
+      <p>האתר עצמו אינו מגדיר עוגיות פרסום. Google AdSense משתמשת בעוגיות, אך
+        <strong>הפרסומות והעוגיות שלהן נטענות רק לאחר שנתת את הסכמתך</strong> בבאנר ההסכמה. אם תסרב — לא ייטענו עוגיות פרסום.</p>
+      <p>ניתן לבטל פרסומות מותאמות אישית גם דרך
+        <a href="https://adssettings.google.com" target="_blank" rel="noopener">הגדרות המודעות של גוגל</a>.</p>
     </section>
 
     <section class="active">
-      <h2>3. שימוש במידע</h2>
-      <p>אנחנו לא אוספים ולא משתמשים במידע אישי. המידע שגוגל אוספת משמש להצגת פרסומות רלוונטיות בלבד, בהתאם <a href="https://policies.google.com/privacy" target="_blank">למדיניות הפרטיות של גוגל</a>.</p>
+      <h2>3. Google AdSense ופרסום</h2>
+      <p>אנו משתמשים ב-Google AdSense להצגת פרסומות. לצורך כך,
+        <strong>גוגל וספקים מטעמה אוספים מידע — לרבות עוגיות, מזהי מכשיר, כתובת IP ונתוני גלישה — כדי להציג פרסומות
+        מותאמות אישית ולמדוד את ביצועיהן</strong>. השימוש של גוגל במידע כפוף
+        <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">למדיניות של גוגל</a>.
+        כאמור, מידע זה נאסף רק לאחר קבלת הסכמתך.</p>
     </section>
 
     <section class="active">
-      <h2>4. שיתוף מידע עם צדדים שלישיים</h2>
-      <p>אנחנו לא מוכרים, משכירים, או משתפים מידע אישי עם צדדים שלישיים.</p>
+      <h2>4. שימוש במידע</h2>
+      <p>המידע באפליקציית הניחושים משמש אך ורק להפעלת המשחק — זיהוי המשתמש, ניהול קבוצות, חישוב ניקוד והצגת טבלאות.
+        המידע שגוגל אוספת משמש להצגת פרסומות בלבד.</p>
     </section>
 
     <section class="active">
-      <h2>5. ילדים</h2>
-      <p>האתר לא מיועד לילדים מתחת לגיל 13 ולא אוסף מידע מילדים במודע.</p>
+      <h2>5. שיתוף מידע עם צדדים שלישיים</h2>
+      <p>אנו לא מוכרים ולא משכירים מידע אישי. נתוני אפליקציית הניחושים נשמרים אצל <strong>Supabase</strong> המשמש כספק
+        עיבוד נתונים מטעמנו. למעט ספקי תשתית אלה (Supabase, Cloudflare, Google), איננו משתפים מידע אישי עם צדדים שלישיים.</p>
     </section>
 
     <section class="active">
-      <h2>6. יצירת קשר</h2>
-      <p>לשאלות בנוגע למדיניות הפרטיות, ניתן ליצור קשר דרך עמוד <a href="/">דף הבית</a>.</p>
+      <h2>6. כמה זמן נשמר המידע</h2>
+      <p>אנו שומרים את נתוני אפליקציית הניחושים (חשבון, קבוצות וניחושים) <strong>לתקופה של עד שנתיים</strong> ממועד
+        הפעילות האחרונה שלך, ולאחר מכן הם נמחקים או הופכים לאנונימיים. ניתן לבקש מחיקה מוקדמת בכל עת (ראו סעיף 7).</p>
+    </section>
+
+    <section class="active">
+      <h2>7. זכויות המשתמש ומחיקת נתונים</h2>
+      <p>יש לך זכות לעיין בנתונים שלך, לתקן אותם, ו<strong>לבקש את מחיקתם</strong>. לבקשת מחיקת נתונים או חשבון,
+        שלח/י אימייל אל
+        <a href="mailto:eli281193@gmail.com?subject=Data%20Deletion%20Request">eli281193@gmail.com</a>
+        ונטפל בבקשה בהקדם. אנו שומרים גם את הזכות למחוק חשבונות או תוכן המפרים את <a href="/terms">תנאי השימוש</a>.</p>
+    </section>
+
+    <section class="active">
+      <h2>8. ילדים</h2>
+      <p>האתר אינו מיועד לילדים מתחת לגיל 13 ואינו אוסף מידע מילדים במודע.</p>
+    </section>
+
+    <section class="active">
+      <h2>9. יצירת קשר</h2>
+      <p>לשאלות בנוגע למדיניות הפרטיות, ניתן ליצור קשר באימייל
+        <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a>.</p>
     </section>
 
   </div>
@@ -172,65 +202,100 @@ footer a { color: #9090a8; text-decoration: none; }
   <div id="content-en" style="display:none" dir="ltr">
 
     <div class="highlight">
-      Eli Tools is a free online tools website — stopwatch, timers, and more.
-      We do not collect personal information, require registration, or sell data to anyone.
+      Eli Tools is a free online tools website — timer, calculators, and a prediction app. Most tools require no registration.
+      Only the prediction app collects the minimum data needed to run it (detailed below). We do not sell data to anyone.
     </div>
 
     <section class="active">
       <h2>1. Information We Collect</h2>
-      <p>This website does not collect any personal information. There are no forms, no registration, and no user database.</p>
-      <p>However, third-party services integrated into this site may collect information:</p>
+      <p>Most tools (timer, BMI calculator, tip calculator) collect no personal information — no forms, no registration.</p>
+      <p>The World Cup prediction app, which requires sign-in, collects the following minimal information:</p>
       <ul>
-        <li><strong>Google AdSense</strong> — displays ads and may use cookies to show relevant advertisements.</li>
-        <li><strong>Google Fonts</strong> — loads fonts from Google servers.</li>
-        <li><strong>Cloudflare</strong> — provides hosting and may collect anonymous usage data.</li>
+        <li>Your email address (if you sign in with a Google account) or a nickname you choose.</li>
+        <li>The groups you join and the predictions you enter.</li>
+        <li>Any reports you submit about offensive content.</li>
       </ul>
+      <p>In addition, third-party services integrated into the site may collect information: <strong>Google AdSense</strong>
+        (ads), <strong>Google Fonts</strong> (fonts), <strong>Cloudflare</strong> (hosting), and <strong>Supabase</strong>
+        (the prediction app's database).</p>
     </section>
 
     <section class="active">
       <h2>2. Cookies</h2>
-      <p>This website itself does not set cookies. Google AdSense uses cookies to display personalized ads.</p>
-      <p>You can opt out of personalized ads at:
-        <a href="https://adssettings.google.com" target="_blank">Google Ad Settings</a>
-      </p>
+      <p>The website itself does not set advertising cookies. Google AdSense uses cookies, but
+        <strong>ads and their cookies load only after you give consent</strong> via the consent banner. If you decline, no
+        advertising cookies are loaded.</p>
+      <p>You can also opt out of personalized ads at
+        <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a>.</p>
     </section>
 
     <section class="active">
-      <h2>3. Use of Information</h2>
-      <p>We do not collect or use personal information. Information collected by Google is used solely to display relevant advertisements, subject to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a>.</p>
+      <h2>3. Google AdSense & Advertising</h2>
+      <p>We use Google AdSense to display ads. For this purpose,
+        <strong>Google and its partners collect information — including cookies, device identifiers, IP address, and browsing
+        data — to serve and measure personalized advertising</strong>. Google's use of this data is governed by
+        <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Google's policies</a>.
+        As noted, this data is collected only after you consent.</p>
     </section>
 
     <section class="active">
-      <h2>4. Sharing with Third Parties</h2>
-      <p>We do not sell, rent, or share personal information with third parties.</p>
+      <h2>4. Use of Information</h2>
+      <p>Prediction-app data is used solely to run the game — identifying the user, managing groups, computing scores, and
+        showing leaderboards. Information collected by Google is used only to display ads.</p>
     </section>
 
     <section class="active">
-      <h2>5. Children</h2>
+      <h2>5. Sharing with Third Parties</h2>
+      <p>We do not sell or rent personal information. Prediction-app data is stored with <strong>Supabase</strong>, acting as our
+        data processor. Apart from these infrastructure providers (Supabase, Cloudflare, Google), we do not share personal
+        information with third parties.</p>
+    </section>
+
+    <section class="active">
+      <h2>6. Data Retention</h2>
+      <p>We retain prediction-app data (account, groups, and predictions) for <strong>up to two years</strong> from your last
+        activity, after which it is deleted or anonymized. You may request earlier deletion at any time (see Section 7).</p>
+    </section>
+
+    <section class="active">
+      <h2>7. Your Rights & Data Deletion</h2>
+      <p>You have the right to access your data, correct it, and <strong>request its deletion</strong>. To request deletion of
+        your data or account, email
+        <a href="mailto:eli281193@gmail.com?subject=Data%20Deletion%20Request">eli281193@gmail.com</a>
+        and we will handle the request promptly. We also reserve the right to delete accounts or content that violate our
+        <a href="/terms">Terms of Use</a>.</p>
+    </section>
+
+    <section class="active">
+      <h2>8. Children</h2>
       <p>This website is not directed at children under 13 and does not knowingly collect information from children.</p>
     </section>
 
     <section class="active">
-      <h2>6. Contact</h2>
-      <p>For privacy-related questions, please contact us via the <a href="/">home page</a>.</p>
+      <h2>9. Contact</h2>
+      <p>For privacy-related questions, contact us by email at
+        <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a>.</p>
     </section>
 
   </div>
 
+  </main>
 </div>
 
 <footer>
-  <a href="/">Eli Tools</a> &nbsp;·&nbsp; © 2026
+  <a href="/">Eli Tools</a> &nbsp;·&nbsp;
+  <a href="/terms" data-en="Terms of Use" data-he="תנאי שימוש">תנאי שימוש</a> &nbsp;·&nbsp; © 2026
 </footer>
 
 <script>
 function setLang(lang) {
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.lang-btn:${lang === 'he' ? 'first-child' : 'last-child'}`).classList.add('active');
+  document.querySelector('.lang-btn:' + (lang === 'he' ? 'first-child' : 'last-child')).classList.add('active');
   document.getElementById('content-he').style.display = lang === 'he' ? 'block' : 'none';
   document.getElementById('content-en').style.display = lang === 'en' ? 'block' : 'none';
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.body.dir = lang === 'he' ? 'rtl' : 'ltr';
   document.getElementById('page-title').textContent = lang === 'he' ? 'מדיניות פרטיות' : 'Privacy Policy';
   document.getElementById('page-date').textContent = lang === 'he' ? 'עודכן לאחרונה: יוני 2026' : 'Last updated: June 2026';
 }

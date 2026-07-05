@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6168265823535489" crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FitApp" />
+  <title>FitApp - אפליקציית כושר</title>
+
+  <!-- PWA Manifest via data URI -->
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22FitApp%22%2C%22short_name%22%3A%22FitApp%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f0f0f%22%2C%22theme_color%22%3A%22%230f0f0f%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsQAAA7EB9YPtSQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZxjeCT4AAAMtSURBVHic7d0xTsNAEIbhJxQJKSkpKSkpKQkpKSkp%2BUMOQEFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ%3D%3D%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
+
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+  <!-- MoveNet pose detection -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-card: #242424;
+      --bg-card-hover: #2d2d2d;
+      --accent: #6c63ff;
+      --accent-light: #8b85ff;
+      --accent-glow: rgba(108,99,255,0.3);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666;
+      --border: #333;
+      --nav-height: 64px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== APP SHELL ===== */
+    #app { height: 100%; display: flex; flex-direction: column; }
+
+    /* ===== LOGIN SCREEN ===== */
+    #loginScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 30%, rgba(108,99,255,0.18) 0%, var(--bg-primary) 70%);
+      padding: 2rem;
+      text-align: center;
+    }
+    #loginScreen .logo {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+    #loginScreen h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.4rem;
+      background: linear-gradient(135deg, #fff 40%, var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    #loginScreen .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin-bottom: 2.5rem;
+    }
+    #loginScreen .features {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      width: 100%;
+      max-width: 300px;
+    }
+    #loginScreen .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-card);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: right;
+    }
+    #loginScreen .feature-item .icon { font-size: 1.4rem; flex-shrink: 0; }
+    #loginScreen .feature-item .text { font-size: 0.9rem; color: var(--text-secondary); }
+    #loginSignInBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: #fff;
+      color: #3c4043;
+      border: none;
+      border-radius: 14px;
+      padding: 0.85rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    #loginSignInBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
+    #loginSignInBtn:active { transform: translateY(0); }
+    #loginSignInBtn svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .google-domain-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+      margin-bottom: 0.75rem;
+    }
+    #guestSignInBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: transparent;
+      color: var(--accent-light);
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 0.75rem 2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      max-width: 300px;
+      transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    #guestSignInBtn:hover {
+      background: rgba(108,99,255,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 18px var(--accent-glow);
+    }
+    #guestSignInBtn:active { transform: translateY(0); }
+    #loginError { color: var(--danger); font-size: 0.85rem; margin-top: 1rem; min-height: 1.2em; }
+
+    /* ===== MAIN APP ===== */
+    #mainApp { display: none; flex-direction: column; height: 100%; }
+    #mainApp.visible { display: flex; }
+
+    /* Top bar */
+    #topBar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      min-height: 52px;
+    }
+    #topBar .app-title { font-weight: 700; font-size: 1.1rem; color: var(--accent-light); }
+    #userAvatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      background: var(--bg-card);
+    }
+    #userAvatarFallback {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      border: 2px solid var(--accent);
+    }
+    #signOutBtn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #signOutBtn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* Tab content area */
+    #tabContent {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-panel { display: none; height: 100%; }
+    .tab-panel.active { display: flex; flex-direction: column; }
+
+    /* ===== BOTTOM NAV ===== */
+    #bottomNav {
+      display: flex;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      padding-bottom: var(--safe-bottom);
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.6rem 0.4rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s;
+      gap: 3px;
+      min-height: var(--nav-height);
+      position: relative;
+    }
+    .nav-btn.active { color: var(--accent-light); }
+    .nav-btn.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 0 0 4px 4px;
+    }
+    .nav-btn .nav-icon { font-size: 1.5rem; line-height: 1; }
+    .nav-btn .nav-label { font-size: 0.7rem; font-weight: 600; }
+
+    /* ===== WORKOUT TAB ===== */
+    #workoutTab { overflow-y: auto; }
+
+    /* Exercise selector */
+    .exercise-selector {
+      padding: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .exercise-selector::-webkit-scrollbar { display: none; }
+    .exercise-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-card);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      min-width: 90px;
+      color: var(--text-secondary);
+    }
+    .exercise-btn.active {
+      border-color: var(--accent);
+      background: rgba(108,99,255,0.12);
+      color: var(--text-primary);
+    }
+    .exercise-btn .ex-icon { font-size: 1.6rem; }
+    .exercise-btn .ex-name { font-size: 0.72rem; font-weight: 600; }
+
+    /* Camera section */
+    .camera-section {
+      position: relative;
+      width: 100%;
+      background: #000;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .camera-section::after {
+      content: '';
+      display: block;
+      padding-top: 75%; /* 4:3 aspect ratio */
+    }
+    .camera-section video,
+    .camera-section canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .camera-section canvas { z-index: 2; pointer-events: none; }
+    #cameraPlaceholder {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 0.5rem;
+      z-index: 1;
+      background: #111;
+    }
+    #cameraPlaceholder .cam-icon { font-size: 3rem; }
+    #cameraPlaceholder p { font-size: 0.85rem; text-align: center; padding: 0 1rem; }
+    #enableCameraBtn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    /* Pose status badge */
+    #poseStatus {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      z-index: 3;
+      backdrop-filter: blur(4px);
+    }
+    #poseStatus.detecting { color: var(--success); }
+
+    /* Rep counter */
+    .rep-counter-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem 1rem 0.8rem;
+      gap: 2rem;
+      flex-shrink: 0;
+    }
+    .rep-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .rep-number {
+      font-size: 5rem;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -3px;
+    }
+    .rep-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+    .timer-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .timer-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Phase indicator */
+    #phaseIndicator {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--accent-light);
+      font-weight: 600;
+      padding: 0 1rem 0.5rem;
+      min-height: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    /* Workout controls */
+    .workout-controls {
+      display: flex;
+      gap: 0.6rem;
+      padding: 0.5rem 1rem 1rem;
+      flex-shrink: 0;
+    }
+    .btn {
+      flex: 1;
+      padding: 0.85rem 0.5rem;
+      border: none;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:not(:disabled):hover { background: var(--accent-light); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:not(:disabled):hover { background: #dc2626; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:not(:disabled):hover { background: #16a34a; }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:not(:disabled):hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+    /* Manual rep controls */
+    .manual-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0 1rem 0.75rem;
+      flex-shrink: 0;
+    }
+    .manual-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .manual-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .manual-label { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Save modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-sheet {
+      background: var(--bg-secondary);
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem 1.5rem calc(1.5rem + var(--safe-bottom));
+      width: 100%;
+      border-top: 1px solid var(--border);
+    }
+    .modal-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 1.2rem;
+    }
+    .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; text-align: center; }
+    .modal-summary {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-around;
+    }
+    .summary-item { text-align: center; }
+    .summary-val { font-size: 1.6rem; font-weight: 800; color: var(--accent-light); }
+    .summary-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .modal-actions { display: flex; gap: 0.75rem; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 200;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #toast.success { border-color: var(--success); color: var(--success); }
+    #toast.error { border-color: var(--danger); color: var(--danger); }
+
+    /* ===== LEADERBOARD TAB ===== */
+    #leaderboardTab { overflow-y: auto; padding: 1rem; }
+    .tab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .tab-header h2 { font-size: 1.3rem; font-weight: 800; }
+    .refresh-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 10px;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+    .week-label {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    .leaderboard-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .leaderboard-item.me { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+    .leaderboard-item.rank-1 { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
+    .leaderboard-item.rank-2 { border-color: #9ca3af; background: rgba(156,163,175,0.06); }
+    .leaderboard-item.rank-3 { border-color: #cd7c2f; background: rgba(205,124,47,0.06); }
+    .rank-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .rank-1 .rank-badge { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .rank-2 .rank-badge { background: rgba(156,163,175,0.15); color: #9ca3af; }
+    .rank-3 .rank-badge { background: rgba(205,124,47,0.15); color: #cd7c2f; }
+    .rank-other .rank-badge { background: var(--bg-secondary); color: var(--text-muted); }
+    .lb-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+    .lb-reps { font-size: 1.3rem; font-weight: 800; color: var(--accent-light); flex-shrink: 0; }
+    .lb-reps span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .empty-state p { font-size: 0.9rem; }
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 2rem auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== HISTORY TAB ===== */
+    #historyTab { overflow-y: auto; padding: 1rem; }
+    .history-section { margin-bottom: 1.5rem; }
+    .history-section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+    .history-group { margin-bottom: 1rem; }
+    .history-group-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .history-card-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .history-card-info { flex: 1; }
+    .history-card-title { font-weight: 600; font-size: 0.9rem; }
+    .history-card-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+    .history-card-reps { font-size: 1.2rem; font-weight: 800; color: var(--accent-light); text-align: left; }
+    .history-card-reps span { font-size: 0.65rem; color: var(--text-muted); font-weight: 500; display: block; }
+    .stats-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .stat-card {
+      flex: 1;
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .stat-val { font-size: 1.6rem; font-weight: 800; color: var(--accent-light); }
+    .stat-key { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="loginScreen">
+    <div class="logo">💪</div>
+    <h1>FitApp</h1>
+    <p class="subtitle">עקוב אחרי האימונים שלך בזמן אמת</p>
+    <div class="features">
+      <div class="feature-item">
+        <span class="icon">📸</span>
+        <span class="text">זיהוי תנועה בזמן אמת עם מצלמה</span>
+      </div>
+      <div class="feature-item">
+        <span class="icon">🏆</span>
+        <span class="text">תחרות שבועית עם חברים</span>
+      </div>
+      <div class="feature-item">
+        <span class="icon">📊</span>
+        <span class="text">היסטוריה וסטטיסטיקות אישיות</span>
+      </div>
+    </div>
+    <button id="loginSignInBtn" onclick="handleGoogleSignIn()">
+      <!-- Google logo SVG -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      כניסה עם Google
+    </button>
+    <p class="google-domain-note">(זמין בדומיין אמיתי בלבד)</p>
+    <button id="guestSignInBtn" onclick="handleGuestSignIn()">👤 כניסה כאורח</button>
+    <div id="loginError"></div>
+  </div>
+
+  <!-- ===== MAIN APP ===== -->
+  <div id="mainApp">
+    <!-- Top Bar -->
+    <div id="topBar">
+      <span class="app-title">💪 FitApp</span>
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <div id="userAvatarFallback" onclick="toggleUserMenu()" title="פרופיל">?</div>
+        <button id="signOutBtn" onclick="handleSignOut()">התנתק</button>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="tabContent">
+      <!-- WORKOUT TAB -->
+      <div id="workoutTab" class="tab-panel active">
+        <!-- Exercise Selector -->
+        <div class="exercise-selector">
+          <button class="exercise-btn active" data-exercise="pushups" onclick="selectExercise('pushups', this)">
+            <span class="ex-icon">🤸</span>
+            <span class="ex-name">שכיבות סמיכה</span>
+          </button>
+          <button class="exercise-btn" data-exercise="jumping_jacks" onclick="selectExercise('jumping_jacks', this)">
+            <span class="ex-icon">⭐</span>
+            <span class="ex-name">קפיצות</span>
+          </button>
+          <button class="exercise-btn" data-exercise="pullups" onclick="selectExercise('pullups', this)">
+            <span class="ex-icon">🏋️</span>
+            <span class="ex-name">מתח</span>
+          </button>
+        </div>
+
+        <!-- Camera Section -->
+        <div class="camera-section">
+          <video id="videoEl" autoplay playsinline muted></video>
+          <canvas id="poseCanvas"></canvas>
+          <div id="cameraPlaceholder">
+            <span class="cam-icon">📷</span>
+            <p>הפעל מצלמה לזיהוי תנועה אוטומטי</p>
+            <button id="enableCameraBtn" onclick="startCamera()">הפעל מצלמה</button>
+            <p style="margin-top:0.5rem;font-size:0.75rem;">או ספור ידנית עם הכפתורים למטה</p>
+          </div>
+          <div id="poseStatus">טוען...</div>
+        </div>
+
+        <!-- Rep Counter -->
+        <div class="rep-counter-section">
+          <div class="timer-display">
+            <div class="timer-number" id="timerDisplay">0:00</div>
+            <div class="timer-label">זמן</div>
+          </div>
+          <div class="rep-display">
+            <div class="rep-number" id="repCount">0</div>
+            <div class="rep-label">חזרות</div>
+          </div>
+          <div style="width:60px;"></div>
+        </div>
+
+        <!-- Phase Indicator -->
+        <div id="phaseIndicator">בחר תרגיל והפעל אימון</div>
+
+        <!-- Manual Controls -->
+        <div class="manual-controls">
+          <button class="manual-btn" onclick="manualRep(-1)" title="הפחת חזרה">−</button>
+          <span class="manual-label">ספירה ידנית</span>
+          <button class="manual-btn" onclick="manualRep(1)" title="הוסף חזרה">+</button>
+        </div>
+
+        <!-- Workout Controls -->
+        <div class="workout-controls">
+          <button class="btn btn-primary" id="startBtn" onclick="startWorkout()">▶ התחל</button>
+          <button class="btn btn-danger" id="stopBtn" onclick="stopWorkout()" disabled>■ עצור</button>
+          <button class="btn btn-success" id="saveBtn" onclick="openSaveModal()" disabled>💾 שמור</button>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD TAB -->
+      <div id="leaderboardTab" class="tab-panel">
+        <div class="tab-header">
+          <h2>🏆 תחרות שבועית</h2>
+          <button class="refresh-btn" onclick="loadLeaderboard()">↻ רענן</button>
+        </div>
+        <p class="week-label" id="weekLabel"></p>
+        <div id="leaderboardContent">
+          <div class="empty-state">
+            <div class="empty-icon">🏆</div>
+            <p>טוען לוח תוצאות...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div id="historyTab" class="tab-panel">
+        <div class="tab-header">
+          <h2>📊 היסטוריה</h2>
+          <button class="refresh-btn" onclick="loadHistory()">↻ רענן</button>
+        </div>
+        <div id="historyContent">
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <p>טוען היסטוריה...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav id="bottomNav">
+      <button class="nav-btn active" data-tab="workoutTab" onclick="switchTab('workoutTab', this)">
+        <span class="nav-icon">🤸</span>
+        <span class="nav-label">אימון</span>
+      </button>
+      <button class="nav-btn" data-tab="leaderboardTab" onclick="switchTab('leaderboardTab', this)">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-label">תחרות</span>
+      </button>
+      <button class="nav-btn" data-tab="historyTab" onclick="switchTab('historyTab', this)">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">היסטוריה</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- Save Modal -->
+<div class="modal-overlay hidden" id="saveModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">שמירת אימון</div>
+    <div class="modal-summary">
+      <div class="summary-item">
+        <div class="summary-val" id="modalReps">0</div>
+        <div class="summary-key">חזרות</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-val" id="modalDuration">0:00</div>
+        <div class="summary-key">זמן</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-val" id="modalExercise">—</div>
+        <div class="summary-key">תרגיל</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeSaveModal()">ביטול</button>
+      <button class="btn btn-success" id="confirmSaveBtn" onclick="saveWorkout()">💾 שמור אימון</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// =====================================================
+// CONFIGURATION — Replace these with your actual values
+// =====================================================
+
+// REPLACE: Your Google OAuth 2.0 Client ID from https://console.cloud.google.com/
+// Create a project → APIs & Services → Credentials → OAuth 2.0 Client ID (Web application)
+// Add your domain to Authorized JavaScript origins
+const GOOGLE_CLIENT_ID = '413931016030-01vii60mr5l5d7fc4548krf9vdhad9mg.apps.googleusercontent.com';
+
+// Supabase project URL
+const SUPABASE_URL = 'https://qibukqzorekwcpdaeusj.supabase.co';
+
+// Supabase anon/public key
+const SUPABASE_ANON_KEY = 'sb_publishable_ygFhxdacKGxsZ8_E7sI6ZQ_SzjhyUTy';
+
+// Supabase table name for workouts
+// CREATE TABLE workouts (
+//   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+//   user_id text NOT NULL,
+//   user_name text,
+//   user_email text,
+//   exercise text NOT NULL,
+//   reps integer NOT NULL,
+//   duration_seconds integer NOT NULL,
+//   worked_out_at timestamptz DEFAULT now()
+// );
+// ALTER TABLE workouts ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "Users can insert own workouts" ON workouts FOR INSERT WITH CHECK (true);
+// CREATE POLICY "Anyone can view workouts" ON workouts FOR SELECT USING (true);
+const WORKOUTS_TABLE = 'workouts';
+
+// =====================================================
+// SUPABASE CLIENT
+// =====================================================
+let supabaseClient = null;
+try {
+  if (SUPABASE_URL !== 'https://your-project-id.supabase.co') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(e) {
+  console.warn('Supabase init failed:', e);
+}
+
+// =====================================================
+// APP STATE
+// =====================================================
+let currentUser = null;
+let currentExercise = 'pushups';
+let workoutActive = false;
+let repCount = 0;
+let workoutStartTime = null;
+let timerInterval = null;
+let workoutDurationSeconds = 0;
+
+// Pose detection state
+let detector = null;
+let videoStream = null;
+let poseAnimFrame = null;
+let cameraActive = false;
+let modelLoading = false;
+
+// Per-exercise rep state machines
+const exerciseState = {
+  pushups:       { phase: 'up',   repReady: false },
+  jumping_jacks: { phase: 'down', repReady: false },
+  pullups:       { phase: 'down', repReady: false },
+};
+
+// Smoothing buffer for angles
+const angleBuffer = { pushups: [], jumping_jacks: [], pullups: [] };
+const BUFFER_SIZE = 5;
+
+// =====================================================
+// SERVICE WORKER REGISTRATION (PWA)
+// =====================================================
+(function registerSW() {
+  const swCode = `
+    const CACHE = 'fitapp-v1';
+    self.addEventListener('install', e => { self.skipWaiting(); });
+    self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+    self.addEventListener('fetch', e => {
+      if (e.request.method !== 'GET') return;
+      e.respondWith(
+        caches.match(e.request).then(cached => {
+          return cached || fetch(e.request).then(resp => {
+            if (e.request.url.includes(location.origin)) {
+              const clone = resp.clone();
+              caches.open(CACHE).then(c => c.put(e.request, clone));
+            }
+            return resp;
+          });
+        }).catch(() => caches.match(e.request))
+      );
+    });
+  `;
+  try {
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(swUrl, { scope: './' })
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.warn('SW reg failed (blob SW needs same-origin):', err));
+    }
+  } catch(e) {
+    console.warn('SW blob registration not supported:', e);
+  }
+})();
+
+// =====================================================
+// GOOGLE SIGN-IN
+// =====================================================
+function handleGoogleSignIn() {
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+
+  if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com') {
+    // Demo mode: create a fake user for testing without real Google auth
+    showToast('מצב הדגמה: מתחבר ללא Google...', 'success');
+    const demoUser = {
+      id: 'demo_' + Math.random().toString(36).slice(2, 10),
+      name: 'משתמש הדגמה',
+      email: 'demo@fitapp.local',
+      picture: null,
+    };
+    onLoginSuccess(demoUser);
+    return;
+  }
+
+  try {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+    google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed()) {
+        // Fallback to renderButton flow
+        google.accounts.id.renderButton(
+          document.getElementById('loginSignInBtn'),
+          { theme: 'outline', size: 'large', text: 'signin_with', locale: 'he' }
+        );
+      }
+    });
+  } catch(e) {
+    errEl.textContent = 'שגיאה בהתחברות Google. בדוק את ה-Client ID.';
+    console.error('GSI error:', e);
+  }
+}
+
+function handleGoogleCredential(response) {
+  try {
+    // Decode JWT payload (no signature verification needed for display)
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const user = {
+      id: payload.sub,
+      name: payload.name || payload.email,
+      email: payload.email,
+      picture: payload.picture || null,
+    };
+    onLoginSuccess(user);
+  } catch(e) {
+    document.getElementById('loginError').textContent = 'שגיאה בעיבוד אסימון Google.';
+    console.error('Token parse error:', e);
+  }
+}
+
+function handleGuestSignIn() {
+  const guestUser = {
+    id: 'guest_' + Math.random().toString(36).slice(2, 9),
+    name: 'אורח',
+    email: 'guest@guest',
+    picture: null,
+    isGuest: true,
+  };
+  localStorage.setItem('fitapp_guest_name', 'אורח');
+  onLoginSuccess(guestUser);
+}
+
+function onLoginSuccess(user) {
+  currentUser = user;
+  localStorage.setItem('fitapp_user', JSON.stringify(user));
+  showMainApp();
+}
+
+function toggleUserMenu() {
+  const btn = document.getElementById('signOutBtn');
+  btn.style.display = btn.style.display === 'none' ? 'inline-flex' : 'none';
+}
+
+function handleSignOut() {
+  workoutActive = false;
+  stopCamera();
+  clearInterval(timerInterval);
+  currentUser = null;
+  localStorage.removeItem('fitapp_user');
+  localStorage.removeItem('fitapp_guest_name');
+  document.getElementById('mainApp').classList.remove('visible');
+  document.getElementById('loginScreen').style.display = 'flex';
+  try { google.accounts.id.disableAutoSelect(); } catch(e) {}
+  showToast('התנתקת בהצלחה');
+}
+
+function showMainApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').classList.add('visible');
+  updateUserUI();
+  initTF();
+}
+
+function updateUserUI() {
+  if (!currentUser) return;
+  const fallback = document.getElementById('userAvatarFallback');
+  const initial = currentUser.name ? currentUser.name[0].toUpperCase() : '?';
+  fallback.textContent = initial;
+  fallback.title = currentUser.name || currentUser.email;
+}
+
+// Auto-login if session saved
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('fitapp_user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      showMainApp();
+    } catch(e) { localStorage.removeItem('fitapp_user'); }
+  } else {
+    // Check for saved guest session and auto-login
+    const guestName = localStorage.getItem('fitapp_guest_name');
+    if (guestName) {
+      const guestUser = {
+        id: 'guest_auto',
+        name: 'אורח',
+        email: 'guest@guest',
+        picture: null,
+        isGuest: true,
+      };
+      onLoginSuccess(guestUser);
+    }
+  }
+  // Set week label
+  document.getElementById('weekLabel').textContent = getCurrentWeekLabel();
+});
+
+// =====================================================
+// NAVIGATION
+// =====================================================
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  btn.classList.add('active');
+
+  if (tabId === 'leaderboardTab') loadLeaderboard();
+  if (tabId === 'historyTab') loadHistory();
+}
+
+// =====================================================
+// TENSORFLOW / MOVENET
+// =====================================================
+async function initTF() {
+  if (modelLoading || detector) return;
+  modelLoading = true;
+  updatePoseStatus('טוען מודל AI...', false);
+  try {
+    await tf.ready();
+    detector = await poseDetection.createDetector(
+      poseDetection.SupportedModels.MoveNet,
+      { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+    );
+    updatePoseStatus('מודל מוכן ✓', true);
+    console.log('MoveNet loaded');
+  } catch(e) {
+    console.warn('MoveNet load failed:', e);
+    updatePoseStatus('AI לא זמין', false);
+  }
+  modelLoading = false;
+}
+
+function updatePoseStatus(text, ok) {
+  const el = document.getElementById('poseStatus');
+  el.textContent = text;
+  el.className = ok ? 'detecting' : '';
+}
+
+// =====================================================
+// CAMERA
+// =====================================================
+async function startCamera() {
+  const placeholder = document.getElementById('cameraPlaceholder');
+  const video = document.getElementById('videoEl');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('מצלמה לא נתמכת בדפדפן זה', 'error');
+    return;
+  }
+
+  try {
+    placeholder.innerHTML = '<div class="cam-icon">⏳</div><p>פותח מצלמה...</p>';
+    const constraints = {
+      video: {
+        facingMode: 'user',
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+      },
+      audio: false,
+    };
+    videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = videoStream;
+    await video.play();
+    placeholder.style.display = 'none';
+    cameraActive = true;
+
+    // Size canvas to match video
+    video.addEventListener('loadedmetadata', resizeCanvas, { once: true });
+    resizeCanvas();
+
+    if (!detector) await initTF();
+    if (detector) startPoseLoop();
+    else updatePoseStatus('מצלמה פעילה, AI לא זמין', false);
+
+    showToast('מצלמה פועלת!', 'success');
+  } catch(e) {
+    placeholder.innerHTML = `
+      <span class="cam-icon">🚫</span>
+      <p>לא ניתן לפתוח מצלמה: ${e.message}</p>
+      <p style="font-size:0.75rem;margin-top:0.4rem;">השתמש בספירה ידנית</p>
+    `;
+    console.error('Camera error:', e);
+    showToast('שגיאה בפתיחת מצלמה', 'error');
+  }
+}
+
+function resizeCanvas() {
+  const video = document.getElementById('videoEl');
+  const canvas = document.getElementById('poseCanvas');
+  const section = canvas.parentElement;
+  canvas.width = section.clientWidth;
+  canvas.height = section.clientHeight;
+}
+
+function stopCamera() {
+  if (videoStream) {
+    videoStream.getTracks().forEach(t => t.stop());
+    videoStream = null;
+  }
+  if (poseAnimFrame) {
+    cancelAnimationFrame(poseAnimFrame);
+    poseAnimFrame = null;
+  }
+  cameraActive = false;
+}
+
+// =====================================================
+// POSE DETECTION LOOP
+// =====================================================
+async function startPoseLoop() {
+  const video = document.getElementById('videoEl');
+  const canvas = document.getElementById('poseCanvas');
+  const ctx = canvas.getContext('2d');
+
+  async function loop() {
+    if (!cameraActive || !detector) return;
+
+    try {
+      const poses = await detector.estimatePoses(video, {
+        maxPoses: 1,
+        flipHorizontal: true,
+        scoreThreshold: 0.3,
+      });
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (poses.length > 0) {
+        const pose = poses[0];
+        drawSkeleton(ctx, pose.keypoints, canvas.width, canvas.height, video.videoWidth, video.videoHeight);
+        if (workoutActive) {
+          processRepCount(pose.keypoints);
+        }
+        updatePoseStatus('מזהה ✓', true);
+      } else {
+        updatePoseStatus('מחפש גוף...', false);
+      }
+    } catch(e) {
+      // silent — can happen during teardown
+    }
+
+    poseAnimFrame = requestAnimationFrame(loop);
+  }
+
+  loop();
+}
+
+// =====================================================
+// SKELETON DRAWING
+// =====================================================
+const SKELETON_CONNECTIONS = [
+  [0, 1], [0, 2], [1, 3], [2, 4],       // head
+  [5, 6],                                  // shoulders
+  [5, 7], [7, 9],                         // left arm
+  [6, 8], [8, 10],                        // right arm
+  [5, 11], [6, 12],                       // torso
+  [11, 12],                               // hips
+  [11, 13], [13, 15],                     // left leg
+  [12, 14], [14, 16],                     // right leg
+];
+
+const KP_COLORS = {
+  face: '#f59e0b',
+  left: '#6c63ff',
+  right: '#22c55e',
+};
+
+function kpColor(idx) {
+  if (idx <= 4) return KP_COLORS.face;
+  if ([5,7,9,11,13,15].includes(idx)) return KP_COLORS.left;
+  return KP_COLORS.right;
+}
+
+function scaleKP(kp, cw, ch, vw, vh) {
+  // Scale from video coords to canvas coords
+  const scaleX = cw / (vw || cw);
+  const scaleY = ch / (vh || ch);
+  // Cover-fit: we need to account for aspect ratio
+  const videoAspect = vw / vh;
+  const canvasAspect = cw / ch;
+  let sx, sy, ox = 0, oy = 0;
+  if (videoAspect > canvasAspect) {
+    sy = ch / vh; sx = sy;
+    ox = (cw - vw * sx) / 2;
+  } else {
+    sx = cw / vw; sy = sx;
+    oy = (ch - vh * sy) / 2;
+  }
+  // Mirror since video is flipped
+  return { x: cw - (kp.x * sx + ox), y: kp.y * sy + oy };
+}
+
+function drawSkeleton(ctx, keypoints, cw, ch, vw, vh) {
+  const video = document.getElementById('videoEl');
+  vw = video.videoWidth || cw;
+  vh = video.videoHeight || ch;
+
+  // Draw connections
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  for (const [a, b] of SKELETON_CONNECTIONS) {
+    const kpA = keypoints[a], kpB = keypoints[b];
+    if (!kpA || !kpB || kpA.score < 0.3 || kpB.score < 0.3) continue;
+    const pA = scaleKP(kpA, cw, ch, vw, vh);
+    const pB = scaleKP(kpB, cw, ch, vw, vh);
+    const grad = ctx.createLinearGradient(pA.x, pA.y, pB.x, pB.y);
+    grad.addColorStop(0, kpColor(a) + 'bb');
+    grad.addColorStop(1, kpColor(b) + 'bb');
+    ctx.strokeStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(pA.x, pA.y);
+    ctx.lineTo(pB.x, pB.y);
+    ctx.stroke();
+  }
+
+  // Draw keypoints
+  for (let i = 0; i < keypoints.length; i++) {
+    const kp = keypoints[i];
+    if (!kp || kp.score < 0.35) continue;
+    const p = scaleKP(kp, cw, ch, vw, vh);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, i <= 4 ? 5 : 6, 0, 2 * Math.PI);
+    ctx.fillStyle = kpColor(i);
+    ctx.fill();
+    ctx.strokeStyle = '#000a';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
+// =====================================================
+// ANGLE / GEOMETRY HELPERS
+// =====================================================
+function angle3(a, b, c) {
+  // Angle at point b formed by a-b-c
+  const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+  let deg = Math.abs(radians * 180 / Math.PI);
+  if (deg > 180) deg = 360 - deg;
+  return deg;
+}
+
+function kpValid(kp, minScore = 0.3) {
+  return kp && kp.score >= minScore;
+}
+
+function smoothAngle(exercise, rawAngle) {
+  const buf = angleBuffer[exercise];
+  buf.push(rawAngle);
+  if (buf.length > BUFFER_SIZE) buf.shift();
+  return buf.reduce((s, v) => s + v, 0) / buf.length;
+}
+
+// =====================================================
+// REP COUNTING — STATE MACHINES
+// =====================================================
+function processRepCount(keypoints) {
+  // MoveNet keypoint indices:
+  // 0:nose,1:left_eye,2:right_eye,3:left_ear,4:right_ear
+  // 5:left_shoulder,6:right_shoulder,7:left_elbow,8:right_elbow
+  // 9:left_wrist,10:right_wrist,11:left_hip,12:right_hip
+  // 13:left_knee,14:right_knee,15:left_ankle,16:right_ankle
+
+  const kp = keypoints;
+
+  if (currentExercise === 'pushups') {
+    countPushup(kp);
+  } else if (currentExercise === 'jumping_jacks') {
+    countJumpingJack(kp);
+  } else if (currentExercise === 'pullups') {
+    countPullup(kp);
+  }
+}
+
+function countPushup(kp) {
+  // Use left arm: shoulder(5), elbow(7), wrist(9)
+  // Also right arm: shoulder(6), elbow(8), wrist(10)
+  let ang = null;
+
+  const leftOk = kpValid(kp[5]) && kpValid(kp[7]) && kpValid(kp[9]);
+  const rightOk = kpValid(kp[6]) && kpValid(kp[8]) && kpValid(kp[10]);
+
+  if (leftOk && rightOk) {
+    const angL = angle3(kp[5], kp[7], kp[9]);
+    const angR = angle3(kp[6], kp[8], kp[10]);
+    ang = (angL + angR) / 2;
+  } else if (leftOk) {
+    ang = angle3(kp[5], kp[7], kp[9]);
+  } else if (rightOk) {
+    ang = angle3(kp[6], kp[8], kp[10]);
+  }
+
+  if (ang === null) return;
+  ang = smoothAngle('pushups', ang);
+
+  const st = exerciseState.pushups;
+  // Down = elbows bent (angle < 100°), Up = arms straight (angle > 155°)
+  if (ang < 100 && st.phase === 'up') {
+    st.phase = 'down';
+    updatePhaseIndicator('⬇ למטה');
+  } else if (ang > 155 && st.phase === 'down') {
+    st.phase = 'up';
+    addRep();
+    updatePhaseIndicator('⬆ למעלה — חזרה!');
+  }
+}
+
+function countJumpingJack(kp) {
+  // Wrists relative to shoulders
+  // Arms up: wrists above shoulders (wrist.y < shoulder.y in image coords)
+  // Arms down: wrists below shoulders (wrist.y > shoulder.y)
+  const leftWristOk = kpValid(kp[9]) && kpValid(kp[5]);
+  const rightWristOk = kpValid(kp[10]) && kpValid(kp[6]);
+
+  if (!leftWristOk && !rightWristOk) return;
+
+  let wristY = 0, shoulderY = 0, count = 0;
+  if (leftWristOk) { wristY += kp[9].y; shoulderY += kp[5].y; count++; }
+  if (rightWristOk) { wristY += kp[10].y; shoulderY += kp[6].y; count++; }
+  wristY /= count; shoulderY /= count;
+
+  const diff = shoulderY - wristY; // positive = wrists above shoulders
+  const smoothed = smoothAngle('jumping_jacks', diff);
+
+  const st = exerciseState.jumping_jacks;
+  if (smoothed > 30 && st.phase === 'down') {
+    // Wrists are above shoulders — arms up
+    st.phase = 'up';
+    updatePhaseIndicator('⭐ ידיים למעלה');
+  } else if (smoothed < -20 && st.phase === 'up') {
+    // Wrists back below shoulders — arms down = rep complete
+    st.phase = 'down';
+    addRep();
+    updatePhaseIndicator('👐 ידיים למטה — חזרה!');
+  }
+}
+
+function countPullup(kp) {
+  // Wrist Y vs nose Y
+  // Up: wrists above (or at) nose level (wrist.y <= nose.y in image, since Y increases downward)
+  // Down: wrists well below nose
+  const noseOk = kpValid(kp[0], 0.25);
+  const leftWristOk = kpValid(kp[9]);
+  const rightWristOk = kpValid(kp[10]);
+
+  if (!noseOk || (!leftWristOk && !rightWristOk)) return;
+
+  let wristY = 0, count = 0;
+  if (leftWristOk) { wristY += kp[9].y; count++; }
+  if (rightWristOk) { wristY += kp[10].y; count++; }
+  wristY /= count;
+  const noseY = kp[0].y;
+
+  const diff = noseY - wristY; // positive = wrists above nose
+  const smoothed = smoothAngle('pullups', diff);
+
+  const st = exerciseState.pullups;
+  if (smoothed > 20 && st.phase === 'down') {
+    // Wrists are above nose — pulled up
+    st.phase = 'up';
+    addRep();
+    updatePhaseIndicator('💪 למעלה — חזרה!');
+  } else if (smoothed < -50 && st.phase === 'up') {
+    // Wrists well below nose — back down
+    st.phase = 'down';
+    updatePhaseIndicator('⬇ למטה');
+  }
+}
+
+// =====================================================
+// WORKOUT CONTROLS
+// =====================================================
+function selectExercise(ex, btn) {
+  currentExercise = ex;
+  document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Reset state machine for new exercise
+  Object.keys(exerciseState).forEach(k => {
+    exerciseState[k].phase = k === 'pushups' ? 'up' : 'down';
+  });
+  angleBuffer[ex] = [];
+  if (!workoutActive) updatePhaseIndicator('בחר תרגיל והפעל אימון');
+}
+
+async function startWorkout() {
+  if (!cameraActive) {
+    await startCamera();
+  }
+
+  workoutActive = true;
+  repCount = 0;
+  workoutDurationSeconds = 0;
+  workoutStartTime = Date.now();
+  updateRepDisplay();
+
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+  document.getElementById('saveBtn').disabled = true;
+
+  // Reset state machines
+  Object.keys(exerciseState).forEach(k => {
+    exerciseState[k].phase = k === 'pushups' ? 'up' : 'down';
+  });
+  angleBuffer[currentExercise] = [];
+
+  timerInterval = setInterval(updateTimer, 500);
+  updatePhaseIndicator('אימון פעיל — התחל לזוז!');
+  showToast('אימון התחיל!', 'success');
+}
+
+function stopWorkout() {
+  workoutActive = false;
+  clearInterval(timerInterval);
+  workoutDurationSeconds = Math.floor((Date.now() - workoutStartTime) / 1000);
+
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = true;
+  document.getElementById('saveBtn').disabled = repCount === 0;
+
+  updatePhaseIndicator('אימון הסתיים');
+  if (repCount > 0) showToast(`אימון הסתיים! ${repCount} חזרות`, 'success');
+}
+
+function addRep() {
+  repCount++;
+  updateRepDisplay();
+  // Flash animation
+  const el = document.getElementById('repCount');
+  el.style.transform = 'scale(1.25)';
+  el.style.transition = 'transform 0.15s';
+  setTimeout(() => { el.style.transform = 'scale(1)'; }, 150);
+}
+
+function manualRep(delta) {
+  repCount = Math.max(0, repCount + delta);
+  updateRepDisplay();
+}
+
+function updateRepDisplay() {
+  document.getElementById('repCount').textContent = repCount;
+}
+
+function updateTimer() {
+  if (!workoutStartTime) return;
+  const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
+  workoutDurationSeconds = elapsed;
+  document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+}
+
+function updatePhaseIndicator(text) {
+  document.getElementById('phaseIndicator').textContent = text;
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// =====================================================
+// SAVE MODAL
+// =====================================================
+function openSaveModal() {
+  if (repCount === 0) { showToast('אין חזרות לשמירה', 'error'); return; }
+  const exNames = { pushups: '🤸 שכיבות', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח' };
+  document.getElementById('modalReps').textContent = repCount;
+  document.getElementById('modalDuration').textContent = formatTime(workoutDurationSeconds);
+  document.getElementById('modalExercise').textContent = exNames[currentExercise] || currentExercise;
+  document.getElementById('saveModal').classList.remove('hidden');
+}
+
+function closeSaveModal() {
+  document.getElementById('saveModal').classList.add('hidden');
+}
+
+async function saveWorkout() {
+  const btn = document.getElementById('confirmSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ שומר...';
+
+  const workout = {
+    user_id: currentUser.id,
+    user_name: currentUser.name || 'משתמש',
+    user_email: currentUser.email || '',
+    exercise: currentExercise,
+    reps: repCount,
+    duration_seconds: workoutDurationSeconds,
+    worked_out_at: new Date().toISOString(),
+  };
+
+  let saved = false;
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from(WORKOUTS_TABLE).insert(workout);
+      if (error) throw error;
+      saved = true;
+    } catch(e) {
+      console.error('Supabase save error:', e);
+      showToast('שגיאה בשמירה לשרת — נשמר מקומית', 'error');
+    }
+  } else {
+    console.log('Supabase not configured — saving to localStorage only');
+  }
+
+  // Always save locally as backup
+  const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]');
+  local.push({ ...workout, id: Date.now() });
+  localStorage.setItem('fitapp_workouts', JSON.stringify(local));
+
+  closeSaveModal();
+  btn.disabled = false;
+  btn.textContent = '💾 שמור אימון';
+
+  if (saved) {
+    showToast('אימון נשמר בהצלחה! 🎉', 'success');
+  } else {
+    showToast('אימון נשמר מקומית', 'success');
+  }
+
+  // Reset
+  repCount = 0;
+  workoutDurationSeconds = 0;
+  updateRepDisplay();
+  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('saveBtn').disabled = true;
+}
+
+// =====================================================
+// LEADERBOARD
+// =====================================================
+function getCurrentWeekRange() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - day);
+  startOfWeek.setHours(0, 0, 0, 0);
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
+  return { start: startOfWeek, end: endOfWeek };
+}
+
+function getCurrentWeekLabel() {
+  const { start, end } = getCurrentWeekRange();
+  const fmt = (d) => `${d.getDate()}/${d.getMonth()+1}`;
+  return `שבוע נוכחי: ${fmt(start)} – ${fmt(new Date(end.getTime()-1))}`;
+}
+
+async function loadLeaderboard() {
+  const container = document.getElementById('leaderboardContent');
+  container.innerHTML = '<div class="loading-spinner"></div>';
+
+  let rows = [];
+
+  if (supabaseClient) {
+    try {
+      const { start, end } = getCurrentWeekRange();
+      const { data, error } = await supabaseClient
+        .from(WORKOUTS_TABLE)
+        .select('user_id, user_name, reps')
+        .gte('worked_out_at', start.toISOString())
+        .lt('worked_out_at', end.toISOString());
+      if (error) throw error;
+      // Aggregate by user
+      const userMap = {};
+      for (const w of data) {
+        if (!userMap[w.user_id]) userMap[w.user_id] = { name: w.user_name || 'משתמש', reps: 0 };
+        userMap[w.user_id].reps += w.reps;
+      }
+      rows = Object.entries(userMap)
+        .map(([uid, u]) => ({ uid, name: u.name, reps: u.reps }))
+        .sort((a, b) => b.reps - a.reps);
+    } catch(e) {
+      console.error('Leaderboard error:', e);
+    }
+  }
+
+  // Merge local data if no Supabase
+  if (rows.length === 0) {
+    const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]');
+    const { start, end } = getCurrentWeekRange();
+    const thisWeek = local.filter(w => {
+      const d = new Date(w.worked_out_at);
+      return d >= start && d < end;
+    });
+    const userMap = {};
+    for (const w of thisWeek) {
+      if (!userMap[w.user_id]) userMap[w.user_id] = { name: w.user_name || 'משתמש', reps: 0 };
+      userMap[w.user_id].reps += w.reps;
+    }
+    rows = Object.entries(userMap)
+      .map(([uid, u]) => ({ uid, name: u.name, reps: u.reps }))
+      .sort((a, b) => b.reps - a.reps);
+  }
+
+  if (rows.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🏆</div>
+        <p>אין נתונים לשבוע זה עדיין</p>
+        <p style="margin-top:0.4rem;font-size:0.8rem;">שמור אימון ראשון להופיע בלוח!</p>
+      </div>`;
+    return;
+  }
+
+  const html = rows.map((row, i) => {
+    const rank = i + 1;
+    const medals = ['🥇', '🥈', '🥉'];
+    const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
+    const isMe = currentUser && row.uid === currentUser.id;
+    const initial = row.name ? row.name[0].toUpperCase() : '?';
+    return `
+      <div class="leaderboard-item ${rankClass}${isMe ? ' me' : ''}">
+        <div class="rank-badge">${rank <= 3 ? medals[rank-1] : rank}</div>
+        <div class="lb-avatar" style="background:${avatarColor(row.uid)}">${initial}</div>
+        <div class="lb-info">
+          <div class="lb-name">${escHtml(row.name)}${isMe ? ' (את/ה)' : ''}</div>
+          <div class="lb-sub">שבוע זה</div>
+        </div>
+        <div class="lb-reps">${row.reps}<span>חזרות</span></div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `<div class="leaderboard-list">${html}</div>`;
+}
+
+function avatarColor(uid) {
+  const colors = ['#6c63ff','#22c55e','#f59e0b','#ef4444','#a78bfa','#06b6d4','#ec4899'];
+  let hash = 0;
+  for (const c of (uid || '')) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+  return colors[Math.abs(hash) % colors.length];
+}
+
+// =====================================================
+// HISTORY
+// =====================================================
+async function loadHistory() {
+  const container = document.getElementById('historyContent');
+  container.innerHTML = '<div class="loading-spinner"></div>';
+
+  let workouts = [];
+
+  if (supabaseClient && currentUser) {
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const { data, error } = await supabaseClient
+        .from(WORKOUTS_TABLE)
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .gte('worked_out_at', thirtyDaysAgo.toISOString())
+        .order('worked_out_at', { ascending: false });
+      if (error) throw error;
+      workouts = data || [];
+    } catch(e) {
+      console.error('History load error:', e);
+    }
+  }
+
+  // Merge/fallback to local storage
+  const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]')
+    .filter(w => !currentUser || w.user_id === currentUser.id)
+    .sort((a, b) => new Date(b.worked_out_at) - new Date(a.worked_out_at));
+
+  if (workouts.length === 0) workouts = local;
+
+  if (workouts.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <p>אין היסטוריית אימונים עדיין</p>
+        <p style="margin-top:0.4rem;font-size:0.8rem;">שמור את האימון הראשון שלך!</p>
+      </div>`;
+    return;
+  }
+
+  // Summary stats
+  const totalReps = workouts.reduce((s, w) => s + (w.reps || 0), 0);
+  const totalSecs = workouts.reduce((s, w) => s + (w.duration_seconds || 0), 0);
+  const { start: wStart } = getCurrentWeekRange();
+  const weekReps = workouts.filter(w => new Date(w.worked_out_at) >= wStart).reduce((s, w) => s + (w.reps || 0), 0);
+
+  // Group by week then month
+  const byWeek = groupByPeriod(workouts, 'week');
+  const byMonth = groupByPeriod(workouts, 'month');
+
+  const exNames = { pushups: '🤸 שכיבות סמיכה', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח' };
+
+  let html = `
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val">${totalReps}</div>
+        <div class="stat-key">סה"כ חזרות</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">${weekReps}</div>
+        <div class="stat-key">חזרות השבוע</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">${workouts.length}</div>
+        <div class="stat-key">אימונים</div>
+      </div>
+    </div>`;
+
+  // Weekly breakdown
+  html += `<div class="history-section">
+    <div class="history-section-title">פירוט שבועי</div>`;
+  for (const [label, items] of Object.entries(byWeek)) {
+    const wReps = items.reduce((s, w) => s + (w.reps || 0), 0);
+    html += `<div class="history-group">
+      <div class="history-group-header">${label} — ${wReps} חזרות</div>`;
+    for (const w of items) {
+      const d = new Date(w.worked_out_at);
+      const dateStr = `${d.getDate()}/${d.getMonth()+1} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+      html += `
+        <div class="history-card">
+          <div class="history-card-icon">${(exNames[w.exercise] || '🏃').split(' ')[0]}</div>
+          <div class="history-card-info">
+            <div class="history-card-title">${exNames[w.exercise] || w.exercise}</div>
+            <div class="history-card-sub">${dateStr} • ${formatTime(w.duration_seconds || 0)}</div>
+          </div>
+          <div class="history-card-reps">${w.reps}<span>חזרות</span></div>
+        </div>`;
+    }
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  // Monthly summary
+  html += `<div class="history-section">
+    <div class="history-section-title">סיכום חודשי</div>`;
+  for (const [label, items] of Object.entries(byMonth)) {
+    const mReps = items.reduce((s, w) => s + (w.reps || 0), 0);
+    const mSessions = items.length;
+    const exCounts = {};
+    for (const w of items) exCounts[w.exercise] = (exCounts[w.exercise] || 0) + w.reps;
+    const topEx = Object.entries(exCounts).sort((a,b)=>b[1]-a[1])[0];
+    html += `
+      <div class="history-card">
+        <div class="history-card-icon">📅</div>
+        <div class="history-card-info">
+          <div class="history-card-title">${label}</div>
+          <div class="history-card-sub">${mSessions} אימונים${topEx ? ` • מוביל: ${exNames[topEx[0]] || topEx[0]}` : ''}</div>
+        </div>
+        <div class="history-card-reps">${mReps}<span>חזרות</span></div>
+      </div>`;
+  }
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+function groupByPeriod(workouts, period) {
+  const groups = {};
+  const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  for (const w of workouts) {
+    const d = new Date(w.worked_out_at);
+    let key;
+    if (period === 'week') {
+      const weekStart = new Date(d);
+      weekStart.setDate(d.getDate() - d.getDay());
+      key = `שבוע ${weekStart.getDate()}/${weekStart.getMonth()+1}/${weekStart.getFullYear()}`;
+    } else {
+      key = `${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`;
+    }
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(w);
+  }
+  return groups;
+}
+
+// =====================================================
+// UTILITIES
+// =====================================================
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+let toastTimer = null;
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('saveModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSaveModal();
+});
+
+// Resize canvas on window resize
+window.addEventListener('resize', () => {
+  if (cameraActive) resizeCanvas();
+});
+
+// Prevent scroll bounce on iOS
+document.addEventListener('touchmove', (e) => {
+  if (e.target.closest('#tabContent')) return;
+  e.preventDefault();
+}, { passive: false });
+</script>
+</body>
+</html>
