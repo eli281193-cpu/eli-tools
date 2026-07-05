@@ -348,7 +348,8 @@
       color: #fff;
       border: none;
       border-radius: 10px;
-      padding: 0.6rem 1.4rem;
+      padding: 0.85rem 1.4rem;
+      min-height: 44px;
       font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
@@ -933,6 +934,7 @@ try {
 let currentUser = null;
 let currentExercise = 'pushups';
 let workoutActive = false;
+let startingWorkout = false;
 let repCount = 0;
 let workoutStartTime = null;
 let timerInterval = null;
@@ -1360,17 +1362,6 @@ function drawSkeleton(ctx, keypoints, cw, ch, vw, vh) {
   }
 }
 
-// =====================================================
-// ANGLE / GEOMETRY HELPERS
-// =====================================================
-function angle3(a, b, c) {
-  // Angle at point b formed by a-b-c
-  const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
-  let deg = Math.abs(radians * 180 / Math.PI);
-  if (deg > 180) deg = 360 - deg;
-  return deg;
-}
-
 function kpValid(kp, minScore = 0.3) {
   return kp && kp.score >= minScore;
 }
@@ -1404,32 +1395,40 @@ function processRepCount(keypoints) {
 }
 
 function countPushup(kp) {
-  // Use left arm: shoulder(5), elbow(7), wrist(9)
-  // Also right arm: shoulder(6), elbow(8), wrist(10)
-  let ang = null;
+  // Track shoulder height relative to the floor. The wrists stay planted on the
+  // ground for the whole rep, so they act as a floor reference; the shoulders
+  // drop toward that level at the bottom of the rep and rise well above it at
+  // the top. Normalized by shoulder width so the thresholds hold regardless of
+  // how close the camera is.
+  const leftShoulderOk = kpValid(kp[5]);
+  const rightShoulderOk = kpValid(kp[6]);
+  const leftWristOk = kpValid(kp[9]);
+  const rightWristOk = kpValid(kp[10]);
 
-  const leftOk = kpValid(kp[5]) && kpValid(kp[7]) && kpValid(kp[9]);
-  const rightOk = kpValid(kp[6]) && kpValid(kp[8]) && kpValid(kp[10]);
+  if (!leftShoulderOk || !rightShoulderOk) return; // need both shoulders for a stable width reference
+  if (!leftWristOk && !rightWristOk) return;
 
-  if (leftOk && rightOk) {
-    const angL = angle3(kp[5], kp[7], kp[9]);
-    const angR = angle3(kp[6], kp[8], kp[10]);
-    ang = (angL + angR) / 2;
-  } else if (leftOk) {
-    ang = angle3(kp[5], kp[7], kp[9]);
-  } else if (rightOk) {
-    ang = angle3(kp[6], kp[8], kp[10]);
-  }
+  const shoulderY = (kp[5].y + kp[6].y) / 2;
+  let wristY = 0, wCount = 0;
+  if (leftWristOk) { wristY += kp[9].y; wCount++; }
+  if (rightWristOk) { wristY += kp[10].y; wCount++; }
+  wristY /= wCount;
 
-  if (ang === null) return;
-  ang = smoothAngle('pushups', ang);
+  const shoulderWidth = Math.hypot(kp[6].x - kp[5].x, kp[6].y - kp[5].y);
+  if (shoulderWidth < 5) return;
+
+  // Positive = shoulders well above the wrists (arms extended, "up").
+  // Smaller = shoulders dropped toward the bottom of the rep ("down"). Even at a
+  // full 90°-elbow-bend bottom position the shoulder stays roughly one forearm's
+  // length above the wrist, so "down" is a drop relative to the "up" ratio, not
+  // a near-zero value.
+  const ratio = smoothAngle('pushups', (wristY - shoulderY) / shoulderWidth);
 
   const st = exerciseState.pushups;
-  // Down = elbows bent (angle < 100°), Up = arms straight (angle > 155°)
-  if (ang < 100 && st.phase === 'up') {
+  if (ratio < 0.85 && st.phase === 'up') {
     st.phase = 'down';
     updatePhaseIndicator('⬇ למטה');
-  } else if (ang > 155 && st.phase === 'down') {
+  } else if (ratio > 1.15 && st.phase === 'down') {
     st.phase = 'up';
     addRep();
     updatePhaseIndicator('⬆ למעלה — חזרה!');
@@ -1514,9 +1513,23 @@ function selectExercise(ex, btn) {
 }
 
 async function startWorkout() {
+  if (workoutActive || startingWorkout) return; // guard against double-tap while camera/AI are still loading
+  startingWorkout = true;
+
+  const startBtn = document.getElementById('startBtn');
+  const startBtnLabel = startBtn.textContent;
+  startBtn.disabled = true;
+
   if (!cameraActive) {
+    startBtn.textContent = '⏳ פותח מצלמה...';
     await startCamera();
   }
+  if (!detector) {
+    startBtn.textContent = '⏳ טוען AI...';
+    await initTF();
+  }
+  startBtn.textContent = startBtnLabel;
+  startingWorkout = false;
 
   workoutActive = true;
   repCount = 0;
