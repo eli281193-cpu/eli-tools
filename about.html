@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אודות | About — Eli Tools</title>
+<meta name="description" content="אודות אתר Eli Tools — כלים אונליין חינמיים: טיימר, מחשבונים ומעקב כושר. About Eli Tools — free online tools: timer, calculators, and fitness tracking.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0a0a0f;
+  color: #d0d0e0;
+  line-height: 1.8;
+  font-size: 16px;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+header {
+  text-align: center;
+  padding: 2rem 0 3rem;
+  border-bottom: 1px solid #222;
+  margin-bottom: 3rem;
+}
+.logo-link {
+  color: #9a90ff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+h1 {
+  font-size: 2rem;
+  color: #f0f0f5;
+  margin-bottom: 0.5rem;
+}
+.lang-toggle {
+  display: flex;
+  justify-content: center;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+  margin: 1.5rem auto 0;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  color: #b0b0c8;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 7px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.lang-btn.active { background: #7c6fff; color: #fff; }
+.lang-btn:hover:not(.active) { background: #1c1c26; color: #f0f0f5; }
+
+section { margin-bottom: 2.5rem; display: none; }
+section.active { display: block; }
+
+h2 {
+  font-size: 1.2rem;
+  color: #f0f0f5;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #1c1c26;
+}
+p { margin-bottom: 1rem; color: #c0c0d8; }
+ul { padding-right: 1.5rem; margin-bottom: 1rem; }
+body[dir="ltr"] ul { padding-right: 0; padding-left: 1.5rem; }
+ul li { margin-bottom: 0.4rem; color: #c0c0d8; }
+a { color: #9a90ff; }
+
+.highlight {
+  background: #1c1c26;
+  border-right: 3px solid #7c6fff;
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 1.5rem;
+  color: #d0d0e0;
+}
+body[dir="ltr"] .highlight { border-right: none; border-left: 3px solid #7c6fff; border-radius: 8px 0 0 8px; }
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid #1c1c26;
+  color: #8080a0;
+  font-size: 0.85rem;
+  margin-top: 3rem;
+}
+footer a { color: #b0b0c8; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <a href="/" class="logo-link" aria-label="חזרה לדף הבית · Back to home">← Eli Tools</a>
+    <h1 id="page-title">אודות Eli Tools</h1>
+    <div class="lang-toggle" role="group" aria-label="בחירת שפה · Language selection">
+      <button class="lang-btn active" onclick="setLang('he')" aria-label="עברית">עברית</button>
+      <button class="lang-btn" onclick="setLang('en')" aria-label="English">English</button>
+    </div>
+  </header>
+
+  <main role="main">
+
+  <!-- ── עברית ── -->
+  <div id="content-he" style="display:block">
+
+    <div class="highlight">
+      Eli Tools הוא אוסף כלים אונליין חינמיים לשימוש יומיומי, שנבנו כדי להיות פשוטים, מהירים וללא הסחות דעת מיותרות.
+      כל הכלים פועלים ישירות בדפדפן — בלי צורך בהתקנה, ובלי הרשמה (למעט FitApp, שדורש כניסה כדי לשמור היסטוריית אימונים).
+    </div>
+
+    <section class="active">
+      <h2>מי אנחנו</h2>
+      <p>Eli Tools הוא פרויקט עצמאי קטן שנוצר מתוך רצון לספק כלים יומיומיים מהירים ונטולי סרבול — בלי חשבונות מיותרים,
+        בלי פרסומות פולשניות, ובלי הורדות. האתר מתוחזק ומפותח על ידי מפתח יחיד.</p>
+    </section>
+
+    <section class="active">
+      <h2>הכלים שלנו</h2>
+      <ul>
+        <li><strong>⏱ שעון עצר</strong> — שעון עצר עם תמיכה בסיבובים ומסך מלא.</li>
+        <li><strong>⏳ ספירה לאחור</strong> — טיימר עם התראה קולית לכל משימה.</li>
+        <li><strong>🏫 טיימר לכיתה</strong> — טיימרים מוכנים מראש למורים.</li>
+        <li><strong>⚖️ מחשבון BMI</strong> — חישוב מדד מסת גוף מיידי.</li>
+        <li><strong>💰 מחשבון טיפ</strong> — חלוקת חשבון וטיפ בין סועדים.</li>
+        <li><strong>💪 FitApp</strong> — זיהוי תנועה חכם וספירת חזרות אוטומטית בעזרת מצלמה ובינה מלאכותית, כולל לוח תחרות שבועי.</li>
+      </ul>
+    </section>
+
+    <section class="active">
+      <h2>הגישה שלנו</h2>
+      <p>אנחנו מאמינים שכלים פשוטים לא צריכים חוויית שימוש מסובכת. לכן כל כלי באתר נבנה סביב מטרה אחת ברורה,
+        טוען מהר, ועובד גם במחשב וגם בנייד ללא צורך בהתקנת אפליקציה נפרדת.</p>
+    </section>
+
+    <section class="active">
+      <h2>יצירת קשר</h2>
+      <p>יש לך שאלה, הצעה לכלי חדש, או משוב? נשמח לשמוע — כתבו אלינו לאימייל
+        <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a>.</p>
+      <p>למידע על איך אנו מטפלים במידע, ראו את <a href="/privacy">מדיניות הפרטיות</a> שלנו.</p>
+    </section>
+
+  </div>
+
+  <!-- ── English ── -->
+  <div id="content-en" style="display:none" dir="ltr">
+
+    <div class="highlight">
+      Eli Tools is a collection of free online tools for everyday use, built to be simple, fast, and free of unnecessary
+      distractions. Every tool works directly in the browser — no installation, and no sign-in required (except FitApp,
+      which needs sign-in to save workout history).
+    </div>
+
+    <section class="active">
+      <h2>Who We Are</h2>
+      <p>Eli Tools is a small independent project created out of a desire to offer quick, no-nonsense everyday tools —
+        no unnecessary accounts, no intrusive ads, and no downloads. The site is built and maintained by a single developer.</p>
+    </section>
+
+    <section class="active">
+      <h2>Our Tools</h2>
+      <ul>
+        <li><strong>⏱ Stopwatch</strong> — a stopwatch with lap tracking and fullscreen mode.</li>
+        <li><strong>⏳ Countdown</strong> — a timer with a sound alert for any task.</li>
+        <li><strong>🏫 Classroom Timer</strong> — ready-made timers for teachers.</li>
+        <li><strong>⚖️ BMI Calculator</strong> — instant Body Mass Index calculation.</li>
+        <li><strong>💰 Tip Calculator</strong> — bill and tip splitting between diners.</li>
+        <li><strong>💪 FitApp</strong> — smart motion tracking and automatic rep counting via camera and AI, including a weekly leaderboard.</li>
+      </ul>
+    </section>
+
+    <section class="active">
+      <h2>Our Approach</h2>
+      <p>We believe simple tools shouldn't come with a complicated user experience. That's why every tool on this site is
+        built around one clear purpose, loads fast, and works on both desktop and mobile without a separate app install.</p>
+    </section>
+
+    <section class="active">
+      <h2>Contact Us</h2>
+      <p>Have a question, a suggestion for a new tool, or feedback? We'd love to hear from you — email us at
+        <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a>.</p>
+      <p>For information on how we handle data, see our <a href="/privacy">Privacy Policy</a>.</p>
+    </section>
+
+  </div>
+
+  </main>
+</div>
+
+<footer>
+  <a href="/">Eli Tools</a> &nbsp;·&nbsp;
+  <a href="/privacy">מדיניות פרטיות · Privacy Policy</a> &nbsp;·&nbsp; © 2026
+</footer>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.lang-btn:' + (lang === 'he' ? 'first-child' : 'last-child')).classList.add('active');
+  document.getElementById('content-he').style.display = lang === 'he' ? 'block' : 'none';
+  document.getElementById('content-en').style.display = lang === 'en' ? 'block' : 'none';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.body.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.getElementById('page-title').textContent = lang === 'he' ? 'אודות Eli Tools' : 'About Eli Tools';
+}
+</script>
+</body>
+</html>

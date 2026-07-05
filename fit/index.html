@@ -456,32 +456,6 @@
     }
     .btn-secondary:not(:disabled):hover { background: var(--bg-card-hover); color: var(--text-primary); }
 
-    /* Manual rep controls */
-    .manual-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      padding: 0 1rem 0.75rem;
-      flex-shrink: 0;
-    }
-    .manual-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 1.4rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    .manual-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .manual-label { font-size: 0.75rem; color: var(--text-muted); }
-
     /* Save modal */
     .modal-overlay {
       position: fixed;
@@ -572,9 +546,22 @@
       text-align: center;
       font-size: 0.78rem;
       color: var(--text-muted);
-      margin-bottom: 1rem;
       font-weight: 500;
     }
+    .exercise-filter { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem; margin-bottom: 0.75rem; -webkit-overflow-scrolling: touch; }
+    .filter-chip { flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 100px; padding: 0.4rem 0.9rem; font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .week-nav { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .week-nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; padding: 0.3rem 0.6rem; font-size: 0.85rem; cursor: pointer; }
+    .week-nav-btn:disabled { opacity: 0.35; cursor: default; }
+    .week-nav-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent-light); }
+    .winner-banner { display: flex; align-items: center; gap: 0.85rem; background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(245,158,11,0.05)); border: 1px solid rgba(245,158,11,0.4); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
+    .winner-banner .winner-crown { font-size: 2rem; }
+    .winner-banner .winner-info { flex: 1; min-width: 0; }
+    .winner-banner .winner-title { font-size: 0.72rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+    .winner-banner .winner-name { font-size: 1.05rem; font-weight: 800; margin-top: 2px; }
+    .winner-banner .winner-reps { font-size: 1.4rem; font-weight: 800; color: #f59e0b; text-align: center; }
+    .winner-banner .winner-reps span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; display: block; }
     .leaderboard-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .leaderboard-item {
       display: flex;
@@ -771,7 +758,6 @@
             <span class="cam-icon">📷</span>
             <p>הפעל מצלמה לזיהוי תנועה אוטומטי</p>
             <button id="enableCameraBtn" onclick="startCamera()">הפעל מצלמה</button>
-            <p style="margin-top:0.5rem;font-size:0.75rem;">או ספור ידנית עם הכפתורים למטה</p>
           </div>
           <div id="poseStatus">טוען...</div>
         </div>
@@ -792,13 +778,6 @@
         <!-- Phase Indicator -->
         <div id="phaseIndicator">בחר תרגיל והפעל אימון</div>
 
-        <!-- Manual Controls -->
-        <div class="manual-controls">
-          <button class="manual-btn" onclick="manualRep(-1)" title="הפחת חזרה">−</button>
-          <span class="manual-label">ספירה ידנית</span>
-          <button class="manual-btn" onclick="manualRep(1)" title="הוסף חזרה">+</button>
-        </div>
-
         <!-- Workout Controls -->
         <div class="workout-controls">
           <button class="btn btn-primary" id="startBtn" onclick="startWorkout()">▶ התחל</button>
@@ -813,7 +792,17 @@
           <h2>🏆 תחרות שבועית</h2>
           <button class="refresh-btn" onclick="loadLeaderboard()">↻ רענן</button>
         </div>
-        <p class="week-label" id="weekLabel"></p>
+        <div class="exercise-filter" id="exerciseFilter">
+          <button class="filter-chip active" data-exercise="all" onclick="setLeaderboardFilter('all', this)">הכל</button>
+          <button class="filter-chip" data-exercise="pushups" onclick="setLeaderboardFilter('pushups', this)">🤸 שכיבות סמיכה</button>
+          <button class="filter-chip" data-exercise="jumping_jacks" onclick="setLeaderboardFilter('jumping_jacks', this)">⭐ קפיצות</button>
+          <button class="filter-chip" data-exercise="pullups" onclick="setLeaderboardFilter('pullups', this)">🏋️ מתח</button>
+        </div>
+        <div class="week-nav">
+          <button class="week-nav-btn" id="weekPrevBtn" onclick="changeLeaderboardWeek(-1)">◀ שבוע קודם</button>
+          <p class="week-label" id="weekLabel"></p>
+          <button class="week-nav-btn" id="weekNextBtn" onclick="changeLeaderboardWeek(1)">שבוע הבא ▶</button>
+        </div>
         <div id="leaderboardContent">
           <div class="empty-state">
             <div class="empty-icon">🏆</div>
@@ -1036,10 +1025,19 @@ function handleGoogleSignIn() {
   }
 }
 
+function decodeJwtPayload(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+  const json = new TextDecoder('utf-8').decode(bytes);
+  return JSON.parse(json);
+}
+
 function handleGoogleCredential(response) {
   try {
-    // Decode JWT payload (no signature verification needed for display)
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    // Decode JWT payload (no signature verification needed for display).
+    // atob() alone decodes as Latin-1, which mangles multi-byte UTF-8 names (e.g. Hebrew) — decode via TextDecoder instead.
+    const payload = decodeJwtPayload(response.credential);
     const user = {
       id: payload.sub,
       name: payload.name || payload.email,
@@ -1127,7 +1125,7 @@ window.addEventListener('load', () => {
     }
   }
   // Set week label
-  document.getElementById('weekLabel').textContent = getCurrentWeekLabel();
+  document.getElementById('weekLabel').textContent = getWeekLabel();
 });
 
 // =====================================================
@@ -1212,7 +1210,7 @@ async function startCamera() {
     placeholder.innerHTML = `
       <span class="cam-icon">🚫</span>
       <p>לא ניתן לפתוח מצלמה: ${e.message}</p>
-      <p style="font-size:0.75rem;margin-top:0.4rem;">השתמש בספירה ידנית</p>
+      <p style="font-size:0.75rem;margin-top:0.4rem;">בדוק הרשאות מצלמה ונסה שוב</p>
     `;
     console.error('Camera error:', e);
     showToast('שגיאה בפתיחת מצלמה', 'error');
@@ -1575,11 +1573,6 @@ function addRep() {
   setTimeout(() => { el.style.transform = 'scale(1)'; }, 150);
 }
 
-function manualRep(delta) {
-  repCount = Math.max(0, repCount + delta);
-  updateRepDisplay();
-}
-
 function updateRepDisplay() {
   document.getElementById('repCount').textContent = repCount;
 }
@@ -1672,37 +1665,61 @@ async function saveWorkout() {
 // =====================================================
 // LEADERBOARD
 // =====================================================
-function getCurrentWeekRange() {
+function getWeekRange(offset = 0) {
   const now = new Date();
   const day = now.getDay(); // 0=Sun
   const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - day);
+  startOfWeek.setDate(now.getDate() - day + offset * 7);
   startOfWeek.setHours(0, 0, 0, 0);
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 7);
   return { start: startOfWeek, end: endOfWeek };
 }
 
-function getCurrentWeekLabel() {
-  const { start, end } = getCurrentWeekRange();
+function getWeekLabel(offset = 0) {
+  const { start, end } = getWeekRange(offset);
   const fmt = (d) => `${d.getDate()}/${d.getMonth()+1}`;
-  return `שבוע נוכחי: ${fmt(start)} – ${fmt(new Date(end.getTime()-1))}`;
+  const range = `${fmt(start)} – ${fmt(new Date(end.getTime()-1))}`;
+  return offset === 0 ? `שבוע נוכחי: ${range}` : `${range}`;
+}
+
+let leaderboardWeekOffset = 0;
+let leaderboardExerciseFilter = 'all';
+
+function setLeaderboardFilter(exercise, btn) {
+  leaderboardExerciseFilter = exercise;
+  document.querySelectorAll('#exerciseFilter .filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadLeaderboard();
+}
+
+function changeLeaderboardWeek(delta) {
+  const newOffset = leaderboardWeekOffset + delta;
+  if (newOffset > 0) return; // can't go into the future
+  leaderboardWeekOffset = newOffset;
+  loadLeaderboard();
 }
 
 async function loadLeaderboard() {
   const container = document.getElementById('leaderboardContent');
   container.innerHTML = '<div class="loading-spinner"></div>';
 
+  document.getElementById('weekLabel').textContent = getWeekLabel(leaderboardWeekOffset);
+  document.getElementById('weekNextBtn').disabled = leaderboardWeekOffset >= 0;
+
+  const { start, end } = getWeekRange(leaderboardWeekOffset);
+  const filter = leaderboardExerciseFilter;
   let rows = [];
 
   if (supabaseClient) {
     try {
-      const { start, end } = getCurrentWeekRange();
-      const { data, error } = await supabaseClient
+      let query = supabaseClient
         .from(WORKOUTS_TABLE)
-        .select('user_id, user_name, reps')
+        .select('user_id, user_name, reps, exercise')
         .gte('worked_out_at', start.toISOString())
         .lt('worked_out_at', end.toISOString());
+      if (filter !== 'all') query = query.eq('exercise', filter);
+      const { data, error } = await query;
       if (error) throw error;
       // Aggregate by user
       const userMap = {};
@@ -1721,10 +1738,9 @@ async function loadLeaderboard() {
   // Merge local data if no Supabase
   if (rows.length === 0) {
     const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]');
-    const { start, end } = getCurrentWeekRange();
     const thisWeek = local.filter(w => {
       const d = new Date(w.worked_out_at);
-      return d >= start && d < end;
+      return d >= start && d < end && (filter === 'all' || w.exercise === filter);
     });
     const userMap = {};
     for (const w of thisWeek) {
@@ -1746,6 +1762,17 @@ async function loadLeaderboard() {
     return;
   }
 
+  const winner = rows[0];
+  const winnerBanner = `
+    <div class="winner-banner">
+      <div class="winner-crown">👑</div>
+      <div class="winner-info">
+        <div class="winner-title">מנצח/ת השבוע</div>
+        <div class="winner-name">${escHtml(winner.name)}</div>
+      </div>
+      <div class="winner-reps">${winner.reps}<span>חזרות</span></div>
+    </div>`;
+
   const html = rows.map((row, i) => {
     const rank = i + 1;
     const medals = ['🥇', '🥈', '🥉'];
@@ -1764,7 +1791,7 @@ async function loadLeaderboard() {
       </div>`;
   }).join('');
 
-  container.innerHTML = `<div class="leaderboard-list">${html}</div>`;
+  container.innerHTML = `${winnerBanner}<div class="leaderboard-list">${html}</div>`;
 }
 
 function avatarColor(uid) {
@@ -1820,7 +1847,7 @@ async function loadHistory() {
   // Summary stats
   const totalReps = workouts.reduce((s, w) => s + (w.reps || 0), 0);
   const totalSecs = workouts.reduce((s, w) => s + (w.duration_seconds || 0), 0);
-  const { start: wStart } = getCurrentWeekRange();
+  const { start: wStart } = getWeekRange();
   const weekReps = workouts.filter(w => new Date(w.worked_out_at) >= wStart).reduce((s, w) => s + (w.reps || 0), 0);
 
   // Group by week then month

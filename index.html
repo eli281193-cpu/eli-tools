@@ -59,6 +59,28 @@ h1 {
 .tool-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
 .tool-desc { font-size: 0.8rem; color: #606078; }
 
+.tools-info, .about-section {
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 2.5rem;
+}
+.tools-info h2, .about-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #f0f0f5;
+}
+.tool-info-block {
+  background: #14141c;
+  border: 1px solid #22222f;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.tool-info-block h3 { font-size: 0.95rem; margin-bottom: 0.4rem; color: #f0f0f5; }
+.tool-info-block p { font-size: 0.85rem; color: #9090a8; line-height: 1.7; }
+.about-section p { font-size: 0.9rem; color: #9090a8; line-height: 1.8; }
+.about-section a { color: #9a90ff; }
+
 /* Ad area */
 .ad-area {
   width: 100%;
@@ -174,12 +196,47 @@ footer a:hover { color: #9090a8; }
   </a>
 </div>
 
+<section class="tools-info">
+  <h2>מה תמצאו באתר</h2>
+  <div class="tool-info-block">
+    <h3>⏱ שעון עצר</h3>
+    <p>שעון עצר מקוון וחינמי שמתחיל, עוצר וממשיך בלחיצת כפתור אחת. תומך במדידת סיבובים (Lap) כדי לעקוב אחרי זמני ביניים באימון ריצה או שחייה, ונפתח במצב מסך מלא לנוחות מרבית. פועל ישירות בדפדפן בלי התקנה ובלי הרשמה, ומתאים גם למחשב וגם לנייד.</p>
+  </div>
+  <div class="tool-info-block">
+    <h3>⏳ ספירה לאחור</h3>
+    <p>טיימר ספירה לאחור שמאפשר להגדיר כל זמן רצוי ולקבל התראה קולית ברורה כשהזמן נגמר. שימושי לבישול, מדיטציה, הפסקות עבודה בשיטת פומודורו, או כל משימה שדורשת גבול זמן. ממשק פשוט ונקי שעובד בכל דפדפן, ללא צורך בהתקנת אפליקציה.</p>
+  </div>
+  <div class="tool-info-block">
+    <h3>🏫 טיימר לכיתה</h3>
+    <p>טיימר מוכן מראש עם אפשרויות של 5, 10, 20 ו-45 דקות — מותאם בדיוק לזמני שיעור, מבחנים ותרגילים בכיתה. מציג את הזמן הנותר בבירור על המסך כדי שכל התלמידים יוכלו לראות, ומשמיע צליל כשהזמן מסתיים. פשוט להפעלה עבור מורים שרוצים לנהל זמן בלי הסחות דעת.</p>
+  </div>
+  <div class="tool-info-block">
+    <h3>⚖️ מחשבון BMI</h3>
+    <p>מחשבון מדד מסת גוף (BMI) שמחשב באופן מיידי את היחס בין משקל לגובה ומציג את הטווח הבריאותי המתאים. מסייע לעקוב אחרי מגמות במשקל לאורך זמן כחלק משגרת כושר או תזונה. אין צורך בהרשמה — רק להזין נתונים ולקבל תוצאה מיידית.</p>
+  </div>
+  <div class="tool-info-block">
+    <h3>💰 מחשבון טיפ</h3>
+    <p>מחשבון טיפ וחלוקת חשבון שמאפשר לחשב במהירות כמה להשאיר כטיפ ולחלק את הסכום הכולל בין כל הסועדים בשולחן. חוסך את המבוכה והחישובים הידניים במסעדה, ומתאים לכל אחוז טיפ שתבחרו. פשוט, מהיר, וללא הסחות דעת.</p>
+  </div>
+  <div class="tool-info-block">
+    <h3>💪 FitApp</h3>
+    <p>FitApp היא אפליקציית כושר חכמה שמשתמשת במצלמה ובבינה מלאכותית (TensorFlow.js) כדי לזהות תנועה ולספור חזרות באופן אוטומטי — בשכיבות סמיכה, קפיצות ומתח. אין צורך בציוד נוסף, רק מצלמה רגילה של מחשב או טלפון. כוללת גם לוח תחרות שבועי מול חברים, כדי לשמור על מוטיבציה גבוהה באימונים.</p>
+  </div>
+</section>
+
+<section class="about-section">
+  <h2>אודות Eli Tools</h2>
+  <p>Eli Tools הוא אוסף כלים אונליין חינמיים לשימוש יומיומי — טיימרים, מחשבונים ומעקב כושר — שנבנו כדי להיות פשוטים, מהירים וללא הסחות דעת מיותרות. כל הכלים פועלים ישירות בדפדפן, בלי צורך בהתקנה או הרשמה, ונגישים גם מהמחשב וגם מהנייד. <a href="/about">קראו עוד על האתר</a>.</p>
+</section>
+
 <!-- Ad bottom -->
 <div class="ad-area">
   Advertisement
 </div>
 
 <footer>
+  <a href="/about">אודות · About</a>
+  &nbsp;·&nbsp;
   <a href="/privacy">מדיניות פרטיות · Privacy Policy</a>
   &nbsp;·&nbsp;
   <span>© 2026 Eli Tools</span>
