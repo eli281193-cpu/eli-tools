@@ -28,7 +28,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-primary: #0a0a0a;
+      --bg-primary: #000000;
       --bg-secondary: #141414;
       --bg-card: #1a1a1a;
       --bg-card-hover: #242424;
@@ -70,31 +70,26 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      background: radial-gradient(ellipse at 50% 30%, rgba(0,255,136,0.16) 0%, var(--bg-primary) 70%);
+      background: var(--bg-primary);
       padding: 2rem;
       text-align: center;
     }
     #loginScreen .logo {
       width: 90px;
       height: 90px;
-      background: linear-gradient(135deg, var(--accent), var(--danger));
-      border-radius: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 44px;
+      font-size: 60px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 0 40px var(--accent-glow);
+      filter: brightness(0) invert(1);
     }
     #loginScreen h1 {
       font-size: 2.2rem;
       font-weight: 900;
       letter-spacing: -0.5px;
       margin-bottom: 0.4rem;
-      background: linear-gradient(135deg, #fff 40%, var(--accent-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #fff;
     }
     #loginScreen .subtitle {
       color: var(--text-secondary);
@@ -154,9 +149,9 @@
       align-items: center;
       justify-content: center;
       gap: 0.6rem;
-      background: transparent;
-      color: var(--accent-light);
-      border: 2px solid var(--accent);
+      background: var(--bg-card);
+      color: #fff;
+      border: 2px solid #3b82f6;
       border-radius: 14px;
       padding: 0.75rem 2rem;
       font-size: 0.95rem;
@@ -168,9 +163,9 @@
       transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
     }
     #guestSignInBtn:hover {
-      background: rgba(0,255,136,0.12);
+      background: rgba(59,130,246,0.12);
       transform: translateY(-2px);
-      box-shadow: 0 4px 18px var(--accent-glow);
+      box-shadow: 0 4px 18px rgba(59,130,246,0.35);
     }
     #guestSignInBtn:active { transform: translateY(0); }
     #loginError { color: var(--danger); font-size: 0.85rem; margin-top: 1rem; min-height: 1.2em; }
@@ -190,7 +185,7 @@
       flex-shrink: 0;
       min-height: 52px;
     }
-    #topBar .app-title { font-weight: 900; font-size: 1.1rem; color: var(--accent-light); }
+    #topBar .app-title { font-weight: 900; font-size: 1.1rem; color: #fff; }
     #userAvatar {
       width: 34px;
       height: 34px;
@@ -360,9 +355,9 @@
     #cameraPlaceholder .cam-icon { font-size: 3rem; }
     #cameraPlaceholder p { font-size: 0.85rem; text-align: center; padding: 0 1rem; }
     #enableCameraBtn {
-      background: var(--accent);
-      color: var(--on-accent);
-      border: none;
+      background: var(--bg-card);
+      color: #fff;
+      border: 1px solid #fff;
       border-radius: 10px;
       padding: 0.85rem 1.4rem;
       min-height: var(--btn-min-height);
@@ -466,18 +461,15 @@
       gap: 6px;
     }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary { background: var(--accent); color: var(--on-accent); }
-    .btn-primary:not(:disabled):hover { background: var(--accent-light); }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn-danger:not(:disabled):hover { background: #e0264f; }
-    .btn-success { background: var(--success); color: #fff; }
-    .btn-success:not(:disabled):hover { background: #16a34a; }
-    .btn-secondary {
+    .btn-primary, .btn-danger, .btn-success, .btn-secondary {
       background: var(--bg-card);
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
+      border: 1px solid #fff;
+      color: #fff;
     }
-    .btn-secondary:not(:disabled):hover { background: var(--bg-card-hover); color: var(--text-primary); }
+    .btn-primary:not(:disabled):hover,
+    .btn-danger:not(:disabled):hover,
+    .btn-success:not(:disabled):hover,
+    .btn-secondary:not(:disabled):hover { background: var(--bg-card-hover); }
 
     /* Save modal */
     .modal-overlay {
