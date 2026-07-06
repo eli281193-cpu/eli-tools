@@ -339,11 +339,12 @@
     /* Camera section */
     .camera-section {
       position: relative;
-      width: auto;
-      margin: 0 1rem;
-      height: 180px;
+      width: 100%;
+      margin: 0;
+      height: clamp(300px, 85vw, 440px);
+      min-height: 300px;
       background: #201414;
-      border-radius: 20px;
+      border-radius: 0;
       flex-shrink: 0;
       overflow: hidden;
     }
@@ -1192,7 +1193,7 @@ let detector = null;
 let videoStream = null;
 let poseAnimFrame = null;
 let cameraActive = false;
-let modelLoading = false;
+let tfInitPromise = null;
 
 // Per-exercise rep state machines
 const exerciseState = {
@@ -1410,23 +1411,31 @@ function switchTab(tabId, btn) {
 // =====================================================
 // TENSORFLOW / MOVENET
 // =====================================================
-async function initTF() {
-  if (modelLoading || detector) return;
-  modelLoading = true;
-  updatePoseStatus('טוען מודל AI...', false);
-  try {
-    await tf.ready();
-    detector = await poseDetection.createDetector(
-      poseDetection.SupportedModels.MoveNet,
-      { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
-    );
-    updatePoseStatus('מודל מוכן ✓', true);
-    console.log('MoveNet loaded');
-  } catch(e) {
-    console.warn('MoveNet load failed:', e);
-    updatePoseStatus('AI לא זמין', false);
-  }
-  modelLoading = false;
+// Single-flight loader: concurrent callers (e.g. the proactive load kicked off at
+// login racing against the user tapping "enable camera") all await the SAME
+// in-flight promise, so nobody ever sees a stale "already loading" no-op before
+// detector is actually set — that gap used to leave startPoseLoop() never called.
+function initTF() {
+  if (detector) return Promise.resolve();
+  if (tfInitPromise) return tfInitPromise;
+
+  tfInitPromise = (async () => {
+    updatePoseStatus('טוען מודל AI...', false);
+    try {
+      await tf.ready();
+      detector = await poseDetection.createDetector(
+        poseDetection.SupportedModels.MoveNet,
+        { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
+      );
+      updatePoseStatus('מודל מוכן ✓', true);
+      console.log('MoveNet loaded');
+    } catch(e) {
+      console.warn('MoveNet load failed:', e);
+      updatePoseStatus('AI לא זמין', false);
+    }
+  })();
+
+  return tfInitPromise;
 }
 
 function updatePoseStatus(text, ok) {
