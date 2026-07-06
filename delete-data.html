@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מחיקת נתונים | Delete My Data — Eli Tools</title>
+<meta name="description" content="מחיקת כל הנתונים שלך מאתר Eli Tools באופן אוטומטי. Automatically delete all your data from Eli Tools.">
+<meta name="robots" content="noindex">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0a0a0f;
+  color: #d0d0e0;
+  line-height: 1.8;
+  font-size: 16px;
+}
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+header {
+  text-align: center;
+  padding: 2rem 0 3rem;
+  border-bottom: 1px solid #222;
+  margin-bottom: 3rem;
+}
+.logo-link {
+  color: #9a90ff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+h1 {
+  font-size: 2rem;
+  color: #f0f0f5;
+  margin-bottom: 0.5rem;
+}
+.lang-toggle {
+  display: flex;
+  justify-content: center;
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+  margin: 1.5rem auto 0;
+}
+.lang-btn {
+  background: none;
+  border: none;
+  color: #b0b0c8;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 7px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.lang-btn.active { background: #7c6fff; color: #fff; }
+.lang-btn:hover:not(.active) { background: #1c1c26; color: #f0f0f5; }
+
+section { display: none; }
+section.active { display: block; }
+
+p { margin-bottom: 1rem; color: #c0c0d8; }
+a { color: #9a90ff; }
+
+.highlight {
+  background: #1c1c26;
+  border-right: 3px solid #7c6fff;
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 2rem;
+  color: #d0d0e0;
+}
+body[dir="ltr"] .highlight { border-right: none; border-left: 3px solid #7c6fff; border-radius: 8px 0 0 8px; }
+
+form {
+  background: #14141c;
+  border: 1px solid #22222f;
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+label { display: block; font-size: 0.85rem; color: #b0b0c8; margin-bottom: 0.5rem; font-weight: 600; }
+input[type="email"] {
+  width: 100%;
+  background: #0a0a0f;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  color: #f0f0f5;
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1.25rem;
+}
+input[type="email"]:focus { outline: none; border-color: #7c6fff; }
+.confirm-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: #b0b0c8;
+}
+.confirm-row input[type="checkbox"] { margin-top: 3px; flex-shrink: 0; width: 18px; height: 18px; }
+button[type="submit"] {
+  width: 100%;
+  background: transparent;
+  border: 2px solid #ef4444;
+  color: #ef4444;
+  border-radius: 12px;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+button[type="submit"]:hover:not(:disabled) { background: rgba(239,68,68,0.12); }
+button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#result { margin-top: 1.5rem; }
+.result-box { border-radius: 12px; padding: 1rem 1.25rem; font-size: 0.9rem; }
+.result-box.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.35); color: #c0c0d8; }
+.result-box.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35); color: #c0c0d8; }
+.result-box p { margin-bottom: 0.4rem; color: inherit; }
+.result-box p:last-child { margin-bottom: 0; }
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid #1c1c26;
+  color: #8080a0;
+  font-size: 0.85rem;
+  margin-top: 3rem;
+}
+footer a { color: #b0b0c8; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <a href="/" class="logo-link" aria-label="חזרה לדף הבית · Back to home">← Eli Tools</a>
+    <h1 id="page-title">מחיקת נתונים</h1>
+    <div class="lang-toggle" role="group" aria-label="בחירת שפה · Language selection">
+      <button class="lang-btn active" onclick="setLang('he')" aria-label="עברית">עברית</button>
+      <button class="lang-btn" onclick="setLang('en')" aria-label="English">English</button>
+    </div>
+  </header>
+
+  <main role="main">
+
+    <!-- ── עברית ── -->
+    <div id="content-he" style="display:block">
+      <section class="active">
+        <div class="highlight">
+          מלא/י את כתובת האימייל שלך, ולחיצה אחת תמחק לצמיתות את כל הנתונים המשויכים אליה — היסטוריית אימוני FitApp
+          וניחושי המשחקים — ישירות ממסד הנתונים שלנו. הפעולה מיידית ואינה דורשת פנייה אלינו.
+        </div>
+        <form id="deleteForm">
+          <label for="emailInput">כתובת אימייל</label>
+          <input type="email" id="emailInput" placeholder="you@example.com" required autocomplete="email">
+          <div class="confirm-row">
+            <input type="checkbox" id="confirmCheck" required>
+            <label for="confirmCheck" style="margin-bottom:0;font-weight:400;">
+              אני מאשר/ת שזוהי כתובת האימייל שלי, ושאני מבקש/ת למחוק את כל הנתונים המשויכים אליה לצמיתות. הפעולה אינה הפיכה.
+            </label>
+          </div>
+          <button type="submit" id="deleteBtn">מחק את הנתונים שלי</button>
+        </form>
+        <div id="result"></div>
+        <p style="margin-top:1.5rem;font-size:0.8rem;color:#8080a0;">
+          נתקלת בבעיה? כתבו לנו ב<a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a> ונטפל בבקשה ידנית.
+          למידע נוסף ראו את <a href="/privacy">מדיניות הפרטיות</a> שלנו.
+        </p>
+      </section>
+    </div>
+
+    <!-- ── English ── -->
+    <div id="content-en" style="display:none" dir="ltr">
+      <section class="active">
+        <div class="highlight">
+          Enter your email address, and with one click permanently delete all data associated with it — FitApp workout
+          history and game predictions — directly from our database. The action is immediate and requires no request to us.
+        </div>
+        <form id="deleteFormEn">
+          <label for="emailInputEn">Email address</label>
+          <input type="email" id="emailInputEn" placeholder="you@example.com" required autocomplete="email">
+          <div class="confirm-row">
+            <input type="checkbox" id="confirmCheckEn" required>
+            <label for="confirmCheckEn" style="margin-bottom:0;font-weight:400;">
+              I confirm this is my email address, and that I am requesting permanent deletion of all data associated with it. This action cannot be undone.
+            </label>
+          </div>
+          <button type="submit" id="deleteBtnEn">Delete My Data</button>
+        </form>
+        <div id="resultEn"></div>
+        <p style="margin-top:1.5rem;font-size:0.8rem;color:#8080a0;">
+          Running into trouble? Email us at <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a> and we'll handle it manually.
+          See our <a href="/privacy">Privacy Policy</a> for more information.
+        </p>
+      </section>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <a href="/">Eli Tools</a> &nbsp;·&nbsp;
+  <a href="/privacy">מדיניות פרטיות · Privacy Policy</a> &nbsp;·&nbsp; © 2026
+</footer>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.lang-btn:' + (lang === 'he' ? 'first-child' : 'last-child')).classList.add('active');
+  document.getElementById('content-he').style.display = lang === 'he' ? 'block' : 'none';
+  document.getElementById('content-en').style.display = lang === 'en' ? 'block' : 'none';
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.body.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.getElementById('page-title').textContent = lang === 'he' ? 'מחיקת נתונים' : 'Delete My Data';
+}
+
+// ── Supabase-backed automatic data deletion ──
+const SUPABASE_URL = 'https://qibukqzorekwcpdaeusj.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ygFhxdacKGxsZ8_E7sI6ZQ_SzjhyUTy';
+
+let supabaseClient = null;
+try {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (e) {
+  console.error('Supabase init failed:', e);
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Tables + the column each one uses to identify a user by email.
+const DELETE_TARGETS = [
+  { table: 'workouts', column: 'user_email', labelHe: 'FitApp (אימונים)', labelEn: 'FitApp (workouts)' },
+  { table: 'results',  column: 'email',      labelHe: 'ניחושי משחקים',    labelEn: 'Game predictions' },
+];
+
+async function runDeletion(email, lang) {
+  if (!supabaseClient) {
+    return {
+      ok: false,
+      html: lang === 'he'
+        ? 'שגיאה בחיבור למסד הנתונים. אנא נסו שוב מאוחר יותר או פנו אלינו במייל.'
+        : 'Could not connect to the database. Please try again later or contact us by email.',
+    };
+  }
+
+  const lines = [];
+  let anyError = false;
+
+  for (const target of DELETE_TARGETS) {
+    try {
+      const { data, error } = await supabaseClient
+        .from(target.table)
+        .delete()
+        .eq(target.column, email)
+        .select();
+      if (error) throw error;
+      const count = (data || []).length;
+      const label = lang === 'he' ? target.labelHe : target.labelEn;
+      lines.push(
+        lang === 'he'
+          ? `${label}: נמחקו ${count} רשומות.`
+          : `${label}: ${count} record(s) deleted.`
+      );
+    } catch (err) {
+      anyError = true;
+      const label = lang === 'he' ? target.labelHe : target.labelEn;
+      const msg = escHtml(err && err.message ? err.message : String(err));
+      lines.push(
+        lang === 'he'
+          ? `${label}: שגיאה במחיקה (${msg}).`
+          : `${label}: deletion failed (${msg}).`
+      );
+    }
+  }
+
+  return { ok: !anyError, html: lines.map((l) => `<p>${l}</p>`).join('') };
+}
+
+function wireForm(formId, emailId, confirmId, btnId, resultId, lang) {
+  const form = document.getElementById(formId);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById(emailId).value.trim().toLowerCase();
+    const confirmed = document.getElementById(confirmId).checked;
+    const btn = document.getElementById(btnId);
+    const resultEl = document.getElementById(resultId);
+    if (!email || !confirmed) return;
+
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = lang === 'he' ? 'מוחק...' : 'Deleting...';
+    resultEl.innerHTML = '';
+
+    const { ok, html } = await runDeletion(email, lang);
+    const footer = lang === 'he'
+      ? `<p style="margin-top:0.75rem;font-size:0.8rem;">אם משהו לא נמחק כראוי, כתבו לנו: <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a></p>`
+      : `<p style="margin-top:0.75rem;font-size:0.8rem;">If something wasn't deleted correctly, email us: <a href="mailto:eli281193@gmail.com">eli281193@gmail.com</a></p>`;
+    resultEl.innerHTML = `<div class="result-box ${ok ? 'success' : 'error'}">${html}${footer}</div>`;
+
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  });
+}
+
+wireForm('deleteForm', 'emailInput', 'confirmCheck', 'deleteBtn', 'result', 'he');
+wireForm('deleteFormEn', 'emailInputEn', 'confirmCheckEn', 'deleteBtnEn', 'resultEn', 'en');
+</script>
+</body>
+</html>
