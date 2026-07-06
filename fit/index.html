@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="theme-color" content="#170f10" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FitApp" />
   <title>FitApp - אפליקציית כושר</title>
 
   <!-- PWA Manifest via data URI -->
-  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22FitApp%22%2C%22short_name%22%3A%22FitApp%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230a0a0a%22%2C%22theme_color%22%3A%22%230a0a0a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsQAAA7EB9YPtSQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZxjeCT4AAAMtSURBVHic7d0xTsNAEIbhJxQJKSkpKSkpKQkpKSkp%2BUMOQEFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ%3D%3D%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22FitApp%22%2C%22short_name%22%3A%22FitApp%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23170f10%22%2C%22theme_color%22%3A%22%23170f10%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsQAAA7EB9YPtSQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZxjeCT4AAAMtSURBVHic7d0xTsNAEIbhJxQJKSkpKSkpKQkpKSkp%2BUMOQEFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQ%3D%3D%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
+
+  <!-- Fonts: Rubik (Hebrew UI) + Oswald (numerals, wordmark) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
@@ -28,24 +33,26 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-primary: #000000;
-      --bg-secondary: #141414;
-      --bg-card: #1a1a1a;
-      --bg-card-hover: #242424;
-      --accent: #00ff88;
-      --accent-light: #5cffb0;
-      --accent-glow: rgba(0,255,136,0.35);
-      --on-accent: #06190f;
+      --bg-primary: #170f10;
+      --bg-secondary: #1c1112;
+      --bg-card: #251616;
+      --bg-card-hover: #2e1c1a;
+      --accent: #ef5b47;
+      --accent-light: #f4816f;
+      --accent-glow: rgba(239,91,71,0.35);
+      --cyan: #4ed6d6;
+      --on-accent: #170f10;
       --success: #22c55e;
-      --danger: #ff3366;
+      --danger: #ff3b30;
       --warning: #f59e0b;
-      --text-primary: #f0f0f0;
-      --text-secondary: #a0a0a0;
-      --text-muted: #666;
-      --border: #333;
+      --text-primary: #f8f0ee;
+      --text-secondary: #b39b96;
+      --text-muted: #8f7570;
+      --border: #3a2624;
       --nav-height: 64px;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --btn-min-height: 56px;
+      --font-num: 'Oswald', sans-serif;
     }
 
     html, body {
@@ -54,7 +61,7 @@
       overflow: hidden;
       background: var(--bg-primary);
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       font-size: 16px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
@@ -75,69 +82,80 @@
       text-align: center;
     }
     #loginScreen .logo {
-      width: 90px;
-      height: 90px;
+      width: 68px;
+      height: 68px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 60px;
-      margin-bottom: 1.5rem;
-      filter: brightness(0) invert(1);
+      font-size: 30px;
+      margin-bottom: 1.2rem;
+      background: var(--accent);
+      border-radius: 20px;
     }
     #loginScreen h1 {
-      font-size: 2.2rem;
-      font-weight: 900;
-      letter-spacing: -0.5px;
+      font-family: var(--font-num);
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
       margin-bottom: 0.4rem;
-      color: #fff;
+      color: var(--text-primary);
     }
     #loginScreen .subtitle {
       color: var(--text-secondary);
-      font-size: 1.05rem;
-      margin-bottom: 2.5rem;
+      font-size: 0.8rem;
+      margin-bottom: 1.75rem;
     }
     #loginScreen .features {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 3rem;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
       width: 100%;
       max-width: 300px;
     }
     #loginScreen .feature-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
       background: var(--bg-card);
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      padding: 0.7rem 0.85rem;
+      border-radius: 14px;
       text-align: right;
     }
-    #loginScreen .feature-item .icon { font-size: 1.4rem; flex-shrink: 0; }
-    #loginScreen .feature-item .text { font-size: 0.9rem; color: var(--text-secondary); }
+    #loginScreen .feature-item .icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: rgba(239,91,71,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+    #loginScreen .feature-item:nth-child(2) .icon { background: rgba(78,214,214,0.18); }
+    #loginScreen .feature-item .text { font-size: 0.78rem; color: var(--text-primary); }
     #loginSignInBtn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      background: #fff;
-      color: #3c4043;
+      background: var(--accent);
+      color: var(--on-accent);
       border: none;
       border-radius: 14px;
       padding: 0.85rem 2rem;
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       width: 100%;
       max-width: 300px;
       min-height: var(--btn-min-height);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: transform 0.15s, filter 0.15s;
     }
-    #loginSignInBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
+    #loginSignInBtn:hover { filter: brightness(1.08); }
     #loginSignInBtn:active { transform: translateY(0); }
-    #loginSignInBtn svg { width: 22px; height: 22px; flex-shrink: 0; }
+    #loginSignInBtn svg { width: 20px; height: 20px; flex-shrink: 0; }
     .google-domain-note {
       font-size: 0.72rem;
       color: var(--text-muted);
@@ -148,26 +166,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.6rem;
-      background: var(--bg-card);
-      color: #fff;
-      border: 2px solid #3b82f6;
-      border-radius: 14px;
-      padding: 0.75rem 2rem;
-      font-size: 0.95rem;
-      font-weight: 600;
+      gap: 0.4rem;
+      background: none;
+      color: var(--text-secondary);
+      border: none;
+      text-decoration: underline;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
       cursor: pointer;
       width: 100%;
       max-width: 300px;
       min-height: var(--btn-min-height);
       transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
     }
-    #guestSignInBtn:hover {
-      background: rgba(59,130,246,0.12);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 18px rgba(59,130,246,0.35);
-    }
-    #guestSignInBtn:active { transform: translateY(0); }
+    #guestSignInBtn:hover { color: var(--text-primary); }
     #loginError { color: var(--danger); font-size: 0.85rem; margin-top: 1rem; min-height: 1.2em; }
 
     /* ===== MAIN APP ===== */
@@ -185,10 +198,10 @@
       flex-shrink: 0;
       min-height: 52px;
     }
-    #topBar .app-title { font-weight: 900; font-size: 1.1rem; color: #fff; }
+    #topBar .app-title { font-weight: 700; font-size: 0.8rem; color: var(--text-primary); }
     #userAvatar {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid var(--accent);
@@ -196,30 +209,34 @@
       background: var(--bg-card);
     }
     #userAvatarFallback {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--danger));
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
-      color: #fff;
-      border: 2px solid var(--accent);
+      color: var(--on-accent);
     }
     #signOutBtn {
-      background: transparent;
-      border: 1px solid var(--border);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: none;
       color: var(--text-secondary);
-      border-radius: 8px;
-      padding: 0.3rem 0.7rem;
-      font-size: 0.78rem;
+      border-radius: 50%;
+      padding: 0;
+      font-size: 0.75rem;
       cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
+      transition: color 0.15s;
     }
-    #signOutBtn:hover { border-color: var(--danger); color: var(--danger); }
+    #signOutBtn:hover { color: var(--danger); }
 
     /* Tab content area */
     #tabContent {
@@ -297,39 +314,38 @@
     .exercise-selector::-webkit-scrollbar { display: none; }
     .exercise-btn {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       background: var(--bg-card);
-      border: 2px solid transparent;
-      border-radius: 14px;
-      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 13px;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
-      min-width: 90px;
+      flex-shrink: 0;
       color: var(--text-secondary);
+      font-size: 11.5px;
     }
     .exercise-btn.active {
-      border-color: var(--accent);
-      background: rgba(0,255,136,0.12);
-      color: var(--text-primary);
+      background: var(--accent);
+      color: var(--on-accent);
+      font-weight: 700;
     }
-    .exercise-btn .ex-icon { font-size: 1.6rem; }
-    .exercise-btn .ex-name { font-size: 0.72rem; font-weight: 600; }
+    .exercise-btn .ex-icon { font-size: 1rem; line-height: 1; }
+    .exercise-btn .ex-name { font-size: 11.5px; font-weight: inherit; }
 
     /* Camera section */
     .camera-section {
       position: relative;
-      width: 100%;
-      background: #000;
+      width: auto;
+      margin: 0 1rem;
+      height: 180px;
+      background: #201414;
+      border-radius: 20px;
       flex-shrink: 0;
       overflow: hidden;
-    }
-    .camera-section::after {
-      content: '';
-      display: block;
-      padding-top: 75%; /* 4:3 aspect ratio */
     }
     .camera-section video,
     .camera-section canvas {
@@ -339,6 +355,19 @@
       object-fit: cover;
     }
     .camera-section canvas { z-index: 2; pointer-events: none; }
+    /* AR-style viewfinder corner brackets */
+    .cam-corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 0 solid var(--cyan);
+      z-index: 3;
+      pointer-events: none;
+    }
+    .cam-corner.tl { top: 12px; left: 12px; border-top-width: 2.5px; border-left-width: 2.5px; border-radius: 4px 0 0 0; }
+    .cam-corner.tr { top: 12px; right: 12px; border-top-width: 2.5px; border-right-width: 2.5px; border-radius: 0 4px 0 0; }
+    .cam-corner.bl { bottom: 12px; left: 12px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-radius: 0 0 0 4px; }
+    .cam-corner.br { bottom: 12px; right: 12px; border-bottom-width: 2.5px; border-right-width: 2.5px; border-radius: 0 0 4px 0; }
     #cameraPlaceholder {
       position: absolute;
       top: 0; left: 0;
@@ -350,90 +379,113 @@
       color: var(--text-muted);
       gap: 0.5rem;
       z-index: 1;
-      background: #111;
+      background-image: repeating-linear-gradient(135deg, var(--bg-card), var(--bg-card) 10px, #1c1111 10px, #1c1111 20px);
+      background-color: var(--bg-card);
     }
-    #cameraPlaceholder .cam-icon { font-size: 3rem; }
-    #cameraPlaceholder p { font-size: 0.85rem; text-align: center; padding: 0 1rem; }
+    #cameraPlaceholder .cam-icon { font-size: 2rem; opacity: 0.7; }
+    #cameraPlaceholder .cam-caption {
+      font-family: ui-monospace, monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    #cameraPlaceholder p { font-size: 0.78rem; text-align: center; padding: 0 1rem; color: var(--text-secondary); }
     #enableCameraBtn {
-      background: var(--bg-card);
-      color: #fff;
-      border: 1px solid #fff;
+      background: var(--accent);
+      color: var(--on-accent);
+      border: none;
       border-radius: 10px;
-      padding: 0.85rem 1.4rem;
-      min-height: var(--btn-min-height);
-      font-size: 0.9rem;
+      padding: 0.7rem 1.2rem;
+      min-height: 44px;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 0.5rem;
+      margin-top: 0.25rem;
     }
 
-    /* Pose status badge */
+    /* Pose status badge — "LIVE" style pill */
     #poseStatus {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(0,0,0,0.7);
-      border-radius: 8px;
-      padding: 3px 8px;
-      font-size: 0.72rem;
+      top: 10px;
+      left: 38px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0,0,0,0.5);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 9px;
+      font-weight: 700;
       color: var(--text-secondary);
       z-index: 3;
-      backdrop-filter: blur(4px);
     }
-    #poseStatus.detecting { color: var(--success); }
+    #poseStatus::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      flex-shrink: 0;
+    }
+    #poseStatus.detecting { color: var(--text-primary); }
+    #poseStatus.detecting::before {
+      background: var(--danger);
+      animation: livePulse 1.4s infinite;
+    }
+    @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-    /* Rep counter */
+    /* Rep counter — single stat card, 3 columns divided by 1px dividers */
     .rep-counter-section {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 1.2rem 1rem 0.8rem;
-      gap: 2rem;
+      margin: 0.75rem 1rem 0;
+      padding: 16px 8px;
+      background: var(--bg-card);
+      border-radius: 18px;
       flex-shrink: 0;
     }
-    .rep-display {
+    .rep-display, .timer-display, .exercise-stat {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 2px;
     }
+    .rep-display { flex: 1.3; }
+    .stat-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
     .rep-number {
-      font-size: 5rem;
-      font-weight: 900;
+      font-family: var(--font-num);
+      font-size: 38px;
+      font-weight: 700;
       line-height: 1;
-      background: linear-gradient(135deg, #fff 30%, var(--accent-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -3px;
+      color: var(--accent);
     }
     @keyframes repPulse {
-      0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,255,136,0)); }
+      0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
       35%  { transform: scale(1.28); filter: drop-shadow(0 0 22px var(--accent)); }
-      100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,255,136,0)); }
+      100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
     }
     .rep-number.pulse { animation: repPulse 0.45s ease-out; }
-    .rep-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-
-    .timer-display {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .rep-label { font-size: 10px; color: var(--text-muted); }
     .timer-number {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--text-secondary);
+      font-family: var(--font-num);
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--cyan);
       font-variant-numeric: tabular-nums;
     }
-    .timer-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .timer-label { font-size: 10px; color: var(--text-muted); }
+    .exercise-stat .ex-stat-icon { font-size: 16px; line-height: 1; }
+    .exercise-stat .ex-stat-label { font-size: 10px; color: var(--text-muted); }
 
     /* Phase indicator */
     #phaseIndicator {
       text-align: center;
-      font-size: 0.85rem;
-      color: var(--accent-light);
+      font-size: 0.8rem;
+      color: var(--cyan);
       font-weight: 600;
-      padding: 0 1rem 0.5rem;
+      padding: 0.5rem 1rem 0.25rem;
       min-height: 1.5rem;
       flex-shrink: 0;
     }
@@ -449,9 +501,8 @@
       flex: 1;
       padding: 0.85rem 0.5rem;
       min-height: var(--btn-min-height);
-      border: none;
-      border-radius: 14px;
-      font-size: 0.95rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
@@ -461,15 +512,17 @@
       gap: 6px;
     }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary, .btn-danger, .btn-success, .btn-secondary {
-      background: var(--bg-card);
-      border: 1px solid #fff;
-      color: #fff;
+    .btn-primary { background: var(--accent); border: none; color: var(--on-accent); }
+    .btn-primary:not(:disabled):hover { background: var(--accent-light); }
+    .btn-danger, .btn-secondary {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-primary);
     }
-    .btn-primary:not(:disabled):hover,
     .btn-danger:not(:disabled):hover,
-    .btn-success:not(:disabled):hover,
-    .btn-secondary:not(:disabled):hover { background: var(--bg-card-hover); }
+    .btn-secondary:not(:disabled):hover { border-color: var(--text-secondary); }
+    .btn-success { background: var(--bg-card); border: none; color: var(--cyan); }
+    .btn-success:not(:disabled):hover { background: var(--bg-card-hover); }
 
     /* Save modal */
     .modal-overlay {
@@ -506,7 +559,7 @@
       justify-content: space-around;
     }
     .summary-item { text-align: center; }
-    .summary-val { font-size: 1.6rem; font-weight: 800; color: var(--accent-light); }
+    .summary-val { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; color: var(--accent-light); }
     .summary-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
     .modal-actions { display: flex; gap: 0.75rem; }
 
@@ -545,87 +598,90 @@
       justify-content: space-between;
       margin-bottom: 1rem;
     }
-    .tab-header h2 { font-size: 1.3rem; font-weight: 900; }
+    .tab-header h2 { font-size: 1rem; font-weight: 700; }
     .refresh-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      border-radius: 10px;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .refresh-btn:hover { border-color: var(--accent); color: var(--accent-light); }
-    .week-label {
-      text-align: center;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-    .exercise-filter { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem; margin-bottom: 0.75rem; -webkit-overflow-scrolling: touch; }
-    .filter-chip { flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 100px; padding: 0.4rem 0.9rem; font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
-    .week-nav { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.75rem; }
-    .week-nav-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; padding: 0.3rem 0.6rem; font-size: 0.85rem; cursor: pointer; }
-    .week-nav-btn:disabled { opacity: 0.35; cursor: default; }
-    .week-nav-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent-light); }
-    .winner-banner { display: flex; align-items: center; gap: 0.85rem; background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(245,158,11,0.05)); border: 1px solid rgba(245,158,11,0.4); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
-    .winner-banner .winner-crown { font-size: 2rem; }
-    .winner-banner .winner-info { flex: 1; min-width: 0; }
-    .winner-banner .winner-title { font-size: 0.72rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
-    .winner-banner .winner-name { font-size: 1.05rem; font-weight: 800; margin-top: 2px; }
-    .winner-banner .winner-reps { font-size: 1.4rem; font-weight: 800; color: #f59e0b; text-align: center; }
-    .winner-banner .winner-reps span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; display: block; }
-    .leaderboard-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .leaderboard-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--bg-card);
-      border-radius: 14px;
-      padding: 0.85rem 1rem;
-      border: 1px solid var(--border);
-      transition: border-color 0.2s;
-    }
-    .leaderboard-item.me { border-color: var(--accent); background: rgba(0,255,136,0.08); }
-    .leaderboard-item.rank-1 { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
-    .leaderboard-item.rank-2 { border-color: #9ca3af; background: rgba(156,163,175,0.06); }
-    .leaderboard-item.rank-3 { border-color: #cd7c2f; background: rgba(205,124,47,0.06); }
-    .rank-badge {
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 0.9rem;
+      background: var(--bg-card);
+      border: none;
+      color: var(--text-secondary);
+      border-radius: 999px;
+      padding: 0;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .refresh-btn:hover { color: var(--accent-light); }
+    .refresh-btn.spinning { animation: spin 0.4s linear; }
+    .week-label {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .exercise-filter { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 0.25rem; margin-bottom: 0.75rem; -webkit-overflow-scrolling: touch; }
+    .filter-chip { flex-shrink: 0; background: var(--bg-card); border: none; color: var(--text-secondary); border-radius: 999px; padding: 6px 12px; font-size: 11px; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+    .filter-chip.active { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+    .week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .week-nav-btn { background: none; border: none; color: var(--text-secondary); padding: 0.3rem 0; font-size: 11.5px; cursor: pointer; }
+    .week-nav-btn:disabled { opacity: 0.35; cursor: default; }
+    .week-nav-btn:not(:disabled):hover { color: var(--accent-light); }
+
+    /* Podium (top 3) */
+    .podium-row { display: flex; justify-content: center; gap: 14px; margin-bottom: 1.1rem; }
+    .podium-slot { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 14px; }
+    .podium-slot.podium-first { margin-top: 0; }
+    .podium-medal { font-size: 20px; }
+    .podium-slot.podium-first .podium-medal { font-size: 24px; }
+    .podium-avatar {
+      width: 40px; height: 40px;
+      border-radius: 999px;
+      background: var(--bg-card);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; color: #fff;
       flex-shrink: 0;
     }
-    .rank-1 .rank-badge { background: rgba(245,158,11,0.2); color: #f59e0b; }
-    .rank-2 .rank-badge { background: rgba(156,163,175,0.15); color: #9ca3af; }
-    .rank-3 .rank-badge { background: rgba(205,124,47,0.15); color: #cd7c2f; }
-    .rank-other .rank-badge { background: var(--bg-secondary); color: var(--text-muted); }
+    .podium-slot.podium-first .podium-avatar { width: 48px; height: 48px; background: var(--border); }
+    .podium-avatar.me { border: 2px solid var(--accent); }
+    .podium-name { font-size: 10.5px; color: var(--text-primary); max-width: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .podium-slot.podium-first .podium-name { font-size: 11px; font-weight: 700; }
+    .podium-reps { font-family: var(--font-num); font-size: 13px; font-weight: 600; color: var(--cyan); }
+    .podium-reps.me { color: var(--accent); font-size: 15px; font-weight: 700; }
+
+    /* Ranked list — 4th place and below */
+    .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .leaderboard-item.me { border-color: var(--accent); background: rgba(239,91,71,0.08); }
+    .lb-rank { font-size: 12px; color: var(--text-muted); width: 16px; flex-shrink: 0; }
     .lb-avatar {
-      width: 38px;
-      height: 38px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       object-fit: cover;
-      background: var(--accent);
+      background: var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.75rem;
       color: #fff;
       flex-shrink: 0;
     }
-    .lb-info { flex: 1; min-width: 0; }
-    .lb-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lb-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
-    .lb-reps { font-size: 1.3rem; font-weight: 800; color: var(--accent-light); flex-shrink: 0; }
-    .lb-reps span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+    .lb-name { flex: 1; min-width: 0; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-reps { font-family: var(--font-num); font-size: 13px; font-weight: 600; color: var(--text-primary); flex-shrink: 0; }
+    .leaderboard-item.me .lb-reps { color: var(--accent); }
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
@@ -678,7 +734,7 @@
     .history-card-info { flex: 1; }
     .history-card-title { font-weight: 600; font-size: 0.9rem; }
     .history-card-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
-    .history-card-reps { font-size: 1.2rem; font-weight: 800; color: var(--accent-light); text-align: left; }
+    .history-card-reps { font-family: var(--font-num); font-size: 1.2rem; font-weight: 700; color: var(--accent-light); text-align: left; }
     .history-card-reps span { font-size: 0.65rem; color: var(--text-muted); font-weight: 500; display: block; }
     .stats-row {
       display: flex;
@@ -693,7 +749,7 @@
       text-align: center;
       border: 1px solid var(--border);
     }
-    .stat-val { font-size: 1.6rem; font-weight: 800; color: var(--accent-light); }
+    .stat-val { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; color: var(--accent-light); }
     .stat-key { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
   </style>
 </head>
@@ -741,7 +797,7 @@
       <span class="app-title">💪 FitApp</span>
       <div style="display:flex;align-items:center;gap:0.6rem;">
         <div id="userAvatarFallback" onclick="toggleUserMenu()" title="פרופיל">?</div>
-        <button id="signOutBtn" onclick="handleSignOut()">התנתק</button>
+        <button id="signOutBtn" onclick="handleSignOut()" title="התנתק">⎋</button>
       </div>
     </div>
 
@@ -759,7 +815,7 @@
         <div class="exercise-selector">
           <button class="exercise-btn active" data-exercise="pushups" onclick="selectExercise('pushups', this)">
             <span class="ex-icon">🤸</span>
-            <span class="ex-name">שכיבות סמיכה</span>
+            <span class="ex-name">סמיכה</span>
           </button>
           <button class="exercise-btn" data-exercise="jumping_jacks" onclick="selectExercise('jumping_jacks', this)">
             <span class="ex-icon">⭐</span>
@@ -781,23 +837,33 @@
           <canvas id="poseCanvas"></canvas>
           <div id="cameraPlaceholder">
             <span class="cam-icon">📷</span>
+            <span class="cam-caption">CAMERA FEED</span>
             <p>הפעל מצלמה לזיהוי תנועה אוטומטי</p>
             <button id="enableCameraBtn" onclick="startCamera()">הפעל מצלמה</button>
           </div>
+          <div class="cam-corner tl"></div>
+          <div class="cam-corner tr"></div>
+          <div class="cam-corner bl"></div>
+          <div class="cam-corner br"></div>
           <div id="poseStatus">טוען...</div>
         </div>
 
         <!-- Rep Counter -->
         <div class="rep-counter-section">
-          <div class="timer-display">
-            <div class="timer-number" id="timerDisplay">0:00</div>
-            <div class="timer-label">זמן</div>
-          </div>
           <div class="rep-display">
             <div class="rep-number" id="repCount">0</div>
             <div class="rep-label">חזרות</div>
           </div>
-          <div style="width:60px;"></div>
+          <div class="stat-divider"></div>
+          <div class="timer-display">
+            <div class="timer-number" id="timerDisplay">0:00</div>
+            <div class="timer-label">זמן</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="exercise-stat">
+            <span class="ex-stat-icon" id="exStatIcon">🤸</span>
+            <span class="ex-stat-label" id="exStatLabel">סמיכה</span>
+          </div>
         </div>
 
         <!-- Phase Indicator -->
@@ -815,11 +881,11 @@
       <div id="leaderboardTab" class="tab-panel">
         <div class="tab-header">
           <h2>🏆 תחרות שבועית</h2>
-          <button class="refresh-btn" onclick="loadLeaderboard()">↻ רענן</button>
+          <button class="refresh-btn" id="leaderboardRefreshBtn" onclick="loadLeaderboard()">↻</button>
         </div>
         <div class="exercise-filter" id="exerciseFilter">
           <button class="filter-chip active" data-exercise="all" onclick="setLeaderboardFilter('all', this)">הכל</button>
-          <button class="filter-chip" data-exercise="pushups" onclick="setLeaderboardFilter('pushups', this)">🤸 שכיבות סמיכה</button>
+          <button class="filter-chip" data-exercise="pushups" onclick="setLeaderboardFilter('pushups', this)">🤸 סמיכה</button>
           <button class="filter-chip" data-exercise="jumping_jacks" onclick="setLeaderboardFilter('jumping_jacks', this)">⭐ קפיצות</button>
           <button class="filter-chip" data-exercise="pullups" onclick="setLeaderboardFilter('pullups', this)">🏋️ מתח</button>
           <button class="filter-chip" data-exercise="squats" onclick="setLeaderboardFilter('squats', this)">🦵 סקוואט</button>
@@ -847,7 +913,7 @@
       <div id="historyTab" class="tab-panel">
         <div class="tab-header">
           <h2>📊 היסטוריה</h2>
-          <button class="refresh-btn" onclick="loadHistory()">↻ רענן</button>
+          <button class="refresh-btn" onclick="loadHistory()">↻</button>
         </div>
         <div id="historyContent">
           <div class="empty-state">
@@ -1326,8 +1392,8 @@ const SKELETON_CONNECTIONS = [
 
 const KP_COLORS = {
   face: '#f59e0b',
-  left: '#ff3366',
-  right: '#00ff88',
+  left: '#ef5b47',
+  right: '#4ed6d6',
 };
 
 function kpColor(idx) {
@@ -1578,6 +1644,13 @@ function countSquat(kp) {
 // =====================================================
 // WORKOUT CONTROLS
 // =====================================================
+const EX_META = {
+  pushups:       { icon: '🤸', label: 'סמיכה' },
+  jumping_jacks: { icon: '⭐', label: 'קפיצות' },
+  pullups:       { icon: '🏋️', label: 'מתח' },
+  squats:        { icon: '🦵', label: 'סקוואט' },
+};
+
 function selectExercise(ex, btn) {
   currentExercise = ex;
   document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active'));
@@ -1587,6 +1660,11 @@ function selectExercise(ex, btn) {
     exerciseState[k].phase = (k === 'pushups' || k === 'squats') ? 'up' : 'down';
   });
   angleBuffer[ex] = [];
+  const meta = EX_META[ex];
+  if (meta) {
+    document.getElementById('exStatIcon').textContent = meta.icon;
+    document.getElementById('exStatLabel').textContent = meta.label;
+  }
   if (!workoutActive) updatePhaseIndicator('בחר תרגיל והפעל אימון');
 }
 
@@ -1784,6 +1862,13 @@ async function loadLeaderboard() {
   const container = document.getElementById('leaderboardContent');
   container.innerHTML = '<div class="loading-spinner"></div>';
 
+  const refreshBtn = document.getElementById('leaderboardRefreshBtn');
+  if (refreshBtn) {
+    refreshBtn.classList.remove('spinning');
+    void refreshBtn.offsetWidth;
+    refreshBtn.classList.add('spinning');
+  }
+
   document.getElementById('weekLabel').textContent = getWeekLabel(leaderboardWeekOffset);
   document.getElementById('weekNextBtn').disabled = leaderboardWeekOffset >= 0;
 
@@ -1842,36 +1927,47 @@ async function loadLeaderboard() {
     return;
   }
 
-  const winner = rows[0];
-  const winnerBanner = `
-    <div class="winner-banner">
-      <div class="winner-crown">👑</div>
-      <div class="winner-info">
-        <div class="winner-title">מנצח/ת השבוע</div>
-        <div class="winner-name">${escHtml(winner.name)}</div>
-      </div>
-      <div class="winner-reps">${winner.reps}<span>חזרות</span></div>
-    </div>`;
+  const top3 = rows.slice(0, 3);
+  const rest = rows.slice(3);
 
-  const html = rows.map((row, i) => {
-    const rank = i + 1;
-    const medals = ['🥇', '🥈', '🥉'];
-    const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
-    const isMe = currentUser && row.uid === currentUser.id;
-    const initial = row.name ? row.name[0].toUpperCase() : '?';
-    return `
-      <div class="leaderboard-item ${rankClass}${isMe ? ' me' : ''}">
-        <div class="rank-badge">${rank <= 3 ? medals[rank-1] : rank}</div>
-        <div class="lb-avatar" style="background:${avatarColor(row.uid)}">${initial}</div>
-        <div class="lb-info">
-          <div class="lb-name">${escHtml(row.name)}${isMe ? ' (את/ה)' : ''}</div>
-          <div class="lb-sub">שבוע זה</div>
-        </div>
-        <div class="lb-reps">${row.reps}<span>חזרות</span></div>
-      </div>`;
-  }).join('');
+  // Podium visual order: 2nd (right-most in RTL source order), 1st (center), 3rd
+  const podiumOrder = [top3[1], top3[0], top3[2]];
+  const medals = ['🥈', '🥇', '🥉'];
 
-  container.innerHTML = `${winnerBanner}<div class="leaderboard-list">${html}</div>`;
+  const podiumHtml = top3.length > 0 ? `
+    <div class="podium-row">
+      ${podiumOrder.map((row, idx) => {
+        if (!row) return '<div class="podium-slot"></div>';
+        const isFirst = idx === 1;
+        const isMe = currentUser && row.uid === currentUser.id;
+        const initial = row.name ? row.name[0].toUpperCase() : '?';
+        return `
+          <div class="podium-slot${isFirst ? ' podium-first' : ''}">
+            <div class="podium-medal">${medals[idx]}</div>
+            <div class="podium-avatar${isMe ? ' me' : ''}" style="background:${avatarColor(row.uid)}">${initial}</div>
+            <div class="podium-name">${escHtml(row.name)}${isMe ? ' (את/ה)' : ''}</div>
+            <div class="podium-reps${isMe ? ' me' : ''}">${row.reps}</div>
+          </div>`;
+      }).join('')}
+    </div>` : '';
+
+  const listHtml = rest.length > 0 ? `
+    <div class="leaderboard-list">
+      ${rest.map((row, i) => {
+        const rank = i + 4;
+        const isMe = currentUser && row.uid === currentUser.id;
+        const initial = row.name ? row.name[0].toUpperCase() : '?';
+        return `
+          <div class="leaderboard-item${isMe ? ' me' : ''}">
+            <div class="lb-rank">${rank}</div>
+            <div class="lb-avatar" style="background:${avatarColor(row.uid)}">${initial}</div>
+            <div class="lb-name">${escHtml(row.name)}${isMe ? ' (את/ה)' : ''}</div>
+            <div class="lb-reps">${row.reps}</div>
+          </div>`;
+      }).join('')}
+    </div>` : '';
+
+  container.innerHTML = podiumHtml + listHtml;
 }
 
 function avatarColor(uid) {
