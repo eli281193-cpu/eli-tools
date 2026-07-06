@@ -159,8 +159,8 @@ footer a { color: #b0b0c8; text-decoration: none; }
     <div id="content-he" style="display:block">
       <section class="active">
         <div class="highlight">
-          מלא/י את כתובת האימייל שלך, ולחיצה אחת תמחק לצמיתות את כל הנתונים המשויכים אליה — היסטוריית אימוני FitApp
-          וניחושי המשחקים — ישירות ממסד הנתונים שלנו. הפעולה מיידית ואינה דורשת פנייה אלינו.
+          מלא/י את כתובת האימייל שלך, ולחיצה אחת תמחק לצמיתות את כל הנתונים המשויכים אליה — היסטוריית אימוני FitApp —
+          ישירות ממסד הנתונים שלנו. הפעולה מיידית ואינה דורשת פנייה אלינו.
         </div>
         <form id="deleteForm">
           <label for="emailInput">כתובת אימייל</label>
@@ -185,8 +185,8 @@ footer a { color: #b0b0c8; text-decoration: none; }
     <div id="content-en" style="display:none" dir="ltr">
       <section class="active">
         <div class="highlight">
-          Enter your email address, and with one click permanently delete all data associated with it — FitApp workout
-          history and game predictions — directly from our database. The action is immediate and requires no request to us.
+          Enter your email address, and with one click permanently delete all data associated with it — your FitApp
+          workout history — directly from our database. The action is immediate and requires no request to us.
         </div>
         <form id="deleteFormEn">
           <label for="emailInputEn">Email address</label>
@@ -248,7 +248,6 @@ function escHtml(str) {
 // Tables + the column each one uses to identify a user by email.
 const DELETE_TARGETS = [
   { table: 'workouts', column: 'user_email', labelHe: 'FitApp (אימונים)', labelEn: 'FitApp (workouts)' },
-  { table: 'results',  column: 'email',      labelHe: 'ניחושי משחקים',    labelEn: 'Game predictions' },
 ];
 
 async function runDeletion(email, lang) {
