@@ -769,6 +769,10 @@
             <span class="ex-icon">🏋️</span>
             <span class="ex-name">מתח</span>
           </button>
+          <button class="exercise-btn" data-exercise="squats" onclick="selectExercise('squats', this)">
+            <span class="ex-icon">🦵</span>
+            <span class="ex-name">סקוואט</span>
+          </button>
         </div>
 
         <!-- Camera Section -->
@@ -818,6 +822,7 @@
           <button class="filter-chip" data-exercise="pushups" onclick="setLeaderboardFilter('pushups', this)">🤸 שכיבות סמיכה</button>
           <button class="filter-chip" data-exercise="jumping_jacks" onclick="setLeaderboardFilter('jumping_jacks', this)">⭐ קפיצות</button>
           <button class="filter-chip" data-exercise="pullups" onclick="setLeaderboardFilter('pullups', this)">🏋️ מתח</button>
+          <button class="filter-chip" data-exercise="squats" onclick="setLeaderboardFilter('squats', this)">🦵 סקוואט</button>
         </div>
         <div class="week-nav">
           <button class="week-nav-btn" id="weekPrevBtn" onclick="changeLeaderboardWeek(-1)">◀ שבוע קודם</button>
@@ -968,10 +973,11 @@ const exerciseState = {
   pushups:       { phase: 'up',   repReady: false },
   jumping_jacks: { phase: 'down', repReady: false },
   pullups:       { phase: 'down', repReady: false },
+  squats:        { phase: 'up',   repReady: false },
 };
 
 // Smoothing buffer for angles
-const angleBuffer = { pushups: [], jumping_jacks: [], pullups: [] };
+const angleBuffer = { pushups: [], jumping_jacks: [], pullups: [], squats: [] };
 const BUFFER_SIZE = 5;
 
 // =====================================================
@@ -1416,7 +1422,19 @@ function processRepCount(keypoints) {
     countJumpingJack(kp);
   } else if (currentExercise === 'pullups') {
     countPullup(kp);
+  } else if (currentExercise === 'squats') {
+    countSquat(kp);
   }
+}
+
+// Angle at point b (in degrees) formed by rays b→a and b→c
+function angleAtPoint(a, b, c) {
+  const abx = a.x - b.x, aby = a.y - b.y;
+  const cbx = c.x - b.x, cby = c.y - b.y;
+  const magAB = Math.hypot(abx, aby), magCB = Math.hypot(cbx, cby);
+  if (magAB < 1e-6 || magCB < 1e-6) return null;
+  const cos = Math.max(-1, Math.min(1, (abx * cbx + aby * cby) / (magAB * magCB)));
+  return Math.acos(cos) * 180 / Math.PI;
 }
 
 function countPushup(kp) {
@@ -1522,6 +1540,41 @@ function countPullup(kp) {
   }
 }
 
+function countSquat(kp) {
+  // Knee angle = angle at the knee formed by hip→knee→ankle.
+  // Standing straight: close to 180°. Bottom of a squat: well under 90°.
+  const leftOk = kpValid(kp[11]) && kpValid(kp[13]) && kpValid(kp[15]);
+  const rightOk = kpValid(kp[12]) && kpValid(kp[14]) && kpValid(kp[16]);
+
+  if (!leftOk && !rightOk) return;
+
+  let sum = 0, count = 0;
+  if (leftOk) {
+    const a = angleAtPoint(kp[11], kp[13], kp[15]);
+    if (a !== null) { sum += a; count++; }
+  }
+  if (rightOk) {
+    const a = angleAtPoint(kp[12], kp[14], kp[16]);
+    if (a !== null) { sum += a; count++; }
+  }
+  if (count === 0) return;
+  const kneeAngle = sum / count;
+
+  const smoothed = smoothAngle('squats', kneeAngle);
+
+  const st = exerciseState.squats;
+  if (smoothed < 90 && st.phase === 'up') {
+    // Knee bent below 90° — bottom of the squat
+    st.phase = 'down';
+    updatePhaseIndicator('⬇ סקוואט למטה');
+  } else if (smoothed > 160 && st.phase === 'down') {
+    // Back up near full leg extension — rep complete
+    st.phase = 'up';
+    addRep();
+    updatePhaseIndicator('⬆ למעלה — חזרה!');
+  }
+}
+
 // =====================================================
 // WORKOUT CONTROLS
 // =====================================================
@@ -1531,7 +1584,7 @@ function selectExercise(ex, btn) {
   btn.classList.add('active');
   // Reset state machine for new exercise
   Object.keys(exerciseState).forEach(k => {
-    exerciseState[k].phase = k === 'pushups' ? 'up' : 'down';
+    exerciseState[k].phase = (k === 'pushups' || k === 'squats') ? 'up' : 'down';
   });
   angleBuffer[ex] = [];
   if (!workoutActive) updatePhaseIndicator('בחר תרגיל והפעל אימון');
@@ -1568,7 +1621,7 @@ async function startWorkout() {
 
   // Reset state machines
   Object.keys(exerciseState).forEach(k => {
-    exerciseState[k].phase = k === 'pushups' ? 'up' : 'down';
+    exerciseState[k].phase = (k === 'pushups' || k === 'squats') ? 'up' : 'down';
   });
   angleBuffer[currentExercise] = [];
 
@@ -1626,7 +1679,7 @@ function formatTime(secs) {
 // =====================================================
 function openSaveModal() {
   if (repCount === 0) { showToast('אין חזרות לשמירה', 'error'); return; }
-  const exNames = { pushups: '🤸 שכיבות', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח' };
+  const exNames = { pushups: '🤸 שכיבות', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח', squats: '🦵 סקוואט' };
   document.getElementById('modalReps').textContent = repCount;
   document.getElementById('modalDuration').textContent = formatTime(workoutDurationSeconds);
   document.getElementById('modalExercise').textContent = exNames[currentExercise] || currentExercise;
@@ -1881,7 +1934,7 @@ async function loadHistory() {
   const byWeek = groupByPeriod(workouts, 'week');
   const byMonth = groupByPeriod(workouts, 'month');
 
-  const exNames = { pushups: '🤸 שכיבות סמיכה', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח' };
+  const exNames = { pushups: '🤸 שכיבות סמיכה', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח', squats: '🦵 סקוואט' };
 
   let html = `
     <div class="stats-row">
