@@ -590,6 +590,59 @@
     #toast.success { border-color: var(--success); color: var(--success); }
     #toast.error { border-color: var(--danger); color: var(--danger); }
 
+    /* ===== GROUPS ===== */
+    .group-bar { display: flex; gap: 8px; margin-bottom: 0.75rem; align-items: center; }
+    .group-select {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 10px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.82rem;
+      font-family: inherit;
+    }
+    .group-action-btn {
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 10px;
+      padding: 0.5rem 0.7rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .group-action-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+    .group-action-btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 700; }
+    .group-empty {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    .group-empty p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+    .group-empty-actions { display: flex; gap: 8px; }
+    .group-empty-actions .group-action-btn { flex: 1; padding: 0.7rem; font-size: 0.82rem; }
+    .group-input {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      margin-bottom: 1rem;
+    }
+    .group-input:focus { outline: none; border-color: var(--accent); }
+    .group-error { color: var(--danger); font-size: 0.8rem; margin-bottom: 0.5rem; }
+    .invite-share-box { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem; text-align: center; }
+    .invite-share-box p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .invite-code-row { display: flex; justify-content: center; }
+    .invite-code { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; letter-spacing: 4px; color: var(--accent); background: var(--bg-card); padding: 0.5rem 1rem; border-radius: 8px; }
+
     /* ===== LEADERBOARD TAB ===== */
     #leaderboardTab { overflow-y: auto; padding: 1rem; }
     .tab-header {
@@ -883,6 +936,7 @@
           <h2>🏆 תחרות שבועית</h2>
           <button class="refresh-btn" id="leaderboardRefreshBtn" onclick="loadLeaderboard()">↻</button>
         </div>
+        <div class="group-bar" id="groupBar"></div>
         <div class="exercise-filter" id="exerciseFilter">
           <button class="filter-chip active" data-exercise="all" onclick="setLeaderboardFilter('all', this)">הכל</button>
           <button class="filter-chip" data-exercise="pushups" onclick="setLeaderboardFilter('pushups', this)">🤸 סמיכה</button>
@@ -968,6 +1022,34 @@
   </div>
 </div>
 
+<!-- Create Group Modal -->
+<div class="modal-overlay hidden" id="createGroupModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">צור קבוצה חדשה</div>
+    <input type="text" id="newGroupName" class="group-input" placeholder="שם הקבוצה" maxlength="40" />
+    <div id="createGroupResult"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeCreateGroupModal()">ביטול</button>
+      <button class="btn btn-primary" id="confirmCreateGroupBtn" onclick="createGroup()">➕ צור קבוצה</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join Group Modal -->
+<div class="modal-overlay hidden" id="joinGroupModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">הצטרף לקבוצה</div>
+    <input type="text" id="joinGroupCode" class="group-input" placeholder="קוד הזמנה או קישור" maxlength="200" />
+    <div id="joinGroupResult"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeJoinGroupModal()">ביטול</button>
+      <button class="btn btn-primary" id="confirmJoinGroupBtn" onclick="joinGroup()">🔗 הצטרף</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
@@ -1003,6 +1085,32 @@ const SUPABASE_ANON_KEY = 'sb_publishable_ygFhxdacKGxsZ8_E7sI6ZQ_SzjhyUTy';
 // CREATE POLICY "Anyone can view workouts" ON workouts FOR SELECT USING (true);
 const WORKOUTS_TABLE = 'workouts';
 
+// Supabase table names for groups
+// CREATE TABLE groups (
+//   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+//   name text NOT NULL,
+//   invite_code text UNIQUE NOT NULL,
+//   created_by text,
+//   created_at timestamptz DEFAULT now()
+// );
+// CREATE TABLE group_members (
+//   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+//   group_id uuid NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+//   user_email text NOT NULL,
+//   user_name text,
+//   joined_at timestamptz DEFAULT now(),
+//   UNIQUE(group_id, user_email)
+// );
+// ALTER TABLE groups ENABLE ROW LEVEL SECURITY;
+// ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "Anyone can view groups" ON groups FOR SELECT USING (true);
+// CREATE POLICY "Anyone can create groups" ON groups FOR INSERT WITH CHECK (true);
+// CREATE POLICY "Anyone can view group members" ON group_members FOR SELECT USING (true);
+// CREATE POLICY "Anyone can join groups" ON group_members FOR INSERT WITH CHECK (true);
+// CREATE POLICY "Anyone can leave groups" ON group_members FOR DELETE USING (true);
+const GROUPS_TABLE = 'groups';
+const GROUP_MEMBERS_TABLE = 'group_members';
+
 // =====================================================
 // SUPABASE CLIENT
 // =====================================================
@@ -1019,6 +1127,12 @@ try {
 // APP STATE
 // =====================================================
 let currentUser = null;
+let currentGroupId = localStorage.getItem('fitapp_current_group') || null;
+let myGroups = [];
+let pendingJoinCode = (() => {
+  const code = new URLSearchParams(location.search).get('join');
+  return code ? code.trim().toUpperCase() : null;
+})();
 let currentExercise = 'pushups';
 let workoutActive = false;
 let startingWorkout = false;
@@ -1186,11 +1300,17 @@ function handleSignOut() {
   showToast('התנתקת בהצלחה');
 }
 
-function showMainApp() {
+async function showMainApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('mainApp').classList.add('visible');
   updateUserUI();
   initTF();
+  await loadMyGroups();
+  if (pendingJoinCode) {
+    openJoinGroupModal(pendingJoinCode);
+    pendingJoinCode = null;
+    history.replaceState(null, '', location.pathname);
+  }
 }
 
 function updateUserUI() {
@@ -1821,6 +1941,259 @@ async function saveWorkout() {
 }
 
 // =====================================================
+// GROUPS
+// =====================================================
+function genInviteCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars (0/O, 1/I)
+  let s = '';
+  for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+
+function getLocalGroups() { return JSON.parse(localStorage.getItem('fitapp_groups') || '[]'); }
+function saveLocalGroups(groups) { localStorage.setItem('fitapp_groups', JSON.stringify(groups)); }
+function getLocalGroupMembers() { return JSON.parse(localStorage.getItem('fitapp_group_members') || '[]'); }
+function saveLocalGroupMembers(members) { localStorage.setItem('fitapp_group_members', JSON.stringify(members)); }
+
+async function loadMyGroups() {
+  if (!currentUser) return;
+  let groups = [];
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from(GROUP_MEMBERS_TABLE)
+        .select('group_id, groups(id, name, invite_code)')
+        .eq('user_email', currentUser.email);
+      if (error) throw error;
+      groups = (data || []).map(r => r.groups).filter(Boolean);
+    } catch(e) {
+      console.error('loadMyGroups error:', e);
+    }
+  }
+  if (groups.length === 0) {
+    const members = getLocalGroupMembers().filter(m => m.user_email === currentUser.email);
+    const localGroups = getLocalGroups();
+    groups = members.map(m => localGroups.find(g => g.id === m.group_id)).filter(Boolean);
+  }
+  myGroups = groups;
+
+  if (currentGroupId && !groups.find(g => g.id === currentGroupId)) currentGroupId = null;
+  if (!currentGroupId && groups.length > 0) currentGroupId = groups[0].id;
+  localStorage.setItem('fitapp_current_group', currentGroupId || '');
+
+  renderGroupBar();
+}
+
+function renderGroupBar() {
+  const bar = document.getElementById('groupBar');
+  if (!bar) return;
+  if (myGroups.length === 0) {
+    bar.innerHTML = `
+      <div class="group-empty">
+        <p>עדיין לא הצטרפת לקבוצה — התחרות מוצגת רק לחברי קבוצה</p>
+        <div class="group-empty-actions">
+          <button class="group-action-btn primary" onclick="openCreateGroupModal()">➕ צור קבוצה</button>
+          <button class="group-action-btn" onclick="openJoinGroupModal()">🔗 הצטרף לקבוצה</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const options = myGroups.map(g =>
+    `<option value="${g.id}"${g.id === currentGroupId ? ' selected' : ''}>${escHtml(g.name)}</option>`
+  ).join('');
+  bar.innerHTML = `
+    <select class="group-select" id="groupSelect" onchange="switchGroup(this.value)">${options}</select>
+    <button class="group-action-btn" onclick="openCreateGroupModal()" title="צור קבוצה">➕</button>
+    <button class="group-action-btn" onclick="openJoinGroupModal()" title="הצטרף לקבוצה">🔗</button>`;
+}
+
+function switchGroup(groupId) {
+  currentGroupId = groupId;
+  localStorage.setItem('fitapp_current_group', groupId);
+  loadLeaderboard();
+}
+
+async function joinGroupById(groupId) {
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from(GROUP_MEMBERS_TABLE)
+        .insert({ group_id: groupId, user_email: currentUser.email, user_name: currentUser.name });
+      if (error && error.code !== '23505') throw error; // ignore "already a member"
+      return;
+    } catch(e) {
+      console.error('joinGroupById error:', e);
+    }
+  }
+  const members = getLocalGroupMembers();
+  if (!members.find(m => m.group_id === groupId && m.user_email === currentUser.email)) {
+    members.push({ group_id: groupId, user_email: currentUser.email, user_name: currentUser.name, joined_at: new Date().toISOString() });
+    saveLocalGroupMembers(members);
+  }
+}
+
+async function loadGroupMemberEmails(groupId) {
+  let emails = [];
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from(GROUP_MEMBERS_TABLE)
+        .select('user_email')
+        .eq('group_id', groupId);
+      if (error) throw error;
+      emails = (data || []).map(r => r.user_email);
+    } catch(e) {
+      console.error('loadGroupMemberEmails error:', e);
+    }
+  }
+  if (emails.length === 0) {
+    emails = getLocalGroupMembers().filter(m => m.group_id === groupId).map(m => m.user_email);
+  }
+  return emails;
+}
+
+function openCreateGroupModal() {
+  document.getElementById('createGroupResult').innerHTML = '';
+  document.getElementById('newGroupName').value = '';
+  document.getElementById('createGroupModal').classList.remove('hidden');
+}
+function closeCreateGroupModal() {
+  document.getElementById('createGroupModal').classList.add('hidden');
+}
+function openJoinGroupModal(prefillCode) {
+  document.getElementById('joinGroupResult').innerHTML = '';
+  document.getElementById('joinGroupCode').value = prefillCode || '';
+  document.getElementById('joinGroupModal').classList.remove('hidden');
+}
+function closeJoinGroupModal() {
+  document.getElementById('joinGroupModal').classList.add('hidden');
+}
+
+function copyInviteLink(code) {
+  const link = `${location.origin}${location.pathname}?join=${code}`;
+  navigator.clipboard.writeText(link).then(() => {
+    showToast('הקישור הועתק!', 'success');
+  }).catch(() => {
+    showToast('לא ניתן להעתיק אוטומטית — הקוד: ' + code, 'error');
+  });
+}
+
+async function createGroup() {
+  const nameInput = document.getElementById('newGroupName');
+  const name = nameInput.value.trim();
+  const resultEl = document.getElementById('createGroupResult');
+  if (!name) { showToast('הזן שם לקבוצה', 'error'); return; }
+  if (!currentUser) return;
+
+  const btn = document.getElementById('confirmCreateGroupBtn');
+  btn.disabled = true;
+  resultEl.innerHTML = '';
+
+  let group = null;
+  for (let attempt = 0; attempt < 3 && !group; attempt++) {
+    const code = genInviteCode();
+    if (supabaseClient) {
+      try {
+        const { data, error } = await supabaseClient
+          .from(GROUPS_TABLE)
+          .insert({ name, invite_code: code, created_by: currentUser.id })
+          .select()
+          .single();
+        if (error) {
+          if (error.code === '23505') continue; // invite_code collision, retry
+          throw error;
+        }
+        group = data;
+      } catch(e) {
+        console.error('createGroup error:', e);
+      }
+    }
+    if (!group) {
+      const groups = getLocalGroups();
+      if (groups.find(g => g.invite_code === code)) continue;
+      group = { id: 'grp_' + Math.random().toString(36).slice(2, 10), name, invite_code: code, created_by: currentUser.id, created_at: new Date().toISOString() };
+      groups.push(group);
+      saveLocalGroups(groups);
+    }
+  }
+
+  if (!group) {
+    resultEl.innerHTML = '<p class="group-error">שגיאה ביצירת הקבוצה, נסה שוב.</p>';
+    btn.disabled = false;
+    return;
+  }
+
+  await joinGroupById(group.id);
+  currentGroupId = group.id;
+  localStorage.setItem('fitapp_current_group', group.id);
+
+  resultEl.innerHTML = `
+    <div class="invite-share-box">
+      <p>הקבוצה "${escHtml(group.name)}" נוצרה! שתפו את הקוד עם חברים:</p>
+      <div class="invite-code-row"><span class="invite-code">${group.invite_code}</span></div>
+      <button class="group-action-btn primary" style="width:100%;margin-top:0.75rem;" onclick="copyInviteLink('${group.invite_code}')">📋 העתק קישור הזמנה</button>
+    </div>`;
+  nameInput.value = '';
+  btn.disabled = false;
+  await loadMyGroups();
+  loadLeaderboard();
+}
+
+async function joinGroup() {
+  const input = document.getElementById('joinGroupCode');
+  const raw = input.value.trim();
+  const resultEl = document.getElementById('joinGroupResult');
+  if (!raw) { showToast('הזן קוד הזמנה', 'error'); return; }
+  if (!currentUser) return;
+
+  // Accept either a raw code or a full shareable link containing ?join=CODE
+  let code = raw;
+  if (raw.includes('join=')) {
+    try {
+      const url = new URL(raw, location.origin);
+      code = url.searchParams.get('join') || raw;
+    } catch(e) { /* not a valid URL — treat raw input as the code */ }
+  }
+  code = code.trim().toUpperCase();
+
+  const btn = document.getElementById('confirmJoinGroupBtn');
+  btn.disabled = true;
+  resultEl.innerHTML = '';
+
+  let group = null;
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from(GROUPS_TABLE)
+        .select('id, name, invite_code')
+        .eq('invite_code', code)
+        .maybeSingle();
+      if (error) throw error;
+      group = data;
+    } catch(e) {
+      console.error('joinGroup lookup error:', e);
+    }
+  }
+  if (!group) group = getLocalGroups().find(g => g.invite_code === code) || null;
+
+  if (!group) {
+    resultEl.innerHTML = '<p class="group-error">קוד לא נמצא. בדוק את הקוד ונסה שוב.</p>';
+    btn.disabled = false;
+    return;
+  }
+
+  await joinGroupById(group.id);
+  currentGroupId = group.id;
+  localStorage.setItem('fitapp_current_group', group.id);
+  btn.disabled = false;
+  input.value = '';
+  closeJoinGroupModal();
+  showToast(`הצטרפת לקבוצה "${group.name}"!`, 'success');
+  await loadMyGroups();
+  loadLeaderboard();
+}
+
+// =====================================================
 // LEADERBOARD
 // =====================================================
 function getWeekRange(offset = 0) {
@@ -1860,6 +2233,17 @@ function changeLeaderboardWeek(delta) {
 
 async function loadLeaderboard() {
   const container = document.getElementById('leaderboardContent');
+
+  if (!currentGroupId) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <p>עדיין לא הצטרפת לקבוצה</p>
+        <p style="margin-top:0.4rem;font-size:0.8rem;">צור קבוצה או הצטרף לאחת כדי לראות תחרות שבועית</p>
+      </div>`;
+    return;
+  }
+
   container.innerHTML = '<div class="loading-spinner"></div>';
 
   const refreshBtn = document.getElementById('leaderboardRefreshBtn');
@@ -1874,47 +2258,51 @@ async function loadLeaderboard() {
 
   const { start, end } = getWeekRange(leaderboardWeekOffset);
   const filter = leaderboardExerciseFilter;
+  const memberEmails = await loadGroupMemberEmails(currentGroupId);
   let rows = [];
 
-  if (supabaseClient) {
-    try {
-      let query = supabaseClient
-        .from(WORKOUTS_TABLE)
-        .select('user_id, user_name, reps, exercise')
-        .gte('worked_out_at', start.toISOString())
-        .lt('worked_out_at', end.toISOString());
-      if (filter !== 'all') query = query.eq('exercise', filter);
-      const { data, error } = await query;
-      if (error) throw error;
-      // Aggregate by user
+  if (memberEmails.length > 0) {
+    if (supabaseClient) {
+      try {
+        let query = supabaseClient
+          .from(WORKOUTS_TABLE)
+          .select('user_id, user_name, user_email, reps, exercise')
+          .gte('worked_out_at', start.toISOString())
+          .lt('worked_out_at', end.toISOString())
+          .in('user_email', memberEmails);
+        if (filter !== 'all') query = query.eq('exercise', filter);
+        const { data, error } = await query;
+        if (error) throw error;
+        // Aggregate by user
+        const userMap = {};
+        for (const w of data) {
+          if (!userMap[w.user_id]) userMap[w.user_id] = { name: w.user_name || 'משתמש', reps: 0 };
+          userMap[w.user_id].reps += w.reps;
+        }
+        rows = Object.entries(userMap)
+          .map(([uid, u]) => ({ uid, name: u.name, reps: u.reps }))
+          .sort((a, b) => b.reps - a.reps);
+      } catch(e) {
+        console.error('Leaderboard error:', e);
+      }
+    }
+
+    // Merge local data if no Supabase
+    if (rows.length === 0) {
+      const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]');
+      const thisWeek = local.filter(w => {
+        const d = new Date(w.worked_out_at);
+        return d >= start && d < end && memberEmails.includes(w.user_email) && (filter === 'all' || w.exercise === filter);
+      });
       const userMap = {};
-      for (const w of data) {
+      for (const w of thisWeek) {
         if (!userMap[w.user_id]) userMap[w.user_id] = { name: w.user_name || 'משתמש', reps: 0 };
         userMap[w.user_id].reps += w.reps;
       }
       rows = Object.entries(userMap)
         .map(([uid, u]) => ({ uid, name: u.name, reps: u.reps }))
         .sort((a, b) => b.reps - a.reps);
-    } catch(e) {
-      console.error('Leaderboard error:', e);
     }
-  }
-
-  // Merge local data if no Supabase
-  if (rows.length === 0) {
-    const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]');
-    const thisWeek = local.filter(w => {
-      const d = new Date(w.worked_out_at);
-      return d >= start && d < end && (filter === 'all' || w.exercise === filter);
-    });
-    const userMap = {};
-    for (const w of thisWeek) {
-      if (!userMap[w.user_id]) userMap[w.user_id] = { name: w.user_name || 'משתמש', reps: 0 };
-      userMap[w.user_id].reps += w.reps;
-    }
-    rows = Object.entries(userMap)
-      .map(([uid, u]) => ({ uid, name: u.name, reps: u.reps }))
-      .sort((a, b) => b.reps - a.reps);
   }
 
   if (rows.length === 0) {
@@ -2138,6 +2526,12 @@ function showToast(msg, type = '') {
 // Close modal on overlay click
 document.getElementById('saveModal').addEventListener('click', function(e) {
   if (e.target === this) closeSaveModal();
+});
+document.getElementById('createGroupModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCreateGroupModal();
+});
+document.getElementById('joinGroupModal').addEventListener('click', function(e) {
+  if (e.target === this) closeJoinGroupModal();
 });
 
 // Resize canvas on window resize
