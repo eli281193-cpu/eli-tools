@@ -642,6 +642,34 @@
     .invite-share-box p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
     .invite-code-row { display: flex; justify-content: center; }
     .invite-code { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; letter-spacing: 4px; color: var(--accent); background: var(--bg-card); padding: 0.5rem 1rem; border-radius: 8px; }
+    .invite-link-row { margin-top: 0.6rem; }
+    .invite-link-text {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      background: var(--bg-card);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      word-break: break-all;
+      direction: ltr;
+      text-align: center;
+    }
+    .invite-share-actions { display: flex; gap: 8px; margin-top: 0.75rem; }
+    .invite-share-actions .group-action-btn { flex: 1; padding: 0.7rem; font-size: 0.8rem; }
+    .group-action-btn.whatsapp { background: #25D366; color: #06210f; border-color: #25D366; font-weight: 700; }
+    .group-danger-btn {
+      width: 100%;
+      background: transparent;
+      border: 1.5px solid var(--danger);
+      color: var(--danger);
+      border-radius: 12px;
+      padding: 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .group-danger-btn:hover { background: rgba(255,59,48,0.1); }
+    .manage-group-list { display: flex; flex-direction: column; gap: 0.6rem; }
 
     /* ===== LEADERBOARD TAB ===== */
     #leaderboardTab { overflow-y: auto; padding: 1rem; }
@@ -1050,6 +1078,19 @@
   </div>
 </div>
 
+<!-- Manage Group Modal -->
+<div class="modal-overlay hidden" id="manageGroupModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="manageGroupTitle">ניהול קבוצה</div>
+    <div class="manage-group-list">
+      <button class="btn btn-secondary" onclick="leaveGroup()">🚪 עזוב קבוצה</button>
+      <button class="group-danger-btn" id="deleteGroupBtn" onclick="deleteGroup()" style="display:none;">🗑️ מחק קבוצה</button>
+      <button class="btn btn-secondary" onclick="closeManageGroupModal()">סגור</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
@@ -1110,6 +1151,11 @@ const WORKOUTS_TABLE = 'workouts';
 // CREATE POLICY "Anyone can leave groups" ON group_members FOR DELETE USING (true);
 const GROUPS_TABLE = 'groups';
 const GROUP_MEMBERS_TABLE = 'group_members';
+
+// Canonical public URL used for shareable invite links, regardless of which
+// deployment (fit-app.workers.dev or eli-tools.pages.dev/fit) created them.
+const APP_SHARE_BASE = 'https://eli-tools.pages.dev/fit/';
+function buildInviteLink(code) { return `${APP_SHARE_BASE}?join=${code}`; }
 
 // =====================================================
 // SUPABASE CLIENT
@@ -1307,9 +1353,10 @@ async function showMainApp() {
   initTF();
   await loadMyGroups();
   if (pendingJoinCode) {
-    openJoinGroupModal(pendingJoinCode);
+    const code = pendingJoinCode;
     pendingJoinCode = null;
     history.replaceState(null, '', location.pathname);
+    await autoJoinByCode(code);
   }
 }
 
@@ -1962,7 +2009,7 @@ async function loadMyGroups() {
     try {
       const { data, error } = await supabaseClient
         .from(GROUP_MEMBERS_TABLE)
-        .select('group_id, groups(id, name, invite_code)')
+        .select('group_id, groups(id, name, invite_code, created_by)')
         .eq('user_email', currentUser.email);
       if (error) throw error;
       groups = (data || []).map(r => r.groups).filter(Boolean);
@@ -2003,6 +2050,7 @@ function renderGroupBar() {
   ).join('');
   bar.innerHTML = `
     <select class="group-select" id="groupSelect" onchange="switchGroup(this.value)">${options}</select>
+    <button class="group-action-btn" onclick="openManageGroupModal()" title="ניהול קבוצה">⚙️</button>
     <button class="group-action-btn" onclick="openCreateGroupModal()" title="צור קבוצה">➕</button>
     <button class="group-action-btn" onclick="openJoinGroupModal()" title="הצטרף לקבוצה">🔗</button>`;
 }
@@ -2069,13 +2117,81 @@ function closeJoinGroupModal() {
   document.getElementById('joinGroupModal').classList.add('hidden');
 }
 
+function openManageGroupModal() {
+  const group = myGroups.find(g => g.id === currentGroupId);
+  if (!group) return;
+  document.getElementById('manageGroupTitle').textContent = `ניהול "${group.name}"`;
+  const isCreator = currentUser && group.created_by === currentUser.id;
+  document.getElementById('deleteGroupBtn').style.display = isCreator ? 'block' : 'none';
+  document.getElementById('manageGroupModal').classList.remove('hidden');
+}
+function closeManageGroupModal() {
+  document.getElementById('manageGroupModal').classList.add('hidden');
+}
+
+async function leaveGroup() {
+  const group = myGroups.find(g => g.id === currentGroupId);
+  if (!group) return;
+  if (!confirm(`לעזוב את הקבוצה "${group.name}"?`)) return;
+
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from(GROUP_MEMBERS_TABLE)
+        .delete()
+        .eq('group_id', group.id)
+        .eq('user_email', currentUser.email);
+      if (error) throw error;
+    } catch(e) {
+      console.error('leaveGroup error:', e);
+    }
+  }
+  saveLocalGroupMembers(getLocalGroupMembers().filter(m => !(m.group_id === group.id && m.user_email === currentUser.email)));
+
+  closeManageGroupModal();
+  showToast(`עזבת את "${group.name}"`, 'success');
+  currentGroupId = null;
+  await loadMyGroups();
+  loadLeaderboard();
+}
+
+async function deleteGroup() {
+  const group = myGroups.find(g => g.id === currentGroupId);
+  if (!group || !currentUser || group.created_by !== currentUser.id) return;
+  if (!confirm(`למחוק את הקבוצה "${group.name}" לצמיתות? כל החברים יוסרו ולא ניתן לשחזר.`)) return;
+
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from(GROUPS_TABLE).delete().eq('id', group.id);
+      if (error) throw error;
+    } catch(e) {
+      console.error('deleteGroup error:', e);
+    }
+  }
+  saveLocalGroups(getLocalGroups().filter(g => g.id !== group.id));
+  saveLocalGroupMembers(getLocalGroupMembers().filter(m => m.group_id !== group.id));
+
+  closeManageGroupModal();
+  showToast(`הקבוצה "${group.name}" נמחקה`, 'success');
+  currentGroupId = null;
+  await loadMyGroups();
+  loadLeaderboard();
+}
+
 function copyInviteLink(code) {
-  const link = `${location.origin}${location.pathname}?join=${code}`;
+  const link = buildInviteLink(code);
   navigator.clipboard.writeText(link).then(() => {
     showToast('הקישור הועתק!', 'success');
   }).catch(() => {
     showToast('לא ניתן להעתיק אוטומטית — הקוד: ' + code, 'error');
   });
+}
+
+function shareInviteWhatsApp(code) {
+  const group = myGroups.find(g => g.invite_code === code) || getLocalGroups().find(g => g.invite_code === code);
+  const groupName = group ? group.name : 'FitApp';
+  const text = `הצטרפ/י אליי לקבוצת "${groupName}" באפליקציית FitApp! 💪\n${buildInviteLink(code)}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 async function createGroup() {
@@ -2129,14 +2245,48 @@ async function createGroup() {
 
   resultEl.innerHTML = `
     <div class="invite-share-box">
-      <p>הקבוצה "${escHtml(group.name)}" נוצרה! שתפו את הקוד עם חברים:</p>
+      <p>הקבוצה "${escHtml(group.name)}" נוצרה! שתפו את הקישור עם חברים:</p>
       <div class="invite-code-row"><span class="invite-code">${group.invite_code}</span></div>
-      <button class="group-action-btn primary" style="width:100%;margin-top:0.75rem;" onclick="copyInviteLink('${group.invite_code}')">📋 העתק קישור הזמנה</button>
+      <div class="invite-link-row"><span class="invite-link-text">${buildInviteLink(group.invite_code)}</span></div>
+      <div class="invite-share-actions">
+        <button class="group-action-btn primary" onclick="copyInviteLink('${group.invite_code}')">📋 העתק קישור</button>
+        <button class="group-action-btn whatsapp" onclick="shareInviteWhatsApp('${group.invite_code}')">🟢 WhatsApp</button>
+      </div>
     </div>`;
   nameInput.value = '';
   btn.disabled = false;
   await loadMyGroups();
   loadLeaderboard();
+}
+
+function extractInviteCode(raw) {
+  let code = raw;
+  if (raw.includes('join=')) {
+    try {
+      const url = new URL(raw, location.origin);
+      code = url.searchParams.get('join') || raw;
+    } catch(e) { /* not a valid URL — treat raw input as the code */ }
+  }
+  return code.trim().toUpperCase();
+}
+
+async function findGroupByCode(code) {
+  let group = null;
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from(GROUPS_TABLE)
+        .select('id, name, invite_code, created_by')
+        .eq('invite_code', code)
+        .maybeSingle();
+      if (error) throw error;
+      group = data;
+    } catch(e) {
+      console.error('findGroupByCode error:', e);
+    }
+  }
+  if (!group) group = getLocalGroups().find(g => g.invite_code === code) || null;
+  return group;
 }
 
 async function joinGroup() {
@@ -2146,36 +2296,12 @@ async function joinGroup() {
   if (!raw) { showToast('הזן קוד הזמנה', 'error'); return; }
   if (!currentUser) return;
 
-  // Accept either a raw code or a full shareable link containing ?join=CODE
-  let code = raw;
-  if (raw.includes('join=')) {
-    try {
-      const url = new URL(raw, location.origin);
-      code = url.searchParams.get('join') || raw;
-    } catch(e) { /* not a valid URL — treat raw input as the code */ }
-  }
-  code = code.trim().toUpperCase();
-
+  const code = extractInviteCode(raw);
   const btn = document.getElementById('confirmJoinGroupBtn');
   btn.disabled = true;
   resultEl.innerHTML = '';
 
-  let group = null;
-  if (supabaseClient) {
-    try {
-      const { data, error } = await supabaseClient
-        .from(GROUPS_TABLE)
-        .select('id, name, invite_code')
-        .eq('invite_code', code)
-        .maybeSingle();
-      if (error) throw error;
-      group = data;
-    } catch(e) {
-      console.error('joinGroup lookup error:', e);
-    }
-  }
-  if (!group) group = getLocalGroups().find(g => g.invite_code === code) || null;
-
+  const group = await findGroupByCode(code);
   if (!group) {
     resultEl.innerHTML = '<p class="group-error">קוד לא נמצא. בדוק את הקוד ונסה שוב.</p>';
     btn.disabled = false;
@@ -2191,6 +2317,29 @@ async function joinGroup() {
   showToast(`הצטרפת לקבוצה "${group.name}"!`, 'success');
   await loadMyGroups();
   loadLeaderboard();
+}
+
+// Auto-join flow for shared links (?join=CODE) — no typing required.
+async function autoJoinByCode(rawCode) {
+  if (!currentUser) return;
+  const code = extractInviteCode(rawCode);
+  const group = await findGroupByCode(code);
+
+  if (!group) {
+    showToast('קוד ההזמנה לא נמצא', 'error');
+    openJoinGroupModal(code); // let the user double-check/edit the code manually
+    return;
+  }
+
+  await joinGroupById(group.id);
+  currentGroupId = group.id;
+  localStorage.setItem('fitapp_current_group', group.id);
+  showToast(`הצטרפת לקבוצה "${group.name}"!`, 'success');
+  await loadMyGroups();
+
+  const lbNavBtn = document.querySelector('.nav-btn[data-tab="leaderboardTab"]');
+  if (lbNavBtn) switchTab('leaderboardTab', lbNavBtn);
+  else loadLeaderboard();
 }
 
 // =====================================================
@@ -2532,6 +2681,9 @@ document.getElementById('createGroupModal').addEventListener('click', function(e
 });
 document.getElementById('joinGroupModal').addEventListener('click', function(e) {
   if (e.target === this) closeJoinGroupModal();
+});
+document.getElementById('manageGroupModal').addEventListener('click', function(e) {
+  if (e.target === this) closeManageGroupModal();
 });
 
 // Resize canvas on window resize
