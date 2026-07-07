@@ -562,6 +562,18 @@
     .summary-item { text-align: center; }
     .summary-val { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; color: var(--accent-light); }
     .summary-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .modal-breakdown { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 0.6rem 0.85rem;
+    }
+    .breakdown-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .breakdown-label { flex: 1; font-size: 0.85rem; color: var(--text-primary); }
+    .breakdown-reps { font-family: var(--font-num); font-size: 1rem; font-weight: 700; color: var(--accent-light); }
     .modal-actions { display: flex; gap: 0.75rem; }
 
     /* Toast */
@@ -1030,18 +1042,15 @@
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">שמירת אימון</div>
+    <div class="modal-breakdown" id="modalBreakdown"></div>
     <div class="modal-summary">
       <div class="summary-item">
-        <div class="summary-val" id="modalReps">0</div>
-        <div class="summary-key">חזרות</div>
+        <div class="summary-val" id="modalTotalReps">0</div>
+        <div class="summary-key">סה"כ חזרות</div>
       </div>
       <div class="summary-item">
         <div class="summary-val" id="modalDuration">0:00</div>
         <div class="summary-key">זמן</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-val" id="modalExercise">—</div>
-        <div class="summary-key">תרגיל</div>
       </div>
     </div>
     <div class="modal-actions">
@@ -1183,7 +1192,10 @@ let pendingJoinCode = (() => {
 let currentExercise = 'pushups';
 let workoutActive = false;
 let startingWorkout = false;
-let repCount = 0;
+// Per-exercise rep tallies for the current workout session — lets a user switch
+// exercises mid-session without mixing counts, and saves one row per exercise.
+let repCounts = { pushups: 0, jumping_jacks: 0, pullups: 0, squats: 0 };
+function totalReps() { return Object.values(repCounts).reduce((a, b) => a + b, 0); }
 let workoutStartTime = null;
 let timerInterval = null;
 let workoutDurationSeconds = 0;
@@ -1841,6 +1853,7 @@ function selectExercise(ex, btn) {
     document.getElementById('exStatIcon').textContent = meta.icon;
     document.getElementById('exStatLabel').textContent = meta.label;
   }
+  updateRepDisplay(); // show this exercise's own tally, not the previous exercise's
   if (!workoutActive) updatePhaseIndicator('בחר תרגיל והפעל אימון');
 }
 
@@ -1864,7 +1877,7 @@ async function startWorkout() {
   startingWorkout = false;
 
   workoutActive = true;
-  repCount = 0;
+  repCounts = { pushups: 0, jumping_jacks: 0, pullups: 0, squats: 0 };
   workoutDurationSeconds = 0;
   workoutStartTime = Date.now();
   updateRepDisplay();
@@ -1891,14 +1904,14 @@ function stopWorkout() {
 
   document.getElementById('startBtn').disabled = false;
   document.getElementById('stopBtn').disabled = true;
-  document.getElementById('saveBtn').disabled = repCount === 0;
+  document.getElementById('saveBtn').disabled = totalReps() === 0;
 
   updatePhaseIndicator('אימון הסתיים');
-  if (repCount > 0) showToast(`אימון הסתיים! ${repCount} חזרות`, 'success');
+  if (totalReps() > 0) showToast(`אימון הסתיים! ${totalReps()} חזרות`, 'success');
 }
 
 function addRep() {
-  repCount++;
+  repCounts[currentExercise] = (repCounts[currentExercise] || 0) + 1;
   updateRepDisplay();
   // Green pulse animation on the rep counter
   const el = document.getElementById('repCount');
@@ -1908,7 +1921,7 @@ function addRep() {
 }
 
 function updateRepDisplay() {
-  document.getElementById('repCount').textContent = repCount;
+  document.getElementById('repCount').textContent = repCounts[currentExercise] || 0;
 }
 
 function updateTimer() {
@@ -1932,11 +1945,23 @@ function formatTime(secs) {
 // SAVE MODAL
 // =====================================================
 function openSaveModal() {
-  if (repCount === 0) { showToast('אין חזרות לשמירה', 'error'); return; }
-  const exNames = { pushups: '🤸 שכיבות', jumping_jacks: '⭐ קפיצות', pullups: '🏋️ מתח', squats: '🦵 סקוואט' };
-  document.getElementById('modalReps').textContent = repCount;
+  if (totalReps() === 0) { showToast('אין חזרות לשמירה', 'error'); return; }
+
+  const breakdownEl = document.getElementById('modalBreakdown');
+  breakdownEl.innerHTML = Object.keys(repCounts)
+    .filter(ex => repCounts[ex] > 0)
+    .map(ex => {
+      const meta = EX_META[ex] || { icon: '🏃', label: ex };
+      return `
+        <div class="breakdown-row">
+          <span class="breakdown-icon">${meta.icon}</span>
+          <span class="breakdown-label">${escHtml(meta.label)}</span>
+          <span class="breakdown-reps">${repCounts[ex]}</span>
+        </div>`;
+    }).join('');
+
+  document.getElementById('modalTotalReps').textContent = totalReps();
   document.getElementById('modalDuration').textContent = formatTime(workoutDurationSeconds);
-  document.getElementById('modalExercise').textContent = exNames[currentExercise] || currentExercise;
   document.getElementById('saveModal').classList.remove('hidden');
 }
 
@@ -1949,20 +1974,25 @@ async function saveWorkout() {
   btn.disabled = true;
   btn.textContent = '⏳ שומר...';
 
-  const workout = {
-    user_id: currentUser.id,
-    user_name: currentUser.name || 'משתמש',
-    user_email: currentUser.email || '',
-    exercise: currentExercise,
-    reps: repCount,
-    duration_seconds: workoutDurationSeconds,
-    worked_out_at: new Date().toISOString(),
-  };
+  const workedOutAt = new Date().toISOString();
+  // One row per exercise actually performed this session — never mix reps
+  // from different exercises into a single row.
+  const rows = Object.keys(repCounts)
+    .filter(ex => repCounts[ex] > 0)
+    .map(ex => ({
+      user_id: currentUser.id,
+      user_name: currentUser.name || 'משתמש',
+      user_email: currentUser.email || '',
+      exercise: ex,
+      reps: repCounts[ex],
+      duration_seconds: workoutDurationSeconds,
+      worked_out_at: workedOutAt,
+    }));
 
   let saved = false;
   if (supabaseClient) {
     try {
-      const { error } = await supabaseClient.from(WORKOUTS_TABLE).insert(workout);
+      const { error } = await supabaseClient.from(WORKOUTS_TABLE).insert(rows);
       if (error) throw error;
       saved = true;
     } catch(e) {
@@ -1975,7 +2005,7 @@ async function saveWorkout() {
 
   // Always save locally as backup
   const local = JSON.parse(localStorage.getItem('fitapp_workouts') || '[]');
-  local.push({ ...workout, id: Date.now() });
+  rows.forEach((row, i) => local.push({ ...row, id: Date.now() + i }));
   localStorage.setItem('fitapp_workouts', JSON.stringify(local));
 
   closeSaveModal();
@@ -1989,7 +2019,7 @@ async function saveWorkout() {
   }
 
   // Reset
-  repCount = 0;
+  repCounts = { pushups: 0, jumping_jacks: 0, pullups: 0, squats: 0 };
   workoutDurationSeconds = 0;
   updateRepDisplay();
   document.getElementById('timerDisplay').textContent = '0:00';
@@ -2461,6 +2491,14 @@ async function loadLeaderboard() {
         .map(([uid, u]) => ({ uid, name: u.name, reps: u.reps }))
         .sort((a, b) => b.reps - a.reps);
     }
+  }
+
+  // Always show the current user's own name freshly from their session rather than
+  // whatever was stored on old rows — protects against stale/garbled cached names
+  // (e.g. from before a Google name-decoding fix) still sitting in old data.
+  if (currentUser) {
+    const meRow = rows.find(r => r.uid === currentUser.id);
+    if (meRow) meRow.name = currentUser.name || meRow.name;
   }
 
   if (rows.length === 0) {
