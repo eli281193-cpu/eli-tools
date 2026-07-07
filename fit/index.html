@@ -1111,7 +1111,7 @@ const exerciseState = {
   pushups:       { phase: 'up',   repReady: false },
   jumping_jacks: { phase: 'down', repReady: false },
   pullups:       { phase: 'down', repReady: false },
-  squats:        { phase: 'up',   repReady: false },
+  squats:        { phase: 'up',   repReady: false, confirmedStanding: false },
 };
 
 // Smoothing buffer for angles
@@ -1447,7 +1447,7 @@ async function startPoseLoop() {
         const pose = poses[0];
         drawSkeleton(ctx, pose.keypoints, canvas.width, canvas.height, video.videoWidth, video.videoHeight);
         if (workoutActive) {
-          processRepCount(pose.keypoints);
+          processRepCount(pose.keypoints, video.videoHeight);
         }
         updatePoseStatus('מזהה ✓', true);
       } else {
@@ -1560,7 +1560,18 @@ function smoothAngle(exercise, rawAngle) {
 // =====================================================
 // REP COUNTING — STATE MACHINES
 // =====================================================
-function processRepCount(keypoints) {
+// Frames a phase-transition condition must hold for, consecutively, before it
+// actually commits (flips phase / counts a rep). A single noisy frame can no
+// longer flip anything on its own — this is the "confidence floor".
+const CONFIRM_FRAMES = 3;
+function confirmStreak(st, counterKey, met) {
+  if (!met) { st[counterKey] = 0; return false; }
+  st[counterKey] = (st[counterKey] || 0) + 1;
+  if (st[counterKey] >= CONFIRM_FRAMES) { st[counterKey] = 0; return true; }
+  return false;
+}
+
+function processRepCount(keypoints, frameHeight) {
   // MoveNet keypoint indices:
   // 0:nose,1:left_eye,2:right_eye,3:left_ear,4:right_ear
   // 5:left_shoulder,6:right_shoulder,7:left_elbow,8:right_elbow
@@ -1574,7 +1585,7 @@ function processRepCount(keypoints) {
   // performed is the one whose rep count advances.
   countPushup(kp);
   countJumpingJack(kp);
-  countPullup(kp);
+  countPullup(kp, frameHeight || 480);
   countSquat(kp);
 }
 
@@ -1619,10 +1630,10 @@ function countPushup(kp) {
   const ratio = smoothAngle('pushups', (wristY - shoulderY) / shoulderWidth);
 
   const st = exerciseState.pushups;
-  if (ratio < 0.85 && st.phase === 'up') {
+  if (confirmStreak(st, 'downStreak', ratio < 0.85 && st.phase === 'up')) {
     st.phase = 'down';
     updatePhaseIndicator('⬇ למטה');
-  } else if (ratio > 1.15 && st.phase === 'down') {
+  } else if (confirmStreak(st, 'upStreak', ratio > 1.15 && st.phase === 'down')) {
     st.phase = 'up';
     addRep('pushups');
     updatePhaseIndicator('⬆ למעלה — חזרה!');
@@ -1647,11 +1658,11 @@ function countJumpingJack(kp) {
   const smoothed = smoothAngle('jumping_jacks', diff);
 
   const st = exerciseState.jumping_jacks;
-  if (smoothed > 30 && st.phase === 'down') {
+  if (confirmStreak(st, 'upStreak', smoothed > 30 && st.phase === 'down')) {
     // Wrists are above shoulders — arms up
     st.phase = 'up';
     updatePhaseIndicator('⭐ ידיים למעלה');
-  } else if (smoothed < -20 && st.phase === 'up') {
+  } else if (confirmStreak(st, 'downStreak', smoothed < -20 && st.phase === 'up')) {
     // Wrists back below shoulders — arms down = rep complete
     st.phase = 'down';
     addRep('jumping_jacks');
@@ -1659,32 +1670,52 @@ function countJumpingJack(kp) {
   }
 }
 
-function countPullup(kp) {
+function countPullup(kp, frameHeight) {
   // Wrist Y vs nose Y
   // Up: wrists above (or at) nose level (wrist.y <= nose.y in image, since Y increases downward)
   // Down: wrists well below nose
   const noseOk = kpValid(kp[0], 0.25);
   const leftWristOk = kpValid(kp[9]);
   const rightWristOk = kpValid(kp[10]);
+  const leftShoulderOk = kpValid(kp[5]);
+  const rightShoulderOk = kpValid(kp[6]);
 
-  if (!noseOk || (!leftWristOk && !rightWristOk)) return;
+  if (!noseOk || (!leftWristOk && !rightWristOk) || !leftShoulderOk || !rightShoulderOk) return;
 
   let wristY = 0, count = 0;
   if (leftWristOk) { wristY += kp[9].y; count++; }
   if (rightWristOk) { wristY += kp[10].y; count++; }
   wristY /= count;
   const noseY = kp[0].y;
+  const shoulderY = (kp[5].y + kp[6].y) / 2;
 
   const diff = noseY - wristY; // positive = wrists above nose
   const smoothed = smoothAngle('pullups', diff);
 
+  // Gate: a real pull-up means the shoulders are raised into the upper part of
+  // the frame (as when hanging from a bar) and the legs are NOT planted on the
+  // floor. Without this, arm-only movement while standing on the ground could
+  // get mistaken for a pull-up.
+  const shouldersElevated = shoulderY < frameHeight * 0.5;
+  const leftAnkleOk = kpValid(kp[15]);
+  const rightAnkleOk = kpValid(kp[16]);
+  let legsOnFloor = false;
+  if (leftAnkleOk || rightAnkleOk) {
+    let ankleY = 0, aCount = 0;
+    if (leftAnkleOk) { ankleY += kp[15].y; aCount++; }
+    if (rightAnkleOk) { ankleY += kp[16].y; aCount++; }
+    ankleY /= aCount;
+    legsOnFloor = ankleY > frameHeight * 0.85;
+  }
+  const isHangPosture = shouldersElevated && !legsOnFloor;
+
   const st = exerciseState.pullups;
-  if (smoothed > 20 && st.phase === 'down') {
-    // Wrists are above nose — pulled up
+  if (confirmStreak(st, 'upStreak', smoothed > 20 && st.phase === 'down' && isHangPosture)) {
+    // Wrists are above nose, shoulders elevated, legs not grounded — pulled up
     st.phase = 'up';
     addRep('pullups');
     updatePhaseIndicator('💪 למעלה — חזרה!');
-  } else if (smoothed < -50 && st.phase === 'up') {
+  } else if (confirmStreak(st, 'downStreak', smoothed < -50 && st.phase === 'up')) {
     // Wrists well below nose — back down
     st.phase = 'down';
     updatePhaseIndicator('⬇ למטה');
@@ -1712,13 +1743,19 @@ function countSquat(kp) {
   const kneeAngle = sum / count;
 
   const smoothed = smoothAngle('squats', kneeAngle);
-
   const st = exerciseState.squats;
-  if (smoothed < 90 && st.phase === 'up') {
+
+  // Require a genuinely-observed upright stance before the FIRST down-phase can
+  // ever fire — otherwise someone starting the camera already bent over would
+  // have their very first frame misread as "coming from standing" just because
+  // the state machine defaults to phase 'up'.
+  if (smoothed > 160) st.confirmedStanding = true;
+
+  if (confirmStreak(st, 'downStreak', smoothed < 90 && st.phase === 'up' && st.confirmedStanding)) {
     // Knee bent below 90° — bottom of the squat
     st.phase = 'down';
     updatePhaseIndicator('⬇ סקוואט למטה');
-  } else if (smoothed > 160 && st.phase === 'down') {
+  } else if (confirmStreak(st, 'upStreak', smoothed > 160 && st.phase === 'down')) {
     // Back up near full leg extension — rep complete
     st.phase = 'up';
     addRep('squats');
@@ -1768,6 +1805,9 @@ async function startWorkout() {
   // run simultaneously now, so all of them need a clean slate.
   Object.keys(exerciseState).forEach(k => {
     exerciseState[k].phase = (k === 'pushups' || k === 'squats') ? 'up' : 'down';
+    exerciseState[k].upStreak = 0;
+    exerciseState[k].downStreak = 0;
+    if (k === 'squats') exerciseState[k].confirmedStanding = false;
     angleBuffer[k] = [];
   });
 
