@@ -301,41 +301,6 @@
     /* ===== WORKOUT TAB ===== */
     #workoutTab { overflow-y: auto; }
 
-    /* Exercise selector */
-    .exercise-selector {
-      padding: 1rem;
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      flex-shrink: 0;
-    }
-    .exercise-selector::-webkit-scrollbar { display: none; }
-    .exercise-btn {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 5px;
-      background: var(--bg-card);
-      border: none;
-      border-radius: 999px;
-      padding: 8px 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-      color: var(--text-secondary);
-      font-size: 11.5px;
-    }
-    .exercise-btn.active {
-      background: var(--accent);
-      color: var(--on-accent);
-      font-weight: 700;
-    }
-    .exercise-btn .ex-icon { font-size: 1rem; line-height: 1; }
-    .exercise-btn .ex-name { font-size: 11.5px; font-weight: inherit; }
-
     /* Camera section */
     .camera-section {
       position: relative;
@@ -392,18 +357,6 @@
       text-transform: uppercase;
     }
     #cameraPlaceholder p { font-size: 0.78rem; text-align: center; padding: 0 1rem; color: var(--text-secondary); }
-    #enableCameraBtn {
-      background: var(--accent);
-      color: var(--on-accent);
-      border: none;
-      border-radius: 10px;
-      padding: 0.7rem 1.2rem;
-      min-height: 44px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 0.25rem;
-    }
 
     /* Pose status badge — "LIVE" style pill */
     #poseStatus {
@@ -436,49 +389,49 @@
     }
     @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-    /* Rep counter — single stat card, 3 columns divided by 1px dividers */
-    .rep-counter-section {
-      display: flex;
-      align-items: center;
-      margin: 0.75rem 1rem 0;
-      padding: 16px 8px;
-      background: var(--bg-card);
-      border-radius: 18px;
-      flex-shrink: 0;
-    }
-    .rep-display, .timer-display, .exercise-stat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-    .rep-display { flex: 1.3; }
-    .stat-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
-    .rep-number {
-      font-family: var(--font-num);
-      font-size: 38px;
-      font-weight: 700;
-      line-height: 1;
-      color: var(--accent);
-    }
-    @keyframes repPulse {
-      0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
-      35%  { transform: scale(1.28); filter: drop-shadow(0 0 22px var(--accent)); }
-      100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
-    }
-    .rep-number.pulse { animation: repPulse 0.45s ease-out; }
-    .rep-label { font-size: 10px; color: var(--text-muted); }
+    /* Timer — standalone, centered above the live rep grid */
+    .timer-standalone { display: flex; justify-content: center; margin: 0.75rem 0 0; }
+    .timer-display { display: flex; flex-direction: column; align-items: center; gap: 2px; }
     .timer-number {
       font-family: var(--font-num);
-      font-size: 19px;
+      font-size: 28px;
       font-weight: 600;
       color: var(--cyan);
       font-variant-numeric: tabular-nums;
     }
     .timer-label { font-size: 10px; color: var(--text-muted); }
-    .exercise-stat .ex-stat-icon { font-size: 16px; line-height: 1; }
-    .exercise-stat .ex-stat-label { font-size: 10px; color: var(--text-muted); }
+
+    /* Live per-exercise rep counts — all 4 detected simultaneously */
+    .multi-rep-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin: 0.75rem 1rem 0;
+    }
+    .rep-chip {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 0.9rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .rep-chip-icon { font-size: 1.3rem; line-height: 1; }
+    .rep-chip-count {
+      font-family: var(--font-num);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    @keyframes chipPulse {
+      0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+      35%  { transform: scale(1.25); filter: drop-shadow(0 0 16px var(--accent)); }
+      100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+    }
+    .rep-chip-count.pulse { animation: chipPulse 0.45s ease-out; }
+    .rep-chip-label { font-size: 0.7rem; color: var(--text-muted); }
 
     /* Phase indicator */
     #phaseIndicator {
@@ -551,29 +504,6 @@
       margin: 0 auto 1.2rem;
     }
     .modal-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 1rem; text-align: center; }
-    .modal-summary {
-      background: var(--bg-card);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      display: flex;
-      justify-content: space-around;
-    }
-    .summary-item { text-align: center; }
-    .summary-val { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; color: var(--accent-light); }
-    .summary-key { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-    .modal-breakdown { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
-    .breakdown-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: var(--bg-card);
-      border-radius: 10px;
-      padding: 0.6rem 0.85rem;
-    }
-    .breakdown-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .breakdown-label { flex: 1; font-size: 0.85rem; color: var(--text-primary); }
-    .breakdown-reps { font-family: var(--font-num); font-size: 1rem; font-weight: 700; color: var(--accent-light); }
     .modal-actions { display: flex; gap: 0.75rem; }
 
     /* Toast */
@@ -905,26 +835,6 @@
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
 
-        <!-- Exercise Selector -->
-        <div class="exercise-selector">
-          <button class="exercise-btn active" data-exercise="pushups" onclick="selectExercise('pushups', this)">
-            <span class="ex-icon">🤸</span>
-            <span class="ex-name">סמיכה</span>
-          </button>
-          <button class="exercise-btn" data-exercise="jumping_jacks" onclick="selectExercise('jumping_jacks', this)">
-            <span class="ex-icon">⭐</span>
-            <span class="ex-name">קפיצות</span>
-          </button>
-          <button class="exercise-btn" data-exercise="pullups" onclick="selectExercise('pullups', this)">
-            <span class="ex-icon">🏋️</span>
-            <span class="ex-name">מתח</span>
-          </button>
-          <button class="exercise-btn" data-exercise="squats" onclick="selectExercise('squats', this)">
-            <span class="ex-icon">🦵</span>
-            <span class="ex-name">סקוואט</span>
-          </button>
-        </div>
-
         <!-- Camera Section -->
         <div class="camera-section">
           <video id="videoEl" autoplay playsinline muted></video>
@@ -932,8 +842,7 @@
           <div id="cameraPlaceholder">
             <span class="cam-icon">📷</span>
             <span class="cam-caption">CAMERA FEED</span>
-            <p>הפעל מצלמה לזיהוי תנועה אוטומטי</p>
-            <button id="enableCameraBtn" onclick="startCamera()">הפעל מצלמה</button>
+            <p>לחץ "התחל" כדי לפתוח מצלמה ולזהות תרגילים אוטומטית</p>
           </div>
           <div class="cam-corner tl"></div>
           <div class="cam-corner tr"></div>
@@ -942,32 +851,45 @@
           <div id="poseStatus">טוען...</div>
         </div>
 
-        <!-- Rep Counter -->
-        <div class="rep-counter-section">
-          <div class="rep-display">
-            <div class="rep-number" id="repCount">0</div>
-            <div class="rep-label">חזרות</div>
-          </div>
-          <div class="stat-divider"></div>
+        <!-- Timer -->
+        <div class="timer-standalone">
           <div class="timer-display">
             <div class="timer-number" id="timerDisplay">0:00</div>
             <div class="timer-label">זמן</div>
           </div>
-          <div class="stat-divider"></div>
-          <div class="exercise-stat">
-            <span class="ex-stat-icon" id="exStatIcon">🤸</span>
-            <span class="ex-stat-label" id="exStatLabel">סמיכה</span>
+        </div>
+
+        <!-- Live per-exercise rep counts — all 4 detected simultaneously -->
+        <div class="multi-rep-grid">
+          <div class="rep-chip">
+            <span class="rep-chip-icon">🤸</span>
+            <span class="rep-chip-count" id="repCount_pushups">0</span>
+            <span class="rep-chip-label">שכיבות</span>
+          </div>
+          <div class="rep-chip">
+            <span class="rep-chip-icon">🦵</span>
+            <span class="rep-chip-count" id="repCount_squats">0</span>
+            <span class="rep-chip-label">סקוואטים</span>
+          </div>
+          <div class="rep-chip">
+            <span class="rep-chip-icon">⭐</span>
+            <span class="rep-chip-count" id="repCount_jumping_jacks">0</span>
+            <span class="rep-chip-label">קפיצות</span>
+          </div>
+          <div class="rep-chip">
+            <span class="rep-chip-icon">🏋️</span>
+            <span class="rep-chip-count" id="repCount_pullups">0</span>
+            <span class="rep-chip-label">מתח</span>
           </div>
         </div>
 
         <!-- Phase Indicator -->
-        <div id="phaseIndicator">בחר תרגיל והפעל אימון</div>
+        <div id="phaseIndicator">לחץ "התחל" כדי להתחיל</div>
 
         <!-- Workout Controls -->
         <div class="workout-controls">
           <button class="btn btn-primary" id="startBtn" onclick="startWorkout()">▶ התחל</button>
           <button class="btn btn-danger" id="stopBtn" onclick="stopWorkout()" disabled>■ עצור</button>
-          <button class="btn btn-success" id="saveBtn" onclick="openSaveModal()" disabled>💾 שמור</button>
         </div>
       </div>
 
@@ -1034,29 +956,6 @@
         <span class="nav-label">היסטוריה</span>
       </button>
     </nav>
-  </div>
-</div>
-
-<!-- Save Modal -->
-<div class="modal-overlay hidden" id="saveModal">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">שמירת אימון</div>
-    <div class="modal-breakdown" id="modalBreakdown"></div>
-    <div class="modal-summary">
-      <div class="summary-item">
-        <div class="summary-val" id="modalTotalReps">0</div>
-        <div class="summary-key">סה"כ חזרות</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-val" id="modalDuration">0:00</div>
-        <div class="summary-key">זמן</div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeSaveModal()">ביטול</button>
-      <button class="btn btn-success" id="confirmSaveBtn" onclick="saveWorkout()">💾 שמור אימון</button>
-    </div>
   </div>
 </div>
 
@@ -1189,11 +1088,11 @@ let pendingJoinCode = (() => {
   const code = new URLSearchParams(location.search).get('join');
   return code ? code.trim().toUpperCase() : null;
 })();
-let currentExercise = 'pushups';
 let workoutActive = false;
 let startingWorkout = false;
-// Per-exercise rep tallies for the current workout session — lets a user switch
-// exercises mid-session without mixing counts, and saves one row per exercise.
+// Per-exercise rep tallies for the current workout session — all 4 exercises are
+// auto-detected simultaneously, so each keeps its own running count and its own
+// saved row (never mixed together).
 let repCounts = { pushups: 0, jumping_jacks: 0, pullups: 0, squats: 0 };
 function totalReps() { return Object.values(repCounts).reduce((a, b) => a + b, 0); }
 let workoutStartTime = null;
@@ -1670,15 +1569,13 @@ function processRepCount(keypoints) {
 
   const kp = keypoints;
 
-  if (currentExercise === 'pushups') {
-    countPushup(kp);
-  } else if (currentExercise === 'jumping_jacks') {
-    countJumpingJack(kp);
-  } else if (currentExercise === 'pullups') {
-    countPullup(kp);
-  } else if (currentExercise === 'squats') {
-    countSquat(kp);
-  }
+  // Auto-detect: check all 4 exercises every frame — each keeps its own
+  // independent phase state machine, so whichever one is actually being
+  // performed is the one whose rep count advances.
+  countPushup(kp);
+  countJumpingJack(kp);
+  countPullup(kp);
+  countSquat(kp);
 }
 
 // Angle at point b (in degrees) formed by rays b→a and b→c
@@ -1727,7 +1624,7 @@ function countPushup(kp) {
     updatePhaseIndicator('⬇ למטה');
   } else if (ratio > 1.15 && st.phase === 'down') {
     st.phase = 'up';
-    addRep();
+    addRep('pushups');
     updatePhaseIndicator('⬆ למעלה — חזרה!');
   }
 }
@@ -1757,7 +1654,7 @@ function countJumpingJack(kp) {
   } else if (smoothed < -20 && st.phase === 'up') {
     // Wrists back below shoulders — arms down = rep complete
     st.phase = 'down';
-    addRep();
+    addRep('jumping_jacks');
     updatePhaseIndicator('👐 ידיים למטה — חזרה!');
   }
 }
@@ -1785,7 +1682,7 @@ function countPullup(kp) {
   if (smoothed > 20 && st.phase === 'down') {
     // Wrists are above nose — pulled up
     st.phase = 'up';
-    addRep();
+    addRep('pullups');
     updatePhaseIndicator('💪 למעלה — חזרה!');
   } else if (smoothed < -50 && st.phase === 'up') {
     // Wrists well below nose — back down
@@ -1824,7 +1721,7 @@ function countSquat(kp) {
   } else if (smoothed > 160 && st.phase === 'down') {
     // Back up near full leg extension — rep complete
     st.phase = 'up';
-    addRep();
+    addRep('squats');
     updatePhaseIndicator('⬆ למעלה — חזרה!');
   }
 }
@@ -1833,29 +1730,11 @@ function countSquat(kp) {
 // WORKOUT CONTROLS
 // =====================================================
 const EX_META = {
-  pushups:       { icon: '🤸', label: 'סמיכה' },
+  pushups:       { icon: '🤸', label: 'שכיבות' },
   jumping_jacks: { icon: '⭐', label: 'קפיצות' },
   pullups:       { icon: '🏋️', label: 'מתח' },
-  squats:        { icon: '🦵', label: 'סקוואט' },
+  squats:        { icon: '🦵', label: 'סקוואטים' },
 };
-
-function selectExercise(ex, btn) {
-  currentExercise = ex;
-  document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // Reset state machine for new exercise
-  Object.keys(exerciseState).forEach(k => {
-    exerciseState[k].phase = (k === 'pushups' || k === 'squats') ? 'up' : 'down';
-  });
-  angleBuffer[ex] = [];
-  const meta = EX_META[ex];
-  if (meta) {
-    document.getElementById('exStatIcon').textContent = meta.icon;
-    document.getElementById('exStatLabel').textContent = meta.label;
-  }
-  updateRepDisplay(); // show this exercise's own tally, not the previous exercise's
-  if (!workoutActive) updatePhaseIndicator('בחר תרגיל והפעל אימון');
-}
 
 async function startWorkout() {
   if (workoutActive || startingWorkout) return; // guard against double-tap while camera/AI are still loading
@@ -1880,48 +1759,59 @@ async function startWorkout() {
   repCounts = { pushups: 0, jumping_jacks: 0, pullups: 0, squats: 0 };
   workoutDurationSeconds = 0;
   workoutStartTime = Date.now();
-  updateRepDisplay();
+  updateAllRepDisplays();
 
   document.getElementById('startBtn').disabled = true;
   document.getElementById('stopBtn').disabled = false;
-  document.getElementById('saveBtn').disabled = true;
 
-  // Reset state machines
+  // Reset state machines + smoothing buffers for all 4 exercises — they all
+  // run simultaneously now, so all of them need a clean slate.
   Object.keys(exerciseState).forEach(k => {
     exerciseState[k].phase = (k === 'pushups' || k === 'squats') ? 'up' : 'down';
+    angleBuffer[k] = [];
   });
-  angleBuffer[currentExercise] = [];
 
   timerInterval = setInterval(updateTimer, 500);
-  updatePhaseIndicator('אימון פעיל — התחל לזוז!');
+  updatePhaseIndicator('אימון פעיל — מזהה תרגילים אוטומטית!');
   showToast('אימון התחיל!', 'success');
 }
 
-function stopWorkout() {
+async function stopWorkout() {
   workoutActive = false;
   clearInterval(timerInterval);
   workoutDurationSeconds = Math.floor((Date.now() - workoutStartTime) / 1000);
 
   document.getElementById('startBtn').disabled = false;
   document.getElementById('stopBtn').disabled = true;
-  document.getElementById('saveBtn').disabled = totalReps() === 0;
+  document.getElementById('stopBtn').textContent = '⏳ שומר...';
 
   updatePhaseIndicator('אימון הסתיים');
-  if (totalReps() > 0) showToast(`אימון הסתיים! ${totalReps()} חזרות`, 'success');
+
+  if (totalReps() > 0) {
+    await autoSaveWorkout();
+  } else {
+    showToast('אימון הסתיים — לא זוהו חזרות', 'error');
+  }
+
+  document.getElementById('stopBtn').textContent = '■ עצור';
 }
 
-function addRep() {
-  repCounts[currentExercise] = (repCounts[currentExercise] || 0) + 1;
-  updateRepDisplay();
-  // Green pulse animation on the rep counter
-  const el = document.getElementById('repCount');
+function addRep(ex) {
+  repCounts[ex] = (repCounts[ex] || 0) + 1;
+  const el = document.getElementById('repCount_' + ex);
+  if (!el) return;
+  el.textContent = repCounts[ex];
+  // Green pulse animation on the chip that just incremented
   el.classList.remove('pulse');
   void el.offsetWidth; // restart animation
   el.classList.add('pulse');
 }
 
-function updateRepDisplay() {
-  document.getElementById('repCount').textContent = repCounts[currentExercise] || 0;
+function updateAllRepDisplays() {
+  Object.keys(repCounts).forEach(ex => {
+    const el = document.getElementById('repCount_' + ex);
+    if (el) el.textContent = repCounts[ex] || 0;
+  });
 }
 
 function updateTimer() {
@@ -1942,38 +1832,9 @@ function formatTime(secs) {
 }
 
 // =====================================================
-// SAVE MODAL
+// AUTO-SAVE (on stop — no manual save step)
 // =====================================================
-function openSaveModal() {
-  if (totalReps() === 0) { showToast('אין חזרות לשמירה', 'error'); return; }
-
-  const breakdownEl = document.getElementById('modalBreakdown');
-  breakdownEl.innerHTML = Object.keys(repCounts)
-    .filter(ex => repCounts[ex] > 0)
-    .map(ex => {
-      const meta = EX_META[ex] || { icon: '🏃', label: ex };
-      return `
-        <div class="breakdown-row">
-          <span class="breakdown-icon">${meta.icon}</span>
-          <span class="breakdown-label">${escHtml(meta.label)}</span>
-          <span class="breakdown-reps">${repCounts[ex]}</span>
-        </div>`;
-    }).join('');
-
-  document.getElementById('modalTotalReps').textContent = totalReps();
-  document.getElementById('modalDuration').textContent = formatTime(workoutDurationSeconds);
-  document.getElementById('saveModal').classList.remove('hidden');
-}
-
-function closeSaveModal() {
-  document.getElementById('saveModal').classList.add('hidden');
-}
-
-async function saveWorkout() {
-  const btn = document.getElementById('confirmSaveBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ שומר...';
-
+async function autoSaveWorkout() {
   const workedOutAt = new Date().toISOString();
   // One row per exercise actually performed this session — never mix reps
   // from different exercises into a single row.
@@ -1997,7 +1858,6 @@ async function saveWorkout() {
       saved = true;
     } catch(e) {
       console.error('Supabase save error:', e);
-      showToast('שגיאה בשמירה לשרת — נשמר מקומית', 'error');
     }
   } else {
     console.log('Supabase not configured — saving to localStorage only');
@@ -2008,22 +1868,14 @@ async function saveWorkout() {
   rows.forEach((row, i) => local.push({ ...row, id: Date.now() + i }));
   localStorage.setItem('fitapp_workouts', JSON.stringify(local));
 
-  closeSaveModal();
-  btn.disabled = false;
-  btn.textContent = '💾 שמור אימון';
+  const summary = rows.map(r => `${(EX_META[r.exercise] || {}).label || r.exercise}: ${r.reps}`).join(' · ');
+  showToast(saved ? `נשמר! ${summary} 🎉` : `נשמר מקומית: ${summary}`, 'success');
 
-  if (saved) {
-    showToast('אימון נשמר בהצלחה! 🎉', 'success');
-  } else {
-    showToast('אימון נשמר מקומית', 'success');
-  }
-
-  // Reset
+  // Reset for the next session
   repCounts = { pushups: 0, jumping_jacks: 0, pullups: 0, squats: 0 };
   workoutDurationSeconds = 0;
-  updateRepDisplay();
+  updateAllRepDisplays();
   document.getElementById('timerDisplay').textContent = '0:00';
-  document.getElementById('saveBtn').disabled = true;
 }
 
 // =====================================================
@@ -2720,9 +2572,6 @@ function showToast(msg, type = '') {
 }
 
 // Close modal on overlay click
-document.getElementById('saveModal').addEventListener('click', function(e) {
-  if (e.target === this) closeSaveModal();
-});
 document.getElementById('createGroupModal').addEventListener('click', function(e) {
   if (e.target === this) closeCreateGroupModal();
 });
