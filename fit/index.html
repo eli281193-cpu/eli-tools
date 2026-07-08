@@ -1174,6 +1174,29 @@ function handleGoogleSignIn() {
     return;
   }
 
+  // The GSI script tag loads with async/defer, so a student can tap this button
+  // before `google` actually exists yet (slow/congested school wifi, etc.) —
+  // that used to throw a plain ReferenceError here, caught below and shown as a
+  // misleading "check your Client ID" message that had nothing to do with the
+  // real cause. Wait for the script to finish loading and retry automatically
+  // instead of blaming the Client ID for a timing issue.
+  if (typeof google === 'undefined' || !google.accounts) {
+    errEl.textContent = 'טוען התחברות Google...';
+    let attempts = 0;
+    const waitForGsi = setInterval(() => {
+      attempts++;
+      if (typeof google !== 'undefined' && google.accounts) {
+        clearInterval(waitForGsi);
+        errEl.textContent = '';
+        handleGoogleSignIn();
+      } else if (attempts >= 20) { // ~10s
+        clearInterval(waitForGsi);
+        errEl.textContent = 'לא ניתן לטעון את שירות ההתחברות של Google. בדוק את החיבור לאינטרנט ונסה שוב.';
+      }
+    }, 500);
+    return;
+  }
+
   try {
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
