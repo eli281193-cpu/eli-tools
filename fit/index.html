@@ -507,6 +507,13 @@
     .modal-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 1rem; text-align: center; }
     .modal-actions { display: flex; gap: 0.75rem; }
 
+    /* Auto Reel */
+    .reel-panel { margin: 0.75rem 1rem 0; text-align: center; }
+    .reel-panel.hidden { display: none; }
+    .reel-status { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.5; }
+    #reelDownloadBtn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+    #reelDownloadBtn.hidden { display: none; }
+
     /* Toast */
     #toast {
       position: fixed;
@@ -892,6 +899,12 @@
           <button class="btn btn-primary" id="startBtn" onclick="startWorkout()">▶ התחל</button>
           <button class="btn btn-danger" id="stopBtn" onclick="stopWorkout()" disabled>■ עצור</button>
         </div>
+
+        <!-- Auto Reel -->
+        <div id="reelPanel" class="reel-panel hidden">
+          <div id="reelStatus" class="reel-status"></div>
+          <a id="reelDownloadBtn" class="btn btn-primary hidden" download="fitapp-reel.webm">⬇️ הורד ריל</a>
+        </div>
       </div>
 
       <!-- LEADERBOARD TAB -->
@@ -1001,6 +1014,22 @@
   </div>
 </div>
 
+<!-- Reel Recording Consent Modal -->
+<div class="modal-overlay hidden" id="reelConsentModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎬 הקלטת ריל אוטומטית</div>
+    <p style="text-align:center;color:var(--text-secondary);font-size:0.85rem;line-height:1.6;margin-bottom:1rem">
+      FitApp יכול להקליט אוטומטית את האימונים שלך וליצור ריל קצר מהרגעים הכי טובים — מוכן להורדה ולשיתוף.
+      ההקלטה נשמרת רק במכשיר שלך ולא נשלחת לשום מקום.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="setReelConsent(false)">לא תודה</button>
+      <button class="btn btn-primary" onclick="setReelConsent(true)">✅ אישור</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
@@ -1106,6 +1135,23 @@ let videoStream = null;
 let poseAnimFrame = null;
 let cameraActive = false;
 let tfInitPromise = null;
+
+// Auto-reel state — records the whole workout onto an offscreen canvas
+// (camera + skeleton + live counters + watermark, all baked in per frame),
+// then at workout end trims/stitches the 3 most consistent rep streaks into
+// one downloadable clip. See startReelRecording()/finalizeReel() below.
+const REEL_SITE_NAME = 'FitApp 💪';
+const REEL_CONSENT_KEY = 'fitapp_reel_consent';
+const reelSupportedFlag = (typeof MediaRecorder !== 'undefined') &&
+  (typeof HTMLCanvasElement !== 'undefined') &&
+  (typeof HTMLCanvasElement.prototype.captureStream === 'function');
+let reelCanvas = null, reelCtx = null;
+let reelRecorder = null, reelChunks = [];
+let reelDrawHandle = null;
+let reelRepTimeline = []; // [{ t: secondsSinceRecordingStart, ex }]
+let reelStartMs = 0;
+let reelStitchedUrl = null;
+let reelConsentResolver = null;
 
 // Per-exercise rep state machines
 const exerciseState = {
@@ -1860,6 +1906,324 @@ function commitSquat(e, allowed) {
 }
 
 // =====================================================
+// AUTO REEL — record, then cut the 3 most consistent rep
+// streaks into one downloadable clip
+// =====================================================
+
+// One-time (per device) consent — resolves immediately from localStorage on
+// every workout after the first; only shows the modal when no choice is on record.
+function maybeAskReelConsent() {
+  return new Promise((resolve) => {
+    const stored = localStorage.getItem(REEL_CONSENT_KEY);
+    if (stored === 'granted' || stored === 'denied') { resolve(stored === 'granted'); return; }
+    reelConsentResolver = resolve;
+    document.getElementById('reelConsentModal').classList.remove('hidden');
+  });
+}
+function setReelConsent(granted) {
+  localStorage.setItem(REEL_CONSENT_KEY, granted ? 'granted' : 'denied');
+  document.getElementById('reelConsentModal').classList.add('hidden');
+  if (reelConsentResolver) { reelConsentResolver(granted); reelConsentResolver = null; }
+}
+
+// Draws `video` into a dw×dh box using the same crop math as CSS object-fit:cover.
+function drawVideoCover(ctx, video, dw, dh) {
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return;
+  const scale = Math.max(dw / vw, dh / vh);
+  const sw = dw / scale, sh = dh / scale;
+  const sx = (vw - sw) / 2, sy = (vh - sh) / 2;
+  ctx.drawImage(video, sx, sy, sw, sh, 0, 0, dw, dh);
+}
+
+function drawReelOverlay(ctx, w, h) {
+  // Live rep-counter pill, top-center
+  const parts = Object.keys(EX_META)
+    .filter(ex => (repCounts[ex] || 0) > 0)
+    .map(ex => `${EX_META[ex].icon} ${repCounts[ex]}`);
+  const text = parts.length ? parts.join('   ') : '0';
+  ctx.save();
+  ctx.font = `bold ${Math.round(h * 0.032)}px Rubik, Arial, sans-serif`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'center';
+  const metrics = ctx.measureText(text);
+  const padX = w * 0.05;
+  const boxW = Math.min(w * 0.92, metrics.width + padX * 2);
+  const boxH = h * 0.06;
+  const bx = (w - boxW) / 2, by = h * 0.035, r = boxH / 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath();
+  ctx.moveTo(bx + r, by);
+  ctx.arcTo(bx + boxW, by, bx + boxW, by + boxH, r);
+  ctx.arcTo(bx + boxW, by + boxH, bx, by + boxH, r);
+  ctx.arcTo(bx, by + boxH, bx, by, r);
+  ctx.arcTo(bx, by, bx + boxW, by, r);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText(text, w / 2, by + boxH / 2);
+  ctx.restore();
+
+  // Watermark, bottom-right
+  ctx.save();
+  ctx.font = `bold ${Math.round(h * 0.026)}px Rubik, Arial, sans-serif`;
+  ctx.textBaseline = 'bottom';
+  ctx.textAlign = 'right';
+  ctx.shadowColor = 'rgba(0,0,0,0.65)';
+  ctx.shadowBlur = 6;
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.fillText(REEL_SITE_NAME, w - w * 0.04, h - h * 0.03);
+  ctx.restore();
+}
+
+function reelDrawFrame() {
+  if (!reelCanvas || !reelCtx) return;
+  const video = document.getElementById('videoEl');
+  const poseCanvas = document.getElementById('poseCanvas');
+  const w = reelCanvas.width, h = reelCanvas.height;
+  reelCtx.clearRect(0, 0, w, h);
+  if (video.videoWidth) drawVideoCover(reelCtx, video, w, h);
+  if (poseCanvas.width && poseCanvas.height) reelCtx.drawImage(poseCanvas, 0, 0, poseCanvas.width, poseCanvas.height, 0, 0, w, h);
+  drawReelOverlay(reelCtx, w, h);
+  reelDrawHandle = requestAnimationFrame(reelDrawFrame);
+}
+
+function pickReelMimeType() {
+  if (typeof MediaRecorder === 'undefined' || typeof MediaRecorder.isTypeSupported !== 'function') return '';
+  const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+  for (const c of candidates) { if (MediaRecorder.isTypeSupported(c)) return c; }
+  return '';
+}
+
+// Starts the full-session recording. Called once from startWorkout() after the
+// camera is confirmed active. Silently no-ops if unsupported or not consented —
+// a missing reel should never block the actual workout.
+async function startReelRecording() {
+  if (!reelSupportedFlag) return;
+  const consented = await maybeAskReelConsent();
+  if (!consented) return;
+
+  const video = document.getElementById('videoEl');
+  if (!video.videoWidth) return;
+
+  reelCanvas = document.createElement('canvas');
+  const aspect = video.videoHeight / video.videoWidth;
+  reelCanvas.width = 720;
+  reelCanvas.height = Math.round(720 * (aspect || 4 / 3));
+  reelCtx = reelCanvas.getContext('2d');
+
+  reelRepTimeline = [];
+  reelStartMs = Date.now();
+  reelChunks = [];
+
+  try {
+    const stream = reelCanvas.captureStream(30);
+    const mimeType = pickReelMimeType();
+    reelRecorder = mimeType
+      ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2500000 })
+      : new MediaRecorder(stream);
+    reelRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) reelChunks.push(e.data); };
+    reelRecorder.start(1000);
+    reelDrawFrame();
+  } catch(e) {
+    console.error('Reel recording failed to start:', e);
+    reelRecorder = null;
+  }
+}
+
+// Stops the capture and resolves with the full raw session recording (or null).
+function stopReelRecordingCapture() {
+  if (reelDrawHandle) { cancelAnimationFrame(reelDrawHandle); reelDrawHandle = null; }
+  return new Promise((resolve) => {
+    if (!reelRecorder || reelRecorder.state === 'inactive') { resolve(null); return; }
+    reelRecorder.onstop = () => {
+      const mimeType = reelRecorder.mimeType || 'video/webm';
+      resolve(reelChunks.length ? new Blob(reelChunks, { type: mimeType }) : null);
+    };
+    reelRecorder.stop();
+  });
+}
+
+// Finds the 3 most continuous, evenly-paced rep streaks in the session: reps
+// are grouped into runs where consecutive reps land within maxGapSec of each
+// other, then ranked by a mix of pace-steadiness (low variance between reps)
+// and run length, favoring clips that look like real continuous exercise
+// rather than a couple of stray reps far apart.
+function findBestReelStreaks(timeline, maxGapSec = 4, minReps = 3, padSec = 1.2) {
+  if (!timeline.length) return [];
+  const runs = [];
+  let cur = [timeline[0]];
+  for (let i = 1; i < timeline.length; i++) {
+    if (timeline[i].t - timeline[i - 1].t <= maxGapSec) {
+      cur.push(timeline[i]);
+    } else {
+      runs.push(cur);
+      cur = [timeline[i]];
+    }
+  }
+  runs.push(cur);
+
+  let qualifying = runs.filter(run => run.length >= minReps);
+  if (!qualifying.length) {
+    // Short/sparse workout — fall back to the single longest run so a reel
+    // still gets made instead of silently producing nothing.
+    qualifying = [runs.reduce((a, b) => (b.length > a.length ? b : a))];
+  }
+
+  const scored = qualifying.map(run => {
+    const gaps = [];
+    for (let i = 1; i < run.length; i++) gaps.push(run[i].t - run[i - 1].t);
+    const avgGap = gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
+    const variance = gaps.length ? gaps.reduce((a, b) => a + (b - avgGap) * (b - avgGap), 0) / gaps.length : 0;
+    const regularity = 1 / (1 + variance);
+    return {
+      start: Math.max(0, run[0].t - padSec),
+      end: run[run.length - 1].t + padSec,
+      score: regularity * (1 + Math.log(1 + run.length)),
+    };
+  }).sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, 3).sort((a, b) => a.start - b.start);
+}
+
+// Re-plays the requested [start,end] segments of `fullBlob` through a canvas
+// and re-records that playback into ONE continuous new clip — this is what
+// actually "cuts and stitches" client-side, with no server and no ffmpeg:
+// seeking + re-capturing is the standard trick for editing video in-browser.
+async function buildReel(fullBlob, segments) {
+  return new Promise((resolve, reject) => {
+    if (!segments.length) { resolve(null); return; }
+    const srcVideo = document.createElement('video');
+    srcVideo.muted = true;
+    srcVideo.playsInline = true;
+    srcVideo.src = URL.createObjectURL(fullBlob);
+
+    srcVideo.onerror = () => reject(new Error('reel source video failed to load'));
+
+    // Chrome writes MediaRecorder webm output without a duration in the header
+    // (it's a streaming format), so `srcVideo.duration` reads as null/Infinity
+    // and seeks can misbehave until the browser has computed the real duration
+    // at least once. Seeking to a huge timestamp forces that computation — a
+    // well-known, necessary workaround before doing any real seeking below.
+    async function fixDuration() {
+      return new Promise((res) => {
+        const onDurationChange = () => {
+          if (isFinite(srcVideo.duration)) { srcVideo.removeEventListener('durationchange', onDurationChange); res(); }
+        };
+        srcVideo.addEventListener('durationchange', onDurationChange);
+        srcVideo.currentTime = 1e9;
+        setTimeout(res, 3000); // fallback if durationchange never fires
+      });
+    }
+
+    srcVideo.onloadedmetadata = async () => {
+      await fixDuration();
+      srcVideo.currentTime = 0;
+
+      const w = reelCanvas ? reelCanvas.width : 720;
+      const h = reelCanvas ? reelCanvas.height : 960;
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = w; outCanvas.height = h;
+      const outCtx = outCanvas.getContext('2d');
+      const outStream = outCanvas.captureStream(30);
+      const mimeType = pickReelMimeType();
+      const outRecorder = mimeType
+        ? new MediaRecorder(outStream, { mimeType, videoBitsPerSecond: 2500000 })
+        : new MediaRecorder(outStream);
+      const outChunks = [];
+      outRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) outChunks.push(e.data); };
+      outRecorder.onstop = () => {
+        URL.revokeObjectURL(srcVideo.src);
+        resolve(outChunks.length ? new Blob(outChunks, { type: outRecorder.mimeType || 'video/webm' }) : null);
+      };
+
+      let drawHandle = null;
+      function drawLoop() {
+        outCtx.drawImage(srcVideo, 0, 0, w, h);
+        drawHandle = requestAnimationFrame(drawLoop);
+      }
+      function seekTo(t) {
+        return new Promise((res) => {
+          const onSeeked = () => { srcVideo.removeEventListener('seeked', onSeeked); res(); };
+          srcVideo.addEventListener('seeked', onSeeked);
+          srcVideo.currentTime = Math.min(t, srcVideo.duration || t);
+        });
+      }
+      async function playSegment(seg) {
+        const clampedEnd = Math.min(seg.end, srcVideo.duration || seg.end);
+        await seekTo(seg.start);
+        await srcVideo.play();
+        await new Promise((res) => {
+          const check = () => {
+            if (srcVideo.currentTime >= clampedEnd || srcVideo.ended) { srcVideo.pause(); res(); }
+            else requestAnimationFrame(check);
+          };
+          check();
+        });
+      }
+
+      outRecorder.start(500);
+      drawLoop();
+      for (const seg of segments) await playSegment(seg);
+      if (drawHandle) cancelAnimationFrame(drawHandle);
+      outRecorder.stop();
+    };
+  });
+}
+
+// Runs after stopWorkout(): stops the raw capture, picks the best 3 streaks,
+// stitches them, and reveals the download button. Never throws — a reel
+// failure should degrade to "no reel" quietly, not break the save flow.
+async function finalizeReel() {
+  const panel = document.getElementById('reelPanel');
+  const statusEl = document.getElementById('reelStatus');
+  const dlBtn = document.getElementById('reelDownloadBtn');
+  if (!reelRecorder) return; // never started: unsupported / no consent / camera not ready
+
+  panel.classList.remove('hidden');
+  dlBtn.classList.add('hidden');
+  statusEl.textContent = '🎬 מעבד ריל...';
+
+  const fullBlob = await stopReelRecordingCapture();
+  reelRecorder = null;
+
+  if (!fullBlob || fullBlob.size === 0) {
+    panel.classList.add('hidden');
+    return;
+  }
+
+  const segments = findBestReelStreaks(reelRepTimeline);
+  if (!segments.length) {
+    statusEl.textContent = 'לא זוהו מספיק חזרות רצופות ליצירת ריל הפעם';
+    return;
+  }
+
+  // The live pose-detection loop (detector.estimatePoses every animation frame)
+  // keeps running after a workout ends so the camera preview stays live — but
+  // it competes with buildReel() for the same GPU/decode resources and can
+  // starve the source video's seeking. Pause it while stitching, resume after.
+  const wasPosing = !!poseAnimFrame;
+  if (poseAnimFrame) { cancelAnimationFrame(poseAnimFrame); poseAnimFrame = null; }
+
+  try {
+    const reelBlob = await buildReel(fullBlob, segments);
+    if (!reelBlob || reelBlob.size === 0) throw new Error('empty reel blob');
+    if (reelStitchedUrl) URL.revokeObjectURL(reelStitchedUrl);
+    reelStitchedUrl = URL.createObjectURL(reelBlob);
+    const ext = (reelBlob.type || '').includes('mp4') ? 'mp4' : 'webm';
+    dlBtn.href = reelStitchedUrl;
+    dlBtn.download = `fitapp-reel-${Date.now()}.${ext}`;
+    dlBtn.classList.remove('hidden');
+    statusEl.textContent = `✅ הריל מוכן! ${segments.length} רצפים הכי טובים מהאימון — מוכן להורדה`;
+  } catch(e) {
+    console.error('Reel build failed:', e);
+    statusEl.textContent = 'לא הצלחנו ליצור ריל הפעם';
+  } finally {
+    if (wasPosing && cameraActive && detector) startPoseLoop();
+  }
+}
+
+// =====================================================
 // WORKOUT CONTROLS
 // =====================================================
 const EX_META = {
@@ -1910,6 +2274,10 @@ async function startWorkout() {
   timerInterval = setInterval(updateTimer, 500);
   updatePhaseIndicator('אימון פעיל — מזהה תרגילים אוטומטית!');
   showToast('אימון התחיל!', 'success');
+
+  document.getElementById('reelPanel').classList.add('hidden');
+  document.getElementById('reelDownloadBtn').classList.add('hidden');
+  startReelRecording(); // fire-and-forget: never blocks the workout itself
 }
 
 async function stopWorkout() {
@@ -1930,10 +2298,14 @@ async function stopWorkout() {
   }
 
   document.getElementById('stopBtn').textContent = '■ עצור';
+  await finalizeReel();
 }
 
 function addRep(ex) {
   repCounts[ex] = (repCounts[ex] || 0) + 1;
+  if (reelRecorder && reelRecorder.state === 'recording') {
+    reelRepTimeline.push({ t: (Date.now() - reelStartMs) / 1000, ex });
+  }
   const el = document.getElementById('repCount_' + ex);
   if (!el) return;
   el.textContent = repCounts[ex];
