@@ -817,6 +817,39 @@
         box-shadow: 0 24px 80px rgba(0,0,0,0.55), 0 0 0 1px var(--border);
       }
     }
+
+    /* Wide desktop windows: enough room for camera and stats side by side
+       instead of the narrow portrait phone card above. */
+    @media (min-width: 900px) {
+      #app {
+        width: 900px;
+        height: 680px;
+        max-height: 90vh;
+      }
+      .workout-layout {
+        display: flex;
+        flex-direction: row;
+        gap: 1.25rem;
+        flex: 1;
+        min-height: 0;
+        padding: 0 1.25rem 1rem;
+      }
+      .camera-section {
+        flex: 1 1 50%;
+        height: 100%;
+        min-height: 0;
+        border-radius: 16px;
+      }
+      .workout-side-panel {
+        flex: 1 1 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.25rem;
+        overflow-y: auto;
+        min-height: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -877,67 +910,73 @@
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
 
-        <!-- Camera Section -->
-        <div class="camera-section">
-          <video id="videoEl" autoplay playsinline muted></video>
-          <canvas id="poseCanvas"></canvas>
-          <div id="cameraPlaceholder">
-            <span class="cam-icon">📷</span>
-            <span class="cam-caption">CAMERA FEED</span>
-            <p>לחץ "התחל" כדי לפתוח מצלמה ולזהות תרגילים אוטומטית</p>
+        <!-- Camera + live stats: single column on mobile, side-by-side on
+             wide desktop (see the >=900px layout rule at the end of <style>) -->
+        <div class="workout-layout">
+          <!-- Camera Section -->
+          <div class="camera-section">
+            <video id="videoEl" autoplay playsinline muted></video>
+            <canvas id="poseCanvas"></canvas>
+            <div id="cameraPlaceholder">
+              <span class="cam-icon">📷</span>
+              <span class="cam-caption">CAMERA FEED</span>
+              <p>לחץ "התחל" כדי לפתוח מצלמה ולזהות תרגילים אוטומטית</p>
+            </div>
+            <div class="cam-corner tl"></div>
+            <div class="cam-corner tr"></div>
+            <div class="cam-corner bl"></div>
+            <div class="cam-corner br"></div>
+            <div id="poseStatus">טוען...</div>
           </div>
-          <div class="cam-corner tl"></div>
-          <div class="cam-corner tr"></div>
-          <div class="cam-corner bl"></div>
-          <div class="cam-corner br"></div>
-          <div id="poseStatus">טוען...</div>
-        </div>
 
-        <!-- Timer -->
-        <div class="timer-standalone">
-          <div class="timer-display">
-            <div class="timer-number" id="timerDisplay">0:00</div>
-            <div class="timer-label">זמן</div>
-          </div>
-        </div>
+          <div class="workout-side-panel">
+            <!-- Timer -->
+            <div class="timer-standalone">
+              <div class="timer-display">
+                <div class="timer-number" id="timerDisplay">0:00</div>
+                <div class="timer-label">זמן</div>
+              </div>
+            </div>
 
-        <!-- Live per-exercise rep counts — all 4 detected simultaneously -->
-        <div class="multi-rep-grid">
-          <div class="rep-chip">
-            <span class="rep-chip-icon">🤸</span>
-            <span class="rep-chip-count" id="repCount_pushups">0</span>
-            <span class="rep-chip-label">שכיבות</span>
-          </div>
-          <div class="rep-chip">
-            <span class="rep-chip-icon">🦵</span>
-            <span class="rep-chip-count" id="repCount_squats">0</span>
-            <span class="rep-chip-label">סקוואטים</span>
-          </div>
-          <div class="rep-chip">
-            <span class="rep-chip-icon">⭐</span>
-            <span class="rep-chip-count" id="repCount_jumping_jacks">0</span>
-            <span class="rep-chip-label">קפיצות</span>
-          </div>
-          <div class="rep-chip">
-            <span class="rep-chip-icon">🏋️</span>
-            <span class="rep-chip-count" id="repCount_pullups">0</span>
-            <span class="rep-chip-label">מתח</span>
-          </div>
-        </div>
+            <!-- Live per-exercise rep counts — all 4 detected simultaneously -->
+            <div class="multi-rep-grid">
+              <div class="rep-chip">
+                <span class="rep-chip-icon">🤸</span>
+                <span class="rep-chip-count" id="repCount_pushups">0</span>
+                <span class="rep-chip-label">שכיבות</span>
+              </div>
+              <div class="rep-chip">
+                <span class="rep-chip-icon">🦵</span>
+                <span class="rep-chip-count" id="repCount_squats">0</span>
+                <span class="rep-chip-label">סקוואטים</span>
+              </div>
+              <div class="rep-chip">
+                <span class="rep-chip-icon">⭐</span>
+                <span class="rep-chip-count" id="repCount_jumping_jacks">0</span>
+                <span class="rep-chip-label">קפיצות</span>
+              </div>
+              <div class="rep-chip">
+                <span class="rep-chip-icon">🏋️</span>
+                <span class="rep-chip-count" id="repCount_pullups">0</span>
+                <span class="rep-chip-label">מתח</span>
+              </div>
+            </div>
 
-        <!-- Phase Indicator -->
-        <div id="phaseIndicator">לחץ "התחל" כדי להתחיל</div>
+            <!-- Phase Indicator -->
+            <div id="phaseIndicator">לחץ "התחל" כדי להתחיל</div>
 
-        <!-- Workout Controls -->
-        <div class="workout-controls">
-          <button class="btn btn-primary" id="startBtn" onclick="startWorkout()">▶ התחל</button>
-          <button class="btn btn-danger" id="stopBtn" onclick="stopWorkout()" disabled>■ עצור</button>
-        </div>
+            <!-- Workout Controls -->
+            <div class="workout-controls">
+              <button class="btn btn-primary" id="startBtn" onclick="startWorkout()">▶ התחל</button>
+              <button class="btn btn-danger" id="stopBtn" onclick="stopWorkout()" disabled>■ עצור</button>
+            </div>
 
-        <!-- Auto Reel -->
-        <div id="reelPanel" class="reel-panel hidden">
-          <div id="reelStatus" class="reel-status"></div>
-          <a id="reelDownloadBtn" class="btn btn-primary hidden" download="fitapp-reel.webm">⬇️ הורד ריל</a>
+            <!-- Auto Reel -->
+            <div id="reelPanel" class="reel-panel hidden">
+              <div id="reelStatus" class="reel-status"></div>
+              <a id="reelDownloadBtn" class="btn btn-primary hidden" download="fitapp-reel.webm">⬇️ הורד ריל</a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1044,6 +1083,22 @@
       <button class="btn btn-secondary" onclick="leaveGroup()">🚪 עזוב קבוצה</button>
       <button class="group-danger-btn" id="deleteGroupBtn" onclick="deleteGroup()" style="display:none;">🗑️ מחק קבוצה</button>
       <button class="btn btn-secondary" onclick="closeManageGroupModal()">סגור</button>
+    </div>
+  </div>
+</div>
+
+<!-- Display Name Modal -->
+<div class="modal-overlay hidden" id="displayNameModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✍️ איך נציג את השם שלך?</div>
+    <p style="text-align:center;color:var(--text-secondary);font-size:0.85rem;line-height:1.6;margin-bottom:1rem">
+      זה השם שיופיע בלוח התחרות ובקבוצות שלך. אפשר להשתמש בשם המלא, כינוי, או כל מה שנוח לך.
+    </p>
+    <input type="text" id="displayNameInput" class="group-input" placeholder="השם שלי" maxlength="40" />
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="skipDisplayNamePrompt()">השאר כמו שזה</button>
+      <button class="btn btn-primary" onclick="saveDisplayName()">✅ שמור</button>
     </div>
   </div>
 </div>
@@ -1320,6 +1375,11 @@ function handleGoogleCredential(response) {
       email: payload.email,
       picture: payload.picture || null,
     };
+    // If they already chose a display name for this Google account before
+    // (persists across sign-out/sign-in, unlike the general session cache),
+    // use it instead of whatever Google's profile name currently says.
+    const savedName = localStorage.getItem(DISPLAY_NAME_KEY_PREFIX + user.id);
+    if (savedName) user.name = savedName;
     onLoginSuccess(user);
   } catch(e) {
     document.getElementById('loginError').textContent = 'שגיאה בעיבוד אסימון Google.';
@@ -1343,6 +1403,37 @@ function onLoginSuccess(user) {
   currentUser = user;
   localStorage.setItem('fitapp_user', JSON.stringify(user));
   showMainApp();
+  if (!user.isGuest) promptDisplayNameIfNeeded();
+}
+
+// Ask a Google-signed-in student, once per account, how their name should
+// appear on the leaderboard (their Google profile name isn't always what
+// they'd want classmates to see). Never asked for guests — there's no
+// stable account to remember the choice against.
+const DISPLAY_NAME_KEY_PREFIX = 'fitapp_display_name_';
+function promptDisplayNameIfNeeded() {
+  if (!currentUser || currentUser.isGuest) return;
+  if (localStorage.getItem(DISPLAY_NAME_KEY_PREFIX + currentUser.id)) return;
+  const input = document.getElementById('displayNameInput');
+  if (input) input.value = currentUser.name || '';
+  document.getElementById('displayNameModal').classList.remove('hidden');
+}
+function saveDisplayName() {
+  const input = document.getElementById('displayNameInput');
+  const name = (input.value || '').trim();
+  if (!name) { input.focus(); return; }
+  currentUser.name = name;
+  localStorage.setItem('fitapp_user', JSON.stringify(currentUser));
+  localStorage.setItem(DISPLAY_NAME_KEY_PREFIX + currentUser.id, name);
+  document.getElementById('displayNameModal').classList.add('hidden');
+  updateUserUI();
+  showToast('השם נשמר!', 'success');
+}
+function skipDisplayNamePrompt() {
+  // Remember the current (Google-provided) name as their choice so they
+  // aren't asked again every login — same outcome as if they'd typed it.
+  if (currentUser) localStorage.setItem(DISPLAY_NAME_KEY_PREFIX + currentUser.id, currentUser.name || '');
+  document.getElementById('displayNameModal').classList.add('hidden');
 }
 
 function toggleUserMenu() {
