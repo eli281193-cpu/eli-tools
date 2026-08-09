@@ -69,7 +69,12 @@
     }
 
     /* ===== APP SHELL ===== */
-    #app { height: 100%; display: flex; flex-direction: column; }
+    /* position:relative + container-type make #app the sizing/positioning
+       context for its own children (modals, toast, camera height) instead of
+       the full browser viewport — needed so the desktop breakpoint below can
+       shrink #app to a centered phone-width card without those children
+       stretching to the full window. */
+    #app { height: 100%; display: flex; flex-direction: column; position: relative; container-type: inline-size; }
 
     /* ===== LOGIN SCREEN ===== */
     #loginScreen {
@@ -307,7 +312,10 @@
       position: relative;
       width: 100%;
       margin: 0;
-      height: clamp(300px, 85vw, 440px);
+      /* cqw (container query width, relative to #app) instead of vw (full
+         viewport width) — on desktop #app is capped narrower than the
+         browser window, so vw here would make the camera box enormous. */
+      height: clamp(300px, 85cqw, 440px);
       min-height: 300px;
       background: #201414;
       border-radius: 0;
@@ -481,7 +489,7 @@
 
     /* Save modal */
     .modal-overlay {
-      position: fixed;
+      position: absolute;
       inset: 0;
       background: rgba(0,0,0,0.7);
       z-index: 100;
@@ -516,7 +524,7 @@
 
     /* Toast */
     #toast {
-      position: fixed;
+      position: absolute;
       top: 70px;
       left: 50%;
       transform: translateX(-50%) translateY(-10px);
@@ -783,6 +791,32 @@
     }
     .stat-val { font-family: var(--font-num); font-size: 1.6rem; font-weight: 700; color: var(--accent-light); }
     .stat-key { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+
+    /* ===== DESKTOP / WIDE VIEWPORT ===== */
+    /* This app is built mobile-first at full viewport width. On a wide
+       browser window that stretches everything (camera, text, buttons) into
+       a thin, oversized strip. Above this breakpoint, present it as a
+       centered phone-width card instead — the same layout, just contained —
+       rather than trying to redesign every screen for multi-column desktop. */
+    @media (min-width: 640px) {
+      html, body { overflow: auto; }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+        padding: 24px 0;
+        background: #0a0607;
+      }
+      #app {
+        width: 420px;
+        height: 860px;
+        max-height: 92vh;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.55), 0 0 0 1px var(--border);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1152,6 +1186,7 @@ let reelRepTimeline = []; // [{ t: secondsSinceRecordingStart, ex }]
 let reelStartMs = 0;
 let reelStitchedUrl = null;
 let reelConsentResolver = null;
+let reelSkipReason = null; // 'unsupported' | 'declined' | 'camera-not-ready' | 'error' | null
 
 // Per-exercise rep state machines
 const exerciseState = {
@@ -1918,6 +1953,19 @@ function maybeAskReelConsent() {
     if (stored === 'granted' || stored === 'denied') { resolve(stored === 'granted'); return; }
     reelConsentResolver = resolve;
     document.getElementById('reelConsentModal').classList.remove('hidden');
+    // If the student never notices/answers the prompt (easy to miss while
+    // focused on starting the workout, or it lands right alongside the
+    // browser's own camera-permission dialog), don't hang forever — back off
+    // silently after a bit. Deliberately NOT saved to localStorage, so it's
+    // asked again next workout instead of being treated as a permanent "no".
+    setTimeout(() => {
+      if (reelConsentResolver === resolve) {
+        document.getElementById('reelConsentModal').classList.add('hidden');
+        reelConsentResolver = null;
+        reelSkipReason = 'no-response';
+        resolve(false);
+      }
+    }, 8000);
   });
 }
 function setReelConsent(granted) {
@@ -1999,12 +2047,19 @@ function pickReelMimeType() {
 // camera is confirmed active. Silently no-ops if unsupported or not consented —
 // a missing reel should never block the actual workout.
 async function startReelRecording() {
-  if (!reelSupportedFlag) return;
+  reelSkipReason = null;
+  if (!reelSupportedFlag) { reelSkipReason = 'unsupported'; return; }
   const consented = await maybeAskReelConsent();
-  if (!consented) return;
+  if (!consented) { if (!reelSkipReason) reelSkipReason = 'declined'; return; }
 
   const video = document.getElementById('videoEl');
-  if (!video.videoWidth) return;
+  // The camera can still be mid-handshake right as the workout starts (no
+  // frame data yet), especially on the very first workout of a session —
+  // wait briefly instead of silently giving up on the first check.
+  if (!video.videoWidth) {
+    for (let i = 0; i < 20 && !video.videoWidth; i++) await new Promise(r => setTimeout(r, 150));
+  }
+  if (!video.videoWidth) { reelSkipReason = 'camera-not-ready'; return; }
 
   reelCanvas = document.createElement('canvas');
   const aspect = video.videoHeight / video.videoWidth;
@@ -2028,6 +2083,7 @@ async function startReelRecording() {
   } catch(e) {
     console.error('Reel recording failed to start:', e);
     reelRecorder = null;
+    reelSkipReason = 'error';
   }
 }
 
@@ -2178,7 +2234,22 @@ async function finalizeReel() {
   const panel = document.getElementById('reelPanel');
   const statusEl = document.getElementById('reelStatus');
   const dlBtn = document.getElementById('reelDownloadBtn');
-  if (!reelRecorder) return; // never started: unsupported / no consent / camera not ready
+  if (!reelRecorder) {
+    // Recording never started — surface why instead of leaving the user with
+    // zero indication a reel was ever supposed to happen. Silent only when
+    // they explicitly said "no thanks" to the consent prompt.
+    if (reelSkipReason && reelSkipReason !== 'declined') {
+      const msg = {
+        'unsupported': 'ריל אוטומטי לא נתמך בדפדפן הזה',
+        'camera-not-ready': 'לא הצלחנו להתחיל הקלטת ריל — המצלמה לא הייתה מוכנה בזמן',
+        'error': 'לא הצלחנו להתחיל הקלטת ריל הפעם',
+      }[reelSkipReason] || 'לא נוצר ריל הפעם';
+      panel.classList.remove('hidden');
+      dlBtn.classList.add('hidden');
+      statusEl.textContent = msg;
+    }
+    return;
+  }
 
   panel.classList.remove('hidden');
   dlBtn.classList.add('hidden');
